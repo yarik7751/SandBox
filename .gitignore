@@ -1,15 +1,31 @@
+# Android Studio / IntelliJ IDEA
 *.iml
-.gradle
-/local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
-.DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
+.idea/
+!.idea/codeStyles/
+!.idea/inspectionProfiles/
+
+# Gradle
+.gradle/
+build/
+
+# Локальная конфигурация
 local.properties
+
+# Android / NDK
+.externalNativeBuild/
+.cxx/
+captures/
+*.apk
+*.aab
+*.ap_
+*.dex
+
+# Логи и дампы
+*.log
+*.hprof
+
+# macOS
+.DS_Store
+
+# Kotlin
+.kotlin/
