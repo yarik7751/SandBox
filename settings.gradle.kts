@@ -24,3 +24,15 @@ dependencyResolutionManagement {
 
 rootProject.name = "SandBox"
 include(":app")
+include(":utils")
+include(":core:navigation")
+include(":core:ui")
+
+include(":feature:start:api")
+include(":feature:start:impl")
+
+include(":feature:home:api")
+include(":feature:home:impl")
+
+include(":feature:websocket:api")
+include(":feature:websocket:impl")

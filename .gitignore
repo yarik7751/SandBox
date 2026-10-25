@@ -29,3 +29,6 @@ captures/
 
 # Kotlin
 .kotlin/
+
+# Local build/verification artifacts
+.android-build/

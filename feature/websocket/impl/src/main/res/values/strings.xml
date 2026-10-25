@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="websocket_title">WebSocket</string>
+    <string name="websocket_url_hint">ws://…</string>
+    <string name="websocket_message_hint">Сообщение</string>
+    <string name="websocket_connect">Подключить</string>
+    <string name="websocket_disconnect">Отключить</string>
+    <string name="websocket_send">Отправить</string>
+    <string name="websocket_status_disconnected">Отключено</string>
+    <string name="websocket_status_connecting">Подключение…</string>
+    <string name="websocket_status_connected">Подключено</string>
+</resources>

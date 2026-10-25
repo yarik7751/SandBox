@@ -3,45 +3,38 @@ package com.joy.sandbox
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.joy.sandbox.ui.theme.SandBoxTheme
+import com.joy.sandbox.application.SandBoxApplication
+import com.joy.sandbox.core.navigation.ScreenContentProvider
+import com.joy.sandbox.core.navigation.router.JoyRouter
+import com.joy.sandbox.core.ui.ViewModelFactory
+import com.joy.sandbox.core.ui.snackbar.flow.SnackBarManagerFlow
+import javax.inject.Inject
 
 class MainActivity : ComponentActivity() {
+
+    @Inject
+    lateinit var router: JoyRouter
+
+    @Inject
+    lateinit var viewModelFactory: ViewModelFactory
+
+    @Inject
+    lateinit var screenContentProviders: Map<String, @JvmSuppressWildcards ScreenContentProvider>
+
+    @Inject
+    lateinit var snackBarManagerFlow: SnackBarManagerFlow
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        SandBoxApplication.INSTANCE.appComponent.inject(this)
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+
         setContent {
-            SandBoxTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
-            }
+            SandBoxAppContent(
+                router = router,
+                viewModelFactory = viewModelFactory,
+                contentProviders = screenContentProviders,
+                snackBarManagerFlow = snackBarManagerFlow,
+            )
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    SandBoxTheme {
-        Greeting("Android")
     }
 }
