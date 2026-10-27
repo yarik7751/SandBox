@@ -1,7 +1,6 @@
 package com.joy.sandbox.core.ui
 
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
@@ -15,7 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 /**
- * Поле поиска с кнопкой очистки.
+ * Поле поиска с закруглением как у [SandBoxToolbar] и кнопкой очистки.
  *
  * Trailing-иконка «×» видна только при непустом запросе и стирает всё поле.
  * При фокусе индикатор и курсор выделяются брендовым синим
@@ -30,12 +29,11 @@ fun SearchTextField(
 ) {
     val focusColor = DesignSystem.Colors.testBrandColor
     OutlinedTextField(
-        modifier = modifier
-            .padding(vertical = 4.dp)
-            .height(48.dp),
+        modifier = modifier,
         value = query,
         onValueChange = onQueryChange,
         singleLine = true,
+        shape = RoundedCornerShape(16.dp),
         textStyle = MaterialTheme.typography.bodyLarge,
         placeholder = {
             if (placeholder != null) {

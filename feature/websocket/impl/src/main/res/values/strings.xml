@@ -5,6 +5,7 @@
     <string name="websocket_search">Поиск</string>
     <string name="websocket_search_hint">Поиск</string>
     <string name="websocket_search_not_found">Ничего не найдено</string>
+    <string name="websocket_search_close">Закрыть поиск</string>
     <string name="websocket_remove">Удалить</string>
     <string name="websocket_empty">Список пуст</string>
     <string name="websocket_add_button">Добавить бумаги</string>

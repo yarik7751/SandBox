@@ -1,13 +1,16 @@
 package com.joy.sandbox.feature.websocket.impl.presentation.addproducts
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
@@ -16,6 +19,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -52,7 +56,15 @@ fun AddProductsScreen(
                     }
                 },
                 actions = {
-                    if (!state.isSearchActive) {
+                    if (state.isSearchActive) {
+                        IconButton(onClick = viewModel::onSearchClose) {
+                            Icon(
+                                imageVector = Icons.Filled.Close,
+                                contentDescription = stringResource(R.string.websocket_search_close),
+                                tint = Color.Black,
+                            )
+                        }
+                    } else {
                         IconButton(onClick = viewModel::onSearchClick) {
                             Icon(
                                 imageVector = Icons.Filled.Search,
@@ -62,50 +74,69 @@ fun AddProductsScreen(
                         }
                     }
                 },
-                titleContent = if (state.isSearchActive) {
-                    {
-                        SearchTextField(
-                            modifier = Modifier.weight(1f),
-                            query = state.searchQuery,
-                            onQueryChange = viewModel::onSearchQueryChange,
-                            placeholder = stringResource(R.string.websocket_search_hint),
-                        )
-                    }
-                } else {
-                    null
-                },
             )
         },
     ) { padding ->
-        if (state.showEmptySearchResult) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding),
-            ) {
-                Text(
-                    modifier = Modifier.align(Alignment.Center),
-                    text = stringResource(R.string.websocket_search_not_found),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-        } else {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding),
-            ) {
-                items(state.items, key = AddProductsViewModel.SymbolItem::symbol) { item ->
-                    SymbolItemRow(
-                        item = item,
-                        onAddClick = { viewModel.onAddClick(item.symbol) },
-                    )
-                    HorizontalDivider(
-                        modifier = Modifier.padding(start = 16.dp),
-                        color = MaterialTheme.colorScheme.outlineVariant,
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding),
+        ) {
+            if (state.isSearchActive) {
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 16.dp, end = 16.dp, top = 8.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    color = Color.White,
+                    shadowElevation = 4.dp,
+                    tonalElevation = 0.dp,
+                ) {
+                    SearchTextField(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp, vertical = 8.dp),
+                        query = state.searchQuery,
+                        onQueryChange = viewModel::onSearchQueryChange,
+                        placeholder = stringResource(R.string.websocket_search_hint),
                     )
                 }
+            }
+            SearchContent(
+                modifier = Modifier.weight(1f),
+                state = state,
+                onAddClick = viewModel::onAddClick,
+            )
+        }
+    }
+}
+
+@Composable
+private fun SearchContent(
+    state: AddProductsViewModel.State,
+    onAddClick: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    if (state.showEmptySearchResult) {
+        Box(modifier = modifier) {
+            Text(
+                modifier = Modifier.align(Alignment.Center),
+                text = stringResource(R.string.websocket_search_not_found),
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    } else {
+        LazyColumn(modifier = modifier) {
+            items(state.items, key = AddProductsViewModel.SymbolItem::symbol) { item ->
+                SymbolItemRow(
+                    item = item,
+                    onAddClick = { onAddClick(item.symbol) },
+                )
+                HorizontalDivider(
+                    modifier = Modifier.padding(start = 16.dp),
+                    color = MaterialTheme.colorScheme.outlineVariant,
+                )
             }
         }
     }

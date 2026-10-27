@@ -32,8 +32,6 @@ import androidx.compose.ui.unit.dp
  * [onBackClick] — обработчик нажатия на стрелку назад; если null,
  * стрелка скрывается (например, на корневом экране стека).
  * [actions] — дополнительные действия справа от заголовка.
- * [titleContent] — кастомный контент вместо текста заголовка
- * (например, поле поиска); если null — рендерится [title].
  */
 @Composable
 fun SandBoxToolbar(
@@ -41,7 +39,6 @@ fun SandBoxToolbar(
     modifier: Modifier = Modifier,
     onBackClick: (() -> Unit)? = null,
     actions: (@Composable RowScope.() -> Unit)? = null,
-    titleContent: (@Composable RowScope.() -> Unit)? = null,
 ) {
     Surface(
         modifier = modifier
@@ -70,18 +67,14 @@ fun SandBoxToolbar(
             } else {
                 Spacer(modifier = Modifier.width(16.dp))
             }
-            if (titleContent != null) {
-                titleContent()
-            } else {
-                Text(
-                    modifier = Modifier.weight(1f),
-                    text = title,
-                    color = Color.Black,
-                    style = MaterialTheme.typography.titleLarge,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
+            Text(
+                modifier = Modifier.weight(1f),
+                text = title,
+                color = Color.Black,
+                style = MaterialTheme.typography.titleLarge,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
             actions?.invoke(this)
         }
     }
