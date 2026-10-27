@@ -1,4 +1,4 @@
-package com.joy.sandbox.feature.websocket.impl
+package com.joy.sandbox.feature.websocket.impl.presentation.products
 
 import androidx.lifecycle.viewModelScope
 import com.joy.sandbox.core.ui.BaseViewModel

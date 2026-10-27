@@ -1,4 +1,4 @@
-package com.joy.sandbox.feature.websocket.impl
+package com.joy.sandbox.feature.websocket.impl.presentation.addproducts
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.joy.sandbox.core.navigation.router.JoyRouter
+import com.joy.sandbox.feature.websocket.impl.R
 import com.joy.sandbox.core.ui.SandBoxToolbar
 import com.joy.sandbox.core.ui.ViewModelFactory
 

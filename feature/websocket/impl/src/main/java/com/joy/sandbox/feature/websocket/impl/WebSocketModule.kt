@@ -10,6 +10,10 @@ import com.joy.sandbox.feature.websocket.impl.data.ProductsRepository
 import com.joy.sandbox.feature.websocket.impl.data.ProductsRepositoryImpl
 import com.joy.sandbox.feature.websocket.impl.domain.ProductsInteractor
 import com.joy.sandbox.feature.websocket.impl.domain.ProductsInteractorImpl
+import com.joy.sandbox.feature.websocket.impl.presentation.addproducts.AddProductsScreenProvider
+import com.joy.sandbox.feature.websocket.impl.presentation.addproducts.AddProductsViewModel
+import com.joy.sandbox.feature.websocket.impl.presentation.products.WebSocketScreenProvider
+import com.joy.sandbox.feature.websocket.impl.presentation.products.WebSocketViewModel
 import dagger.Module
 import dagger.Provides
 import dagger.multibindings.IntoMap
