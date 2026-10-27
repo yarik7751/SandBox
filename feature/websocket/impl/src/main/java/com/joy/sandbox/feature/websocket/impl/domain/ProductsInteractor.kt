@@ -6,4 +6,10 @@ import kotlinx.coroutines.flow.Flow
 interface ProductsInteractor {
 
     fun observeProducts(): Flow<List<Product>>
+
+    fun getAvailableSymbols(): List<String>
+
+    suspend fun addProduct(symbol: String)
+
+    suspend fun removeProduct(id: Long)
 }

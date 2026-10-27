@@ -1,6 +1,7 @@
 package com.joy.sandbox.core.ui
 
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -30,12 +31,14 @@ import androidx.compose.ui.unit.dp
  * [title] — заголовок экрана.
  * [onBackClick] — обработчик нажатия на стрелку назад; если null,
  * стрелка скрывается (например, на корневом экране стека).
+ * [actions] — дополнительные действия справа от заголовка.
  */
 @Composable
 fun SandBoxToolbar(
     title: String,
     modifier: Modifier = Modifier,
     onBackClick: (() -> Unit)? = null,
+    actions: (@Composable RowScope.() -> Unit)? = null,
 ) {
     Surface(
         modifier = modifier
@@ -72,6 +75,7 @@ fun SandBoxToolbar(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
+            actions?.invoke(this)
         }
     }
 }

@@ -12,9 +12,9 @@ import javax.inject.Inject
  * Сокет допускает подписку на любой тикер Yahoo Finance — ниже перечислены все
  * основные категории с типовыми значениями каждой.
  */
-class YahooProductsDataSourceProvider @Inject constructor() : ProductsDataSourceProvider {
+class ProductsLocalDataSourceProvider @Inject constructor() {
 
-    override fun provide(): ProductsDataSource {
+    fun provide(): ProductsDataSource {
         return ProductsDataSource(
             id = ID,
             socketUrl = SOCKET_URL,

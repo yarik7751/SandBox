@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 class WebSocketViewModel @Inject constructor(
-    productsInteractor: ProductsInteractor,
+    private val productsInteractor: ProductsInteractor,
 ) : BaseViewModel() {
 
     val stateFlow = MutableStateFlow(State())
@@ -26,9 +26,22 @@ class WebSocketViewModel @Inject constructor(
         }
     }
 
+    fun onAddClick() {
+        commandsFlow.tryEmit(Commands.OpenAddProducts)
+    }
+
+    fun onRemoveClick(id: Long) {
+        viewModelScope.launch {
+            productsInteractor.removeProduct(id)
+        }
+    }
+
     data class State(
         val products: List<Product> = emptyList(),
     )
 
-    sealed interface Commands
+    sealed interface Commands {
+
+        data object OpenAddProducts : Commands
+    }
 }

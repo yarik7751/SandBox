@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="websocket_title">WebSocket</string>
+    <string name="websocket_add">Добавить</string>
+    <string name="websocket_remove">Удалить</string>
+    <string name="websocket_empty">Список пуст</string>
+    <string name="websocket_add_button">Добавить бумаги</string>
+    <string name="add_products_title">Добавление бумаг</string>
+    <string name="add_products_add">Добавить</string>
+    <string name="add_products_added">Добавлено</string>
 </resources>

@@ -41,7 +41,10 @@ dependencies {
     implementation("androidx.core:core-ktx:1.15.0")
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.okhttp)
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
 
     implementation(libs.dagger)
     ksp(libs.dagger.compiler)
+    ksp(libs.androidx.room.compiler)
 }
