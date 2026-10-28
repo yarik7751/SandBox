@@ -9,6 +9,10 @@
     <string name="websocket_remove">Удалить</string>
     <string name="websocket_empty">Список пуст</string>
     <string name="websocket_add_button">Добавить бумаги</string>
+    <string name="websocket_remove_last_title">Удаление последнего продукта</string>
+    <string name="websocket_remove_last_description">Хотите удалить последний продукт?</string>
+    <string name="websocket_remove_last_yes">Да</string>
+    <string name="websocket_remove_last_no">Нет</string>
     <string name="add_products_title">Добавление бумаг</string>
     <string name="add_products_add">Добавить</string>
     <string name="add_products_added">Добавлено</string>

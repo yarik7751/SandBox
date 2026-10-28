@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.joy.sandbox.core.navigation.router.JoyRouter
+import com.joy.sandbox.core.ui.SandBoxDialog
 import com.joy.sandbox.core.ui.SandBoxToolbar
 import com.joy.sandbox.core.ui.ViewModelFactory
 import com.joy.sandbox.feature.websocket.api.AddProductsJoyScreen
@@ -88,6 +89,18 @@ fun WebSocketScreen(
     }
 
     HandleCommands(viewModel = viewModel, router = router)
+
+    state.pendingRemovalId?.let {
+        SandBoxDialog(
+            title = stringResource(R.string.websocket_remove_last_title),
+            description = stringResource(R.string.websocket_remove_last_description),
+            mainActionText = stringResource(R.string.websocket_remove_last_yes),
+            onMainAction = viewModel::onLastRemoveConfirmed,
+            neutralActionText = stringResource(R.string.websocket_remove_last_no),
+            onNeutralAction = viewModel::onLastRemoveDeclined,
+            onDismiss = viewModel::onLastRemoveDeclined,
+        )
+    }
 }
 
 @Composable

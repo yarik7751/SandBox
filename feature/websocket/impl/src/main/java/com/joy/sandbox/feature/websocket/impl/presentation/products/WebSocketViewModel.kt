@@ -31,6 +31,24 @@ class WebSocketViewModel @Inject constructor(
     }
 
     fun onRemoveClick(id: Long) {
+        if (stateFlow.value.products.size == 1) {
+            stateFlow.update { it.copy(pendingRemovalId = id) }
+        } else {
+            removeProduct(id)
+        }
+    }
+
+    fun onLastRemoveConfirmed() {
+        val id = stateFlow.value.pendingRemovalId ?: return
+        stateFlow.update { it.copy(pendingRemovalId = null) }
+        removeProduct(id)
+    }
+
+    fun onLastRemoveDeclined() {
+        stateFlow.update { it.copy(pendingRemovalId = null) }
+    }
+
+    private fun removeProduct(id: Long) {
         viewModelScope.launch {
             productsInteractor.removeProduct(id)
         }
@@ -38,6 +56,7 @@ class WebSocketViewModel @Inject constructor(
 
     data class State(
         val products: List<Product> = emptyList(),
+        val pendingRemovalId: Long? = null,
     )
 
     sealed interface Commands {
