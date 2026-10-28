@@ -1,4 +1,4 @@
-package com.joy.sandbox.feature.websocket.impl.domain
+package com.joy.sandbox.feature.websocket.impl.localdatasource
 
 import com.joy.sandbox.feature.websocket.impl.domain.model.AvailableProducts
 import javax.inject.Inject

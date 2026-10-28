@@ -33,7 +33,7 @@ import com.joy.sandbox.core.ui.ViewModelFactory
 import com.joy.sandbox.feature.websocket.api.AddProductsJoyScreen
 import com.joy.sandbox.feature.websocket.impl.R
 import com.joy.sandbox.feature.websocket.impl.presentation.products.WebSocketViewModel.Commands
-import com.joy.sandbox.feature.websocket.impl.domain.model.Product
+import com.joy.sandbox.feature.websocket.impl.presentation.model.ProductUiModel
 import com.joy.sandbox.utils.observe
 
 @Composable
@@ -74,7 +74,7 @@ fun WebSocketScreen(
                     .fillMaxSize()
                     .padding(padding),
             ) {
-                items(state.products, key = Product::id) { product ->
+                items(state.products, key = ProductUiModel::id) { product ->
                     ProductItem(
                         product = product,
                         onRemoveClick = { viewModel.onRemoveClick(product.id) },
@@ -105,7 +105,7 @@ fun WebSocketScreen(
 
 @Composable
 private fun ProductItem(
-    product: Product,
+    product: ProductUiModel,
     onRemoveClick: () -> Unit,
 ) {
     Row(
@@ -120,7 +120,7 @@ private fun ProductItem(
             style = MaterialTheme.typography.bodyLarge,
         )
         Text(
-            text = formatPrice(product.price),
+            text = product.price,
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.primary,
         )
@@ -169,8 +169,4 @@ private fun HandleCommands(
             Commands.OpenAddProducts -> router.navigateTo(AddProductsJoyScreen)
         }
     }
-}
-
-private fun formatPrice(price: Double?): String {
-    return price?.let { String.format(java.util.Locale.US, "%.2f ₽", it) } ?: "—"
 }

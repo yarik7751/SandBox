@@ -4,15 +4,18 @@ import androidx.lifecycle.viewModelScope
 import com.joy.sandbox.core.ui.BaseViewModel
 import com.joy.sandbox.core.ui.CommandFlow
 import com.joy.sandbox.feature.websocket.impl.domain.ProductsInteractor
-import com.joy.sandbox.feature.websocket.impl.domain.model.Product
+import com.joy.sandbox.feature.websocket.impl.presentation.mapper.ProductUiModelMapper
+import com.joy.sandbox.feature.websocket.impl.presentation.model.ProductUiModel
 import com.joy.sandbox.utils.update
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 class WebSocketViewModel @Inject constructor(
     private val productsInteractor: ProductsInteractor,
+    productUiModelMapper: ProductUiModelMapper,
 ) : BaseViewModel() {
 
     val stateFlow = MutableStateFlow(State())
@@ -20,9 +23,11 @@ class WebSocketViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            productsInteractor.observeProducts().collect { products ->
-                stateFlow.update { it.copy(products = products) }
-            }
+            productsInteractor.observeProducts()
+                .map { products -> products.map(productUiModelMapper::map) }
+                .collect { products ->
+                    stateFlow.update { it.copy(products = products) }
+                }
         }
     }
 
@@ -55,7 +60,7 @@ class WebSocketViewModel @Inject constructor(
     }
 
     data class State(
-        val products: List<Product> = emptyList(),
+        val products: List<ProductUiModel> = emptyList(),
         val pendingRemovalId: Long? = null,
     )
 

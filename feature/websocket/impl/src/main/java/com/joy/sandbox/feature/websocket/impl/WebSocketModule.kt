@@ -6,7 +6,7 @@ import com.joy.sandbox.core.ui.ScreenKey
 import com.joy.sandbox.core.ui.ViewModelKey
 import com.joy.sandbox.feature.websocket.api.AddProductsJoyScreen
 import com.joy.sandbox.feature.websocket.api.WebSocketJoyScreen
-import com.joy.sandbox.feature.websocket.impl.data.ProductsRepository
+import com.joy.sandbox.feature.websocket.impl.domain.ProductsRepository
 import com.joy.sandbox.feature.websocket.impl.data.ProductsRepositoryImpl
 import com.joy.sandbox.feature.websocket.impl.domain.ProductsInteractor
 import com.joy.sandbox.feature.websocket.impl.domain.ProductsInteractorImpl

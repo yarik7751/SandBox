@@ -1,4 +1,4 @@
-package com.joy.sandbox.feature.websocket.impl.data
+package com.joy.sandbox.feature.websocket.impl.domain
 
 import com.joy.sandbox.feature.websocket.impl.domain.model.AvailableProducts
 import com.joy.sandbox.feature.websocket.impl.domain.model.Product

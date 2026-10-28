@@ -1,4 +1,4 @@
-package com.joy.sandbox.feature.websocket.impl.data.db
+package com.joy.sandbox.feature.websocket.impl.localdatasource.db
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
