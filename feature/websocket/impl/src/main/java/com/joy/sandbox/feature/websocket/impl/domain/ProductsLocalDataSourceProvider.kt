@@ -1,6 +1,6 @@
 package com.joy.sandbox.feature.websocket.impl.domain
 
-import com.joy.sandbox.feature.websocket.impl.domain.model.ProductsDataSource
+import com.joy.sandbox.feature.websocket.impl.domain.model.AvailableProducts
 import javax.inject.Inject
 
 /**
@@ -14,8 +14,8 @@ import javax.inject.Inject
  */
 class ProductsLocalDataSourceProvider @Inject constructor() {
 
-    fun provide(): ProductsDataSource {
-        return ProductsDataSource(
+    fun provide(): AvailableProducts {
+        return AvailableProducts(
             id = ID,
             socketUrl = SOCKET_URL,
             symbols = SYMBOLS,

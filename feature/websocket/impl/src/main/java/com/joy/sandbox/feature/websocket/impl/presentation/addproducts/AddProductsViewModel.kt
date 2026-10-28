@@ -29,7 +29,7 @@ class AddProductsViewModel @Inject constructor(
         viewModelScope.launch {
             productsInteractor.observeProducts().collect { products ->
                 addedSymbols = products.map { it.title }.toSet()
-                symbols = productsInteractor.getAvailableSymbols()
+                symbols = productsInteractor.getAvailableSymbols().symbols
                 updateItems()
             }
         }

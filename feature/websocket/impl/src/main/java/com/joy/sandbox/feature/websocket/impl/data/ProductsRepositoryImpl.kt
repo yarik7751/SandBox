@@ -3,6 +3,7 @@ package com.joy.sandbox.feature.websocket.impl.data
 import com.joy.sandbox.feature.websocket.impl.data.db.ProductEntity
 import com.joy.sandbox.feature.websocket.impl.data.db.ProductsDao
 import com.joy.sandbox.feature.websocket.impl.domain.ProductsLocalDataSourceProvider
+import com.joy.sandbox.feature.websocket.impl.domain.model.AvailableProducts
 import com.joy.sandbox.feature.websocket.impl.domain.model.Product
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
@@ -25,8 +26,8 @@ class ProductsRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun getAvailableSymbols(): List<String> {
-        return localDataSourceProvider.provide().symbols
+    override fun getAvailableSymbols(): AvailableProducts {
+        return localDataSourceProvider.provide()
     }
 
     override suspend fun addProduct(symbol: String) {
