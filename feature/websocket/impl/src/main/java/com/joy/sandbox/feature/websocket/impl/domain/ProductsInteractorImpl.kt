@@ -1,6 +1,5 @@
 package com.joy.sandbox.feature.websocket.impl.domain
 
-import com.joy.sandbox.feature.websocket.impl.domain.ProductsRepository
 import com.joy.sandbox.feature.websocket.impl.domain.model.AvailableProducts
 import com.joy.sandbox.feature.websocket.impl.domain.model.Product
 import javax.inject.Inject
