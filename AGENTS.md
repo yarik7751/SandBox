@@ -2,5 +2,10 @@
 
 См. [ARCHITECTURE.md](ARCHITECTURE.md) — правила архитектуры фичей.
 
-- The owner provides a plan first and may correct it. After each correction, propose a short (as short as possible) English commit message.
-- Only after the owner writes "ок": implement the change, run `git add -A`, and commit using the last proposed commit message.
+Workflow:
+1. The owner gives a task.
+2. I build a plan and wait for "ок" or plan corrections.
+3. I implement the task and propose a short English commit message.
+4. The owner confirms or changes the commit message — only then commit.
+
+Exception: if the owner asks to commit right away ("закоммить сразу" / "commit it now"), step 3 becomes: implement and commit immediately with a short English message, no proposal.
