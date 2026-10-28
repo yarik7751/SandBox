@@ -6,6 +6,9 @@ import com.joy.sandbox.core.ui.CommandFlow
 import com.joy.sandbox.feature.websocket.impl.domain.ProductsInteractor
 import com.joy.sandbox.utils.update
 import javax.inject.Inject
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -65,7 +68,7 @@ class AddProductsViewModel @Inject constructor(
                         symbol = symbol,
                         isAdded = symbol in addedSymbols,
                     )
-                },
+                }.toPersistentList(),
                 showEmptySearchResult = filtered.isEmpty() && query.length >= MIN_QUERY_LENGTH,
             )
         }
@@ -79,7 +82,7 @@ class AddProductsViewModel @Inject constructor(
     data class State(
         val isSearchActive: Boolean = false,
         val searchQuery: String = "",
-        val items: List<SymbolItem> = emptyList(),
+        val items: ImmutableList<SymbolItem> = persistentListOf(),
         val showEmptySearchResult: Boolean = false,
     )
 

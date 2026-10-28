@@ -8,6 +8,9 @@ import com.joy.sandbox.feature.websocket.impl.presentation.mapper.ProductUiModel
 import com.joy.sandbox.feature.websocket.impl.presentation.model.ProductUiModel
 import com.joy.sandbox.utils.update
 import javax.inject.Inject
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
@@ -24,7 +27,7 @@ class WebSocketViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             productsInteractor.observeProducts()
-                .map { products -> products.map(productUiModelMapper::map) }
+                .map { products -> products.map(productUiModelMapper::map).toPersistentList() }
                 .collect { products ->
                     stateFlow.update { it.copy(products = products) }
                 }
@@ -60,7 +63,7 @@ class WebSocketViewModel @Inject constructor(
     }
 
     data class State(
-        val products: List<ProductUiModel> = emptyList(),
+        val products: ImmutableList<ProductUiModel> = persistentListOf(),
         val pendingRemovalId: Long? = null,
     )
 
