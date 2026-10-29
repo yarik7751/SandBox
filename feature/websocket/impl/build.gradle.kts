@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
+    id("com.google.protobuf")
 }
 
 android {
@@ -24,6 +25,19 @@ android {
     }
 }
 
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:4.36.2"
+    }
+    generateProtoTasks {
+        all().forEach { task ->
+            task.builtins {
+                create("java") { option("lite") }
+            }
+        }
+    }
+}
+
 dependencies {
     api(project(":feature:websocket:api"))
 
@@ -42,6 +56,7 @@ dependencies {
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.collections.immutable)
     implementation(libs.okhttp)
+    implementation(libs.protobuf.javalite)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
 
