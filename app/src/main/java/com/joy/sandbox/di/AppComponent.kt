@@ -6,7 +6,6 @@ import com.joy.sandbox.application.SandBoxApplication
 import com.joy.sandbox.di.module.CommonModule
 import com.joy.sandbox.di.module.DateTimeModule
 import com.joy.sandbox.di.module.SnackBarModule
-import com.joy.sandbox.di.module.network.CommonNetworkModule
 import com.joy.sandbox.di.module.navigation.NavigationModule
 import com.joy.sandbox.feature.home.impl.HomeModule
 import com.joy.sandbox.feature.start.impl.StartModule
@@ -24,7 +23,6 @@ import javax.inject.Singleton
         CommonModule::class,
         DateTimeModule::class,
         NavigationModule::class,
-        CommonNetworkModule::class,
         StartModule::class,
         HomeModule::class,
         WebSocketModule::class,

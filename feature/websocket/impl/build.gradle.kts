@@ -56,6 +56,8 @@ dependencies {
     implementation("androidx.core:core-ktx:1.15.0")
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.collections.immutable)
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter.gson)
     implementation(libs.okhttp)
     implementation(libs.protobuf.javalite)
     implementation(libs.androidx.room.runtime)
