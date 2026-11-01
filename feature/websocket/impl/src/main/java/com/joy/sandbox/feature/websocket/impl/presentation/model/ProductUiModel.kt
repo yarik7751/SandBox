@@ -4,4 +4,5 @@ data class ProductUiModel(
     val id: Long,
     val title: String,
     val price: String,
+    val direction: PriceDirection,
 )

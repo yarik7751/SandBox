@@ -14,4 +14,5 @@ data class PriceDto(
     val dayLow: Float,
     val change: Float,
     val shortName: String,
+    val marketClosed: Boolean = false,
 )

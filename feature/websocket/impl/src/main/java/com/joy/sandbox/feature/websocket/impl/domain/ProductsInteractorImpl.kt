@@ -1,6 +1,8 @@
 package com.joy.sandbox.feature.websocket.impl.domain
 
 import com.joy.sandbox.feature.websocket.impl.domain.model.AvailableProducts
+import com.joy.sandbox.feature.websocket.impl.domain.model.Price
+import com.joy.sandbox.feature.websocket.impl.domain.model.PriceSnapshotParams
 import com.joy.sandbox.feature.websocket.impl.domain.model.Product
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
@@ -15,6 +17,18 @@ class ProductsInteractorImpl @Inject constructor(
 
     override fun getAvailableSymbols(): AvailableProducts {
         return productsRepository.getAvailableSymbols()
+    }
+
+    override fun observePrices(): Flow<Price> {
+        return productsRepository.observePrices()
+    }
+
+    override fun updatePriceSubscription(params: PriceSnapshotParams) {
+        productsRepository.updatePriceSubscription(params)
+    }
+
+    override fun disconnectPrices() {
+        productsRepository.disconnectPrices()
     }
 
     override suspend fun addProduct(symbol: String) {

@@ -20,6 +20,7 @@ internal fun Yaticker.mapToPriceDto(): PriceDto {
         dayLow = dayLow,
         change = change,
         shortName = shortName,
+        marketClosed = false,
     )
 }
 

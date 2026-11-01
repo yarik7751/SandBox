@@ -75,27 +75,23 @@ class PricesRemoteDataSource @Inject constructor(
         }
     }
 
-    fun connect(newSymbols: List<String>) {
-        if (newSymbols.isEmpty()) return
-        symbols = newSymbols.distinct()
-        manualDisconnect = false
-        reconnectAttempts = 0
-        openSocket()
-    }
-
-    fun updateSymbols(newSymbols: List<String>) {
-        val oldSet = symbols.toSet()
-        val newSet = newSymbols.distinct()
-        symbols = newSet
-        if (webSocket == null || manualDisconnect) return
-
-        val toUnsubscribe = oldSet - newSet.toSet()
-        val toSubscribe = newSet.toSet() - oldSet
-        if (toUnsubscribe.isNotEmpty()) {
-            webSocket?.send(createSubscribeJson(JSON_KEY_UNSUBSCRIBE, toUnsubscribe))
-        }
-        if (toSubscribe.isNotEmpty()) {
-            webSocket?.send(createSubscribeJson(JSON_KEY_SUBSCRIBE, toSubscribe))
+    fun updateSubscription(newSymbols: List<String>) {
+        val distinctSymbols = newSymbols.distinct()
+        when {
+            distinctSymbols.isEmpty() -> {
+                symbols = distinctSymbols
+                disconnect()
+            }
+            webSocket == null || manualDisconnect -> {
+                symbols = distinctSymbols
+                manualDisconnect = false
+                reconnectAttempts = 0
+                openSocket()
+            }
+            else -> {
+                sendSubscribeDiff(symbols, distinctSymbols)
+                symbols = distinctSymbols
+            }
         }
     }
 
@@ -106,6 +102,17 @@ class PricesRemoteDataSource @Inject constructor(
         reconnectAttempts = 0
         webSocket?.close(CLOSE_CODE_NORMAL, null)
         webSocket = null
+    }
+
+    private fun sendSubscribeDiff(oldSymbols: List<String>, newSymbols: List<String>) {
+        val toUnsubscribe = oldSymbols.toSet() - newSymbols.toSet()
+        val toSubscribe = newSymbols.toSet() - oldSymbols.toSet()
+        if (toUnsubscribe.isNotEmpty()) {
+            webSocket?.send(createSubscribeJson(JSON_KEY_UNSUBSCRIBE, toUnsubscribe))
+        }
+        if (toSubscribe.isNotEmpty()) {
+            webSocket?.send(createSubscribeJson(JSON_KEY_SUBSCRIBE, toSubscribe))
+        }
     }
 
     private fun openSocket() {

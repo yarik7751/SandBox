@@ -16,4 +16,7 @@
     <string name="add_products_title">Добавление бумаг</string>
     <string name="add_products_add">Добавить</string>
     <string name="add_products_added">Добавлено</string>
+    <string name="websocket_price_up">Цена выросла</string>
+    <string name="websocket_price_down">Цена снизилась</string>
+    <string name="websocket_price_closed">Рынок закрыт, цена на момент закрытия</string>
 </resources>

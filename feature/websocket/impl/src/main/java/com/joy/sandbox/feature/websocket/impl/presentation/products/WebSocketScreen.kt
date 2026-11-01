@@ -10,7 +10,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -22,6 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -33,6 +37,7 @@ import com.joy.sandbox.core.ui.ViewModelFactory
 import com.joy.sandbox.feature.websocket.api.AddProductsJoyScreen
 import com.joy.sandbox.feature.websocket.impl.R
 import com.joy.sandbox.feature.websocket.impl.presentation.products.WebSocketViewModel.Commands
+import com.joy.sandbox.feature.websocket.impl.presentation.model.PriceDirection
 import com.joy.sandbox.feature.websocket.impl.presentation.model.ProductUiModel
 import com.joy.sandbox.utils.observe
 
@@ -119,6 +124,7 @@ private fun ProductItem(
             text = product.title,
             style = MaterialTheme.typography.bodyLarge,
         )
+        PriceDirectionIcon(direction = product.direction)
         Text(
             text = product.price,
             style = MaterialTheme.typography.bodyMedium,
@@ -131,6 +137,28 @@ private fun ProductItem(
                 tint = MaterialTheme.colorScheme.error,
             )
         }
+    }
+}
+
+@Composable
+private fun PriceDirectionIcon(direction: PriceDirection) {
+    when (direction) {
+        PriceDirection.UP -> Icon(
+            imageVector = Icons.Filled.ArrowUpward,
+            contentDescription = stringResource(R.string.websocket_price_up),
+            tint = Color(0xFF2E7D32),
+        )
+        PriceDirection.DOWN -> Icon(
+            imageVector = Icons.Filled.ArrowDownward,
+            contentDescription = stringResource(R.string.websocket_price_down),
+            tint = MaterialTheme.colorScheme.error,
+        )
+        PriceDirection.CLOSED -> Icon(
+            imageVector = Icons.Outlined.Schedule,
+            contentDescription = stringResource(R.string.websocket_price_closed),
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        PriceDirection.NONE -> Unit
     }
 }
 
