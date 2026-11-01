@@ -1,6 +1,7 @@
 package com.joy.sandbox.feature.websocket.impl.remotedatasource
 
 import android.util.Log
+import com.joy.sandbox.feature.websocket.impl.di.qualifier.RestOkHttpClient
 import com.joy.sandbox.feature.websocket.impl.remotedatasource.model.MarketHoursType
 import com.joy.sandbox.feature.websocket.impl.remotedatasource.model.PriceDto
 import com.joy.sandbox.feature.websocket.impl.remotedatasource.model.QuoteType
@@ -20,7 +21,7 @@ import javax.inject.Inject
  * биржи свечи перестают обновляться, крипта ходит 24/7.
  */
 class PricesSnapshotRemoteDataSource @Inject constructor(
-    private val okHttpClient: OkHttpClient,
+    @RestOkHttpClient private val okHttpClient: OkHttpClient,
 ) {
 
     suspend fun fetchPrices(

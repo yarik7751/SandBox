@@ -11,6 +11,7 @@ import com.joy.sandbox.di.module.navigation.NavigationModule
 import com.joy.sandbox.feature.home.impl.HomeModule
 import com.joy.sandbox.feature.start.impl.StartModule
 import com.joy.sandbox.feature.websocket.impl.WebSocketModule
+import com.joy.sandbox.feature.websocket.impl.di.RestOkHttpClientModule
 import com.joy.sandbox.feature.websocket.impl.di.WebSocketOkHttpClientModule
 import com.joy.sandbox.feature.websocket.impl.localdatasource.db.ProductsDatabaseModule
 import dagger.BindsInstance
@@ -29,6 +30,7 @@ import javax.inject.Singleton
         WebSocketModule::class,
         ProductsDatabaseModule::class,
         WebSocketOkHttpClientModule::class,
+        RestOkHttpClientModule::class,
         SnackBarModule::class,
     ],
 )
