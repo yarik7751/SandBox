@@ -71,8 +71,10 @@ class ProductsRepositoryImpl @Inject constructor(
         scope.launch {
             pricesSnapshotRemoteDataSource
                 .fetchPrices(newSymbols.toList(), params.interval, params.range)
-                .map { dto -> priceMapper.map(priceDataModelMapper.map(dto)) }
-                .forEach { price -> snapshotPricesFlow.emit(price) }
+                ?.forEach { (symbol, response) ->
+                    priceDataModelMapper.map(symbol, response)
+                        ?.let { snapshotPricesFlow.emit(priceMapper.map(it)) }
+                }
         }
     }
 
