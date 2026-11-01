@@ -1,12 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="websocket_title">WebSocket</string>
-    <string name="websocket_url_hint">ws://…</string>
-    <string name="websocket_message_hint">Сообщение</string>
-    <string name="websocket_connect">Подключить</string>
-    <string name="websocket_disconnect">Отключить</string>
-    <string name="websocket_send">Отправить</string>
-    <string name="websocket_status_disconnected">Отключено</string>
-    <string name="websocket_status_connecting">Подключение…</string>
-    <string name="websocket_status_connected">Подключено</string>
+    <string name="websocket_add">Добавить</string>
+    <string name="websocket_search">Поиск</string>
+    <string name="websocket_search_hint">Поиск</string>
+    <string name="websocket_search_not_found">Ничего не найдено</string>
+    <string name="websocket_search_close">Закрыть поиск</string>
+    <string name="websocket_remove">Удалить</string>
+    <string name="websocket_empty">Список пуст</string>
+    <string name="websocket_add_button">Добавить бумаги</string>
+    <string name="websocket_remove_last_title">Удаление последнего продукта</string>
+    <string name="websocket_remove_last_description">Хотите удалить последний продукт?</string>
+    <string name="websocket_remove_last_yes">Да</string>
+    <string name="websocket_remove_last_no">Нет</string>
+    <string name="add_products_title">Добавление бумаг</string>
+    <string name="add_products_add">Добавить</string>
+    <string name="add_products_added">Добавлено</string>
+    <string name="websocket_price_up">Цена выросла</string>
+    <string name="websocket_price_down">Цена снизилась</string>
+    <string name="websocket_price_closed">Рынок закрыт, цена на момент закрытия</string>
 </resources>

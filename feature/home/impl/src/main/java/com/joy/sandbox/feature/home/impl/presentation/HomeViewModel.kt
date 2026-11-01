@@ -1,4 +1,4 @@
-package com.joy.sandbox.feature.home.impl
+package com.joy.sandbox.feature.home.impl.presentation
 
 import androidx.lifecycle.viewModelScope
 import com.joy.sandbox.core.ui.BaseViewModel

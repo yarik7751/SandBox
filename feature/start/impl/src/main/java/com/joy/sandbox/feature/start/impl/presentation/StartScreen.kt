@@ -1,4 +1,4 @@
-package com.joy.sandbox.feature.start.impl
+package com.joy.sandbox.feature.start.impl.presentation
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,8 +12,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.joy.sandbox.core.navigation.router.JoyRouter
 import com.joy.sandbox.core.ui.SandBoxToolbar
 import com.joy.sandbox.core.ui.ViewModelFactory
+import com.joy.sandbox.feature.start.impl.R
 import com.joy.sandbox.feature.home.api.HomeJoyScreen
-import com.joy.sandbox.feature.start.impl.StartViewModel.Commands
+import com.joy.sandbox.feature.start.impl.presentation.StartViewModel.Commands
 import com.joy.sandbox.utils.observe
 
 @Composable
