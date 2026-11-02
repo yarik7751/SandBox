@@ -21,6 +21,7 @@ import com.joy.sandbox.core.ui.SandBoxToolbar
 import com.joy.sandbox.core.ui.ViewModelFactory
 import com.joy.sandbox.feature.home.impl.R
 import com.joy.sandbox.feature.home.impl.presentation.HomeViewModel.Commands
+import com.joy.sandbox.feature.letters.api.LettersSettingsJoyScreen
 import com.joy.sandbox.feature.websocket.api.WebSocketJoyScreen
 import com.joy.sandbox.utils.observe
 
@@ -59,6 +60,12 @@ fun HomeScreen(
                 ) {
                     Text(text = stringResource(R.string.home_button_websocket))
                 }
+                Button(
+                    modifier = Modifier.padding(top = 8.dp),
+                    onClick = viewModel::onLettersClick,
+                ) {
+                    Text(text = stringResource(R.string.home_button_letters))
+                }
             }
         }
     }
@@ -77,6 +84,7 @@ private fun HandleCommands(
     viewModel.commandsFlow.observe { command ->
         when (command) {
             Commands.OpenWebSocket -> router.navigateTo(WebSocketJoyScreen)
+            Commands.OpenLetters -> router.navigateTo(LettersSettingsJoyScreen)
         }
     }
 }

@@ -49,6 +49,7 @@ dependencies {
     implementation(project(":feature:start:impl"))
     implementation(project(":feature:home:impl"))
     implementation(project(":feature:websocket:impl"))
+    implementation(project(":feature:letters:impl"))
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)

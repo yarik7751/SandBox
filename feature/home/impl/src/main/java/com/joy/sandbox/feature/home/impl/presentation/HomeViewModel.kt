@@ -19,9 +19,15 @@ class HomeViewModel @Inject constructor() : BaseViewModel() {
     sealed interface Commands {
 
         data object OpenWebSocket : Commands
+
+        data object OpenLetters : Commands
     }
 
     fun onWebSocketClick() {
         commandsFlow.tryEmit(Commands.OpenWebSocket)
+    }
+
+    fun onLettersClick() {
+        commandsFlow.tryEmit(Commands.OpenLetters)
     }
 }
