@@ -6,6 +6,7 @@ import com.joy.sandbox.core.ui.CommandFlow
 import com.joy.sandbox.feature.letters.api.model.Alphabet
 import com.joy.sandbox.feature.letters.api.model.LettersOrder
 import com.joy.sandbox.feature.letters.impl.domain.LettersInteractor
+import com.joy.sandbox.feature.letters.impl.presentation.letters.LetterColorProvider
 import com.joy.sandbox.feature.letters.impl.presentation.letters.mapper.LetterUiModelMapper
 import com.joy.sandbox.feature.letters.impl.presentation.letters.model.LetterUiModel
 import kotlinx.coroutines.Job
@@ -26,6 +27,7 @@ import javax.inject.Inject
 class LettersViewModel @Inject constructor(
     private val lettersInteractor: LettersInteractor,
     private val letterUiModelMapper: LetterUiModelMapper,
+    private val letterColorProvider: LetterColorProvider,
 ) : BaseViewModel() {
 
     val stateFlow = MutableStateFlow(State())
@@ -69,7 +71,10 @@ class LettersViewModel @Inject constructor(
         showJob = viewModelScope.launch {
             var index = 0
             while (isActive) {
-                val letter = letterUiModelMapper.map(letters[index])
+                val letter = letterUiModelMapper.map(
+                    char = letters[index],
+                    fillColor = letterColorProvider.random(),
+                )
                 stateFlow.value = State(letter = letter, fillProgress = 0f)
 
                 var elapsed = 0L

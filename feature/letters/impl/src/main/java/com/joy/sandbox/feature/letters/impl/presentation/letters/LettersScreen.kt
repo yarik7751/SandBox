@@ -2,6 +2,7 @@ package com.joy.sandbox.feature.letters.impl.presentation.letters
 
 import android.os.SystemClock
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -27,9 +28,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
-import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -75,11 +74,40 @@ fun LettersScreen(
 
     var canvasSize by remember { mutableStateOf(IntSize.Zero) }
     val textMeasurer = rememberTextMeasurer()
-    val outlineWidth = with(LocalDensity.current) { OUTLINE_WIDTH_DP.dp.toPx() }
+    val density = LocalDensity.current
+
+    // Размер буквы подгоняется под canvas один раз на смену буквы:
+    // измеряем на опорном размере и линейно масштабируем до 80 % ширины.
+    val letterLayout = remember(state.letter, canvasSize, density) {
+        val letter = state.letter
+        if (letter == null || canvasSize.width == 0 || canvasSize.height == 0) {
+            null
+        } else {
+            val baseStyle = TextStyle(
+                fontSize = with(density) { REFERENCE_FONT_SIZE_PX.toSp() },
+                fontWeight = FontWeight.Bold,
+            )
+            val reference = textMeasurer.measure(
+                text = letter.char.toString(),
+                style = baseStyle,
+            )
+            val scale = minOf(
+                canvasSize.width * LETTER_WIDTH_FRACTION / reference.size.width,
+                canvasSize.height * LETTER_MAX_HEIGHT_FRACTION / reference.size.height,
+            )
+            textMeasurer.measure(
+                text = letter.char.toString(),
+                style = baseStyle.copy(
+                    fontSize = with(density) { (REFERENCE_FONT_SIZE_PX * scale).toSp() },
+                ),
+            )
+        }
+    }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
+            .background(LETTER_HOLLOW_COLOR)
             .onSizeChanged { canvasSize = it }
             .crossGesture(
                 minStrokeLength = {
@@ -90,29 +118,20 @@ fun LettersScreen(
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
             val letter = state.letter ?: return@Canvas
-            val style = TextStyle(
-                fontSize = (size.minDimension * LETTER_SIZE_FRACTION).sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.Black,
-            )
-            val layout = textMeasurer.measure(
-                text = letter.char.toString(),
-                style = style,
-                constraints = Constraints(maxWidth = size.width.toInt()),
-            )
+            val layout = letterLayout ?: return@Canvas
             val topLeft = Offset(
                 x = (size.width - layout.size.width) / 2f,
                 y = (size.height - layout.size.height) / 2f,
             )
+            val strokeWidth = layout.size.height * STROKE_WIDTH_FRACTION
 
-            // Контур буквы — всегда.
+            // 1. Белая заливка глифа — полая середина буквы.
             drawText(
                 textLayoutResult = layout,
                 topLeft = topLeft,
-                color = OUTLINE_COLOR,
-                drawStyle = Stroke(width = outlineWidth),
+                color = LETTER_HOLLOW_COLOR,
             )
-            // Заливка — через волнообразный clip, растущий снизу вверх.
+            // 2. Цветная заливка — волнообразный clip, растущий снизу вверх.
             clipPath(
                 path = revealPath(
                     size = size,
@@ -123,9 +142,16 @@ fun LettersScreen(
                 drawText(
                     textLayoutResult = layout,
                     topLeft = topLeft,
-                    color = FILL_COLOR,
+                    color = letter.fillColor,
                 )
             }
+            // 3. Толстый контур поверх — закраска не залезает за линию.
+            drawText(
+                textLayoutResult = layout,
+                topLeft = topLeft,
+                color = OUTLINE_COLOR,
+                drawStyle = Stroke(width = strokeWidth),
+            )
         }
     }
 
@@ -250,10 +276,12 @@ private const val MIN_STROKE_FRACTION = 0.3f
 private const val DOMINANT_AXIS_RATIO = 2f
 private const val STROKES_TIMEOUT_MS = 2_000L
 
-private const val LETTER_SIZE_FRACTION = 0.55f
-private const val OUTLINE_WIDTH_DP = 3
+private const val LETTER_WIDTH_FRACTION = 0.8f
+private const val LETTER_MAX_HEIGHT_FRACTION = 0.8f
+private const val STROKE_WIDTH_FRACTION = 0.05f
+private const val REFERENCE_FONT_SIZE_PX = 100f
 private const val WAVE_AMPLITUDE_FRACTION = 0.02f
 private const val WAVE_SEGMENTS = 24
 
 private val OUTLINE_COLOR = Color(0xFF333333)
-private val FILL_COLOR = Color(0xFFE53935)
+private val LETTER_HOLLOW_COLOR = Color.White
