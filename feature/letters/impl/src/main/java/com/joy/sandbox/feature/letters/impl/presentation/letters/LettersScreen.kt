@@ -18,12 +18,15 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.asComposePath
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipPath
+import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.font.FontWeight
@@ -78,7 +81,8 @@ fun LettersScreen(
 
     // Размер буквы подгоняется под canvas один раз на смену буквы:
     // измеряем на опорном размере и линейно масштабируем до 80 % ширины.
-    val letterLayout = remember(state.letter, canvasSize, density) {
+    // Заодно строим Path-контур глифа — им будет обрезаться цветная заливка.
+    val letterRender = remember(state.letter, canvasSize, density) {
         val letter = state.letter
         if (letter == null || canvasSize.width == 0 || canvasSize.height == 0) {
             null
@@ -95,11 +99,27 @@ fun LettersScreen(
                 canvasSize.width * LETTER_WIDTH_FRACTION / reference.size.width,
                 canvasSize.height * LETTER_MAX_HEIGHT_FRACTION / reference.size.height,
             )
-            textMeasurer.measure(
+            val layout = textMeasurer.measure(
                 text = letter.char.toString(),
                 style = baseStyle.copy(
                     fontSize = with(density) { (REFERENCE_FONT_SIZE_PX * scale).toSp() },
                 ),
+            )
+            // Контур глифа берём из платформенной раскладки текста
+            // (baseline совпадает с firstBaseline измеренного layout).
+            val androidPath = android.graphics.Path()
+            glyphPaint(textSizePx = REFERENCE_FONT_SIZE_PX * scale).getTextPath(
+                letter.char.toString(),
+                0,
+                1,
+                0f,
+                layout.firstBaseline,
+                androidPath,
+            )
+            LetterRender(
+                layout = layout,
+                glyphPath = androidPath.asComposePath(),
+                seed = letter.char.code,
             )
         }
     }
@@ -117,8 +137,8 @@ fun LettersScreen(
             ),
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
-            val letter = state.letter ?: return@Canvas
-            val layout = letterLayout ?: return@Canvas
+            val render = letterRender ?: return@Canvas
+            val layout = render.layout
             val topLeft = Offset(
                 x = (size.width - layout.size.width) / 2f,
                 y = (size.height - layout.size.height) / 2f,
@@ -131,21 +151,27 @@ fun LettersScreen(
                 topLeft = topLeft,
                 color = LETTER_HOLLOW_COLOR,
             )
-            // 2. Цветная заливка — волнообразный clip, растущий снизу вверх.
+            // 2. Цветная заливка — волнообразный clip, растущий снизу вверх,
+            //    дополнительно обрезанный контуром самого глифа, чтобы
+            //    красилась только буква, а не пространство вокруг неё.
             clipPath(
                 path = revealPath(
                     size = size,
                     progress = state.fillProgress,
-                    seed = letter.char.code,
+                    seed = render.seed,
                 ),
             ) {
-                drawText(
-                    textLayoutResult = layout,
-                    topLeft = topLeft,
-                    color = letter.fillColor,
-                )
+                withTransform({ translate(topLeft.x, topLeft.y) }) {
+                    clipPath(path = render.glyphPath) {
+                        drawText(
+                            textLayoutResult = layout,
+                            topLeft = Offset.Zero,
+                            color = LETTER_FILL_COLOR,
+                        )
+                    }
+                }
             }
-            // 3. Толстый контур поверх — закраска не залезает за линию.
+            // 3. Контур поверх — закраска не залезает за линию.
             drawText(
                 textLayoutResult = layout,
                 topLeft = topLeft,
@@ -172,6 +198,22 @@ private fun HandleCommands(
         }
     }
 }
+
+private class LetterRender(
+    val layout: TextLayoutResult,
+    val glyphPath: Path,
+    val seed: Int,
+)
+
+/**
+ * Paint платформенной раскладки текста для построения контура глифа:
+ * жирный sans-serif того же размера, что у измеренного layout.
+ */
+private fun glyphPaint(textSizePx: Float): android.graphics.Paint =
+    android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
+        typeface = android.graphics.Typeface.DEFAULT_BOLD
+        textSize = textSizePx
+    }
 
 /**
  * Clip-область закраски: снизу от низа экрана до волнистой линии,
@@ -278,10 +320,11 @@ private const val STROKES_TIMEOUT_MS = 2_000L
 
 private const val LETTER_WIDTH_FRACTION = 0.8f
 private const val LETTER_MAX_HEIGHT_FRACTION = 0.8f
-private const val STROKE_WIDTH_FRACTION = 0.05f
+private const val STROKE_WIDTH_FRACTION = 0.02f
 private const val REFERENCE_FONT_SIZE_PX = 100f
 private const val WAVE_AMPLITUDE_FRACTION = 0.02f
 private const val WAVE_SEGMENTS = 24
 
 private val OUTLINE_COLOR = Color(0xFF333333)
 private val LETTER_HOLLOW_COLOR = Color.White
+private val LETTER_FILL_COLOR = Color(0xFFFF7043)
