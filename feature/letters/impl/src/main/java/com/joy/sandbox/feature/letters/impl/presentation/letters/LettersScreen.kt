@@ -1,6 +1,8 @@
 package com.joy.sandbox.feature.letters.impl.presentation.letters
 
 import android.os.SystemClock
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
@@ -26,6 +28,7 @@ import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.TextLayoutResult
@@ -36,6 +39,8 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.joy.sandbox.core.navigation.currentNavStringArgument
 import com.joy.sandbox.core.navigation.router.JoyRouter
@@ -77,6 +82,9 @@ fun LettersScreen(
     }
 
     KeepScreenOnEffect()
+    ImmersiveModeEffect()
+    // Back заблокирован: единственный выход — жест-крест.
+    BackHandler(enabled = true) { }
 
     var canvasSize by remember { mutableStateOf(IntSize.Zero) }
     val textMeasurer = rememberTextMeasurer()
@@ -379,6 +387,23 @@ private fun KeepScreenOnEffect() {
     DisposableEffect(Unit) {
         view.keepScreenOn = true
         onDispose { view.keepScreenOn = false }
+    }
+}
+
+/**
+ * Immersive-режим на время жизни экрана: скрывает status и navigation bar,
+ * свайп от края временно показывает системные панели. При уходе с экрана
+ * системные бары восстанавливаются.
+ */
+@Composable
+private fun ImmersiveModeEffect() {
+    val activity = LocalContext.current as ComponentActivity
+    val insetsController = remember { WindowInsetsControllerCompat(activity.window, activity.window.decorView) }
+    DisposableEffect(Unit) {
+        insetsController.systemBarsBehavior =
+            WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        insetsController.hide(WindowInsetsCompat.Type.systemBars())
+        onDispose { insetsController.show(WindowInsetsCompat.Type.systemBars()) }
     }
 }
 
