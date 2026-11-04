@@ -4,7 +4,9 @@ import com.joy.sandbox.feature.letters.api.model.Alphabet
 import com.joy.sandbox.feature.letters.api.model.LettersOrder
 import javax.inject.Inject
 
-class LettersInteractorImpl @Inject constructor() : LettersInteractor {
+class LettersInteractorImpl @Inject constructor(
+    private val settingsRepository: LettersSettingsRepository,
+) : LettersInteractor {
 
     override fun getLetters(alphabet: Alphabet, order: LettersOrder): List<Char> {
         val letters = when (alphabet) {
@@ -15,6 +17,20 @@ class LettersInteractorImpl @Inject constructor() : LettersInteractor {
             LettersOrder.ALPHABETICAL -> letters
             LettersOrder.RANDOM -> letters.shuffled()
         }
+    }
+
+    override fun getSelectedAlphabet(): Alphabet =
+        settingsRepository.getSelectedAlphabet()
+
+    override fun getSelectedOrder(): LettersOrder =
+        settingsRepository.getSelectedOrder()
+
+    override fun saveAlphabet(alphabet: Alphabet) {
+        settingsRepository.saveAlphabet(alphabet)
+    }
+
+    override fun saveOrder(order: LettersOrder) {
+        settingsRepository.saveOrder(order)
     }
 
     private companion object {
