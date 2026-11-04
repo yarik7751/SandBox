@@ -40,6 +40,8 @@ class LettersViewModel @Inject constructor(
     data class State(
         val letter: LetterUiModel? = null,
         val fillProgress: Float = 0f,
+        // false по умолчанию: первая буква тоже появляется через fade.
+        val letterVisible: Boolean = false,
     )
 
     sealed interface Commands {
@@ -76,7 +78,12 @@ class LettersViewModel @Inject constructor(
                     char = letters[index],
                     fillColor = colors[index % colors.size],
                 )
-                stateFlow.value = State(letter = letter, fillProgress = 0f)
+                // Новая буква появляется через fade (letterVisible = true).
+                stateFlow.value = State(
+                    letter = letter,
+                    fillProgress = 0f,
+                    letterVisible = true,
+                )
 
                 var elapsed = 0L
                 while (elapsed < FILL_DURATION_MS && isActive) {
@@ -88,6 +95,10 @@ class LettersViewModel @Inject constructor(
 
                 delay(LETTER_HOLD_MS)
 
+                // Исчезновение через fade перед переключением на следующую.
+                stateFlow.update { it.copy(letterVisible = false) }
+                delay(FADE_DURATION_MS)
+
                 index = (index + 1) % letters.size
             }
         }
@@ -98,5 +109,6 @@ class LettersViewModel @Inject constructor(
         const val FILL_DURATION_MS = 4_000L
         const val LETTER_HOLD_MS = 1_500L
         const val TICK_MS = 50L
+        const val FADE_DURATION_MS = 500L
     }
 }

@@ -1,6 +1,8 @@
 package com.joy.sandbox.feature.letters.impl.presentation.letters
 
 import android.os.SystemClock
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -21,6 +23,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.asComposePath
 import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.drawscope.withTransform
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
@@ -127,10 +130,16 @@ fun LettersScreen(
         }
     }
 
+    // Альфа буквы: появление и исчезновение через fade.
+    val letterAlpha by animateFloatAsState(
+        targetValue = if (state.letterVisible) 1f else 0f,
+        animationSpec = tween(durationMillis = FADE_DURATION_MS.toInt()),
+    )
+
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(LETTER_HOLLOW_COLOR)
+            .background(PLATE_COLOR)
             .onSizeChanged { canvasSize = it }
             .crossGesture(
                 minStrokeLength = {
@@ -139,7 +148,12 @@ fun LettersScreen(
                 onCross = viewModel::onCrossDrawn,
             ),
     ) {
-        Canvas(modifier = Modifier.fillMaxSize()) {
+        // Альфа применяется только к этому Canvas с буквой — чёрный фон
+        // Box остаётся без анимации.
+        Canvas(modifier = Modifier
+            .fillMaxSize()
+            .graphicsLayer(alpha = letterAlpha),
+        ) {
             val render = letterRender ?: return@Canvas
             val layout = render.layout
             val topLeft = Offset(
@@ -147,13 +161,12 @@ fun LettersScreen(
                 y = (size.height - layout.size.height) / 2f,
             )
 
-            // 1. Чёрный фон и белая буква текстом: раскладка сама корректно
-            //    обрабатывает внутренние и пересекающиеся контуры глифа
-            //    (у Б, В штанга и чаша — отдельные контуры с наложением,
-            //    поэтому вырезать букву из plate-пути через glyphPath
-            //    нельзя — EvenOdd ломается на пересечениях).
+            // 1. Белая буква текстом: раскладка сама корректно обрабатывает
+            //    внутренние и пересекающиеся контуры глифа (у Б, В штанга
+            //    и чаша — отдельные контуры с наложением, поэтому вырезать
+            //    букву из plate-пути через glyphPath нельзя — EvenOdd
+            //    ломается на пересечениях).
             //    Граница чёрного и есть контур, обводка Stroke не нужна.
-            drawRect(color = PLATE_COLOR)
             drawText(
                 textLayoutResult = layout,
                 topLeft = topLeft,
@@ -335,6 +348,7 @@ private const val LETTER_MAX_HEIGHT_FRACTION = 0.8f
 private const val REFERENCE_FONT_SIZE_PX = 100f
 private const val WAVE_AMPLITUDE_FRACTION = 0.02f
 private const val WAVE_SEGMENTS = 24
+private const val FADE_DURATION_MS = 300L
 
 private val PLATE_COLOR = Color.Black
 private val LETTER_HOLLOW_COLOR = Color.White
