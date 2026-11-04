@@ -15,11 +15,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.asComposePath
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.input.pointer.pointerInput
@@ -116,9 +115,12 @@ fun LettersScreen(
                 layout.firstBaseline,
                 androidPath,
             )
+            val bounds = android.graphics.RectF()
+            androidPath.computeBounds(bounds, true)
             LetterRender(
                 layout = layout,
                 glyphPath = androidPath.asComposePath(),
+                glyphBounds = Rect(bounds.left, bounds.top, bounds.right, bounds.bottom),
                 seed = letter.char.code,
             )
         }
@@ -143,20 +145,26 @@ fun LettersScreen(
                 x = (size.width - layout.size.width) / 2f,
                 y = (size.height - layout.size.height) / 2f,
             )
-            val strokeWidth = layout.size.height * STROKE_WIDTH_FRACTION
 
-            // 1. Белая заливка глифа — полая середина буквы.
+            // 1. Чёрный фон и белая буква текстом: раскладка сама корректно
+            //    обрабатывает внутренние и пересекающиеся контуры глифа
+            //    (у Б, В штанга и чаша — отдельные контуры с наложением,
+            //    поэтому вырезать букву из plate-пути через glyphPath
+            //    нельзя — EvenOdd ломается на пересечениях).
+            //    Граница чёрного и есть контур, обводка Stroke не нужна.
+            drawRect(color = PLATE_COLOR)
             drawText(
                 textLayoutResult = layout,
                 topLeft = topLeft,
                 color = LETTER_HOLLOW_COLOR,
             )
-            // 2. Цветная заливка — волнообразный clip, растущий снизу вверх,
-            //    дополнительно обрезанный контуром самого глифа, чтобы
-            //    красилась только буква, а не пространство вокруг неё.
+            // 2. Цветная заливка — волнообразный clip, растущий от нижней
+            //    точки буквы к верхней, дополнительно обрезанный контуром
+            //    самого глифа (NonZero: пересекающиеся контуры глифа
+            //    суммируются и остаются частью буквы).
             clipPath(
                 path = revealPath(
-                    size = size,
+                    bounds = render.glyphBounds.translate(topLeft),
                     progress = state.fillProgress,
                     seed = render.seed,
                 ),
@@ -171,13 +179,6 @@ fun LettersScreen(
                     }
                 }
             }
-            // 3. Контур поверх — закраска не залезает за линию.
-            drawText(
-                textLayoutResult = layout,
-                topLeft = topLeft,
-                color = OUTLINE_COLOR,
-                drawStyle = Stroke(width = strokeWidth),
-            )
         }
     }
 
@@ -202,6 +203,7 @@ private fun HandleCommands(
 private class LetterRender(
     val layout: TextLayoutResult,
     val glyphPath: Path,
+    val glyphBounds: Rect,
     val seed: Int,
 )
 
@@ -216,24 +218,25 @@ private fun glyphPaint(textSizePx: Float): android.graphics.Paint =
     }
 
 /**
- * Clip-область закраски: снизу от низа экрана до волнистой линии,
- * высота которой растёт с [progress]. Форма волн детерминирована
- * [seed] — у каждой буквы своя, но стабильная между кадрами.
+ * Clip-область закраски: от низа [bounds] до волнистой линии, высота
+ * которой растёт с [progress] — заливка поднимается с нижней точки
+ * буквы до верхней. Форма волн детерминирована [seed] — у каждой буквы
+ * своя, но стабильная между кадрами.
  */
-private fun revealPath(size: Size, progress: Float, seed: Int): Path {
-    val fillTop = size.height * (1f - progress)
-    val amplitude = size.height * WAVE_AMPLITUDE_FRACTION
+private fun revealPath(bounds: Rect, progress: Float, seed: Int): Path {
+    val fillTop = bounds.bottom - bounds.height * progress
+    val amplitude = bounds.height * WAVE_AMPLITUDE_FRACTION
     val random = Random(seed)
     val offsets = List(WAVE_SEGMENTS + 1) { random.nextFloat() * amplitude }
 
     val path = Path()
-    path.moveTo(0f, fillTop + offsets.first())
+    path.moveTo(bounds.left, fillTop + offsets.first())
     for (i in 1..WAVE_SEGMENTS) {
-        val x = size.width * i / WAVE_SEGMENTS
+        val x = bounds.left + bounds.width * i / WAVE_SEGMENTS
         path.lineTo(x, fillTop + offsets[i])
     }
-    path.lineTo(size.width, size.height)
-    path.lineTo(0f, size.height)
+    path.lineTo(bounds.right, bounds.bottom)
+    path.lineTo(bounds.left, bounds.bottom)
     path.close()
     return path
 }
@@ -320,11 +323,10 @@ private const val STROKES_TIMEOUT_MS = 2_000L
 
 private const val LETTER_WIDTH_FRACTION = 0.8f
 private const val LETTER_MAX_HEIGHT_FRACTION = 0.8f
-private const val STROKE_WIDTH_FRACTION = 0.02f
 private const val REFERENCE_FONT_SIZE_PX = 100f
 private const val WAVE_AMPLITUDE_FRACTION = 0.02f
 private const val WAVE_SEGMENTS = 24
 
-private val OUTLINE_COLOR = Color(0xFF333333)
+private val PLATE_COLOR = Color.Black
 private val LETTER_HOLLOW_COLOR = Color.White
 private val LETTER_FILL_COLOR = Color(0xFFFF7043)
