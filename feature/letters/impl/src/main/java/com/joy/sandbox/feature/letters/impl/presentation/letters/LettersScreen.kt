@@ -121,6 +121,7 @@ fun LettersScreen(
                 layout = layout,
                 glyphPath = androidPath.asComposePath(),
                 glyphBounds = Rect(bounds.left, bounds.top, bounds.right, bounds.bottom),
+                fillColor = letter.fillColor,
                 seed = letter.char.code,
             )
         }
@@ -181,7 +182,7 @@ fun LettersScreen(
                         drawText(
                             textLayoutResult = layout,
                             topLeft = Offset.Zero,
-                            color = LETTER_FILL_COLOR,
+                            color = render.fillColor,
                         )
                     }
                 }
@@ -211,6 +212,7 @@ private class LetterRender(
     val layout: TextLayoutResult,
     val glyphPath: Path,
     val glyphBounds: Rect,
+    val fillColor: Color,
     val seed: Int,
 )
 
@@ -336,4 +338,3 @@ private const val WAVE_SEGMENTS = 24
 
 private val PLATE_COLOR = Color.Black
 private val LETTER_HOLLOW_COLOR = Color.White
-private val LETTER_FILL_COLOR = Color(0xFFFF7043)

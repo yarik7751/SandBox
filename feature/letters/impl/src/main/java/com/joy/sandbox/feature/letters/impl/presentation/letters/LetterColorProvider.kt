@@ -4,21 +4,24 @@ import androidx.compose.ui.graphics.Color
 import javax.inject.Inject
 
 /**
- * Палитра закраски букв — базовые цвета в тёмных оттенках,
- * чтобы читались на белом фоне.
+ * Палитра закраски букв — яркие насыщенные оттенки,
+ * чтобы читались на чёрном фоне.
  */
 class LetterColorProvider @Inject constructor() {
 
     private val palette: List<Color> = listOf(
-        Color(0xFFE53935), // красный
-        Color(0xFFFB8C00), // оранжевый
-        Color(0xFFFDD835), // жёлтый
-        Color(0xFF43A047), // зелёный
-        Color(0xFF039BE5), // голубой
-        Color(0xFF3949AB), // синий
-        Color(0xFF8E24AA), // фиолетовый
-        Color(0xFFD81B60), // розовый
+        Color(0xFFEF5350), // красный
+        Color(0xFFFFA726), // оранжевый
+        Color(0xFFFFEB3B), // жёлтый
+        Color(0xFFC0CA33), // лайм
+        Color(0xFF66BB6A), // зелёный
+        Color(0xFF26A69A), // бирюзовый
+        Color(0xFF26C6DA), // голубой
+        Color(0xFF42A5F5), // синий
+        Color(0xFFAB47BC), // фиолетовый
+        Color(0xFFEC407A), // розовый
     )
 
-    fun random(): Color = palette.random()
+    /** Палитра в случайном порядке — на каждый запуск показа своя. */
+    fun shuffledPalette(): List<Color> = palette.shuffled()
 }

@@ -68,12 +68,13 @@ class LettersViewModel @Inject constructor(
     }
 
     private fun startShow(letters: List<Char>) {
+        val colors = letterColorProvider.shuffledPalette()
         showJob = viewModelScope.launch {
             var index = 0
             while (isActive) {
                 val letter = letterUiModelMapper.map(
                     char = letters[index],
-                    fillColor = letterColorProvider.random(),
+                    fillColor = colors[index % colors.size],
                 )
                 stateFlow.value = State(letter = letter, fillProgress = 0f)
 
