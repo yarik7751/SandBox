@@ -8,6 +8,7 @@ import com.joy.sandbox.feature.letters.api.model.LettersOrder
 import com.joy.sandbox.feature.letters.impl.domain.LettersInteractor
 import com.joy.sandbox.feature.letters.impl.presentation.letters.LetterColorProvider
 import com.joy.sandbox.feature.letters.impl.presentation.letters.mapper.LetterUiModelMapper
+import com.joy.sandbox.feature.letters.impl.presentation.letters.model.FillDirection
 import com.joy.sandbox.feature.letters.impl.presentation.letters.model.LetterUiModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -77,6 +78,7 @@ class LettersViewModel @Inject constructor(
                 val letter = letterUiModelMapper.map(
                     char = letters[index],
                     fillColor = colors[index % colors.size],
+                    fillDirection = FillDirection.entries.random(),
                 )
                 // Новая буква появляется через fade (letterVisible = true).
                 stateFlow.value = State(
@@ -109,6 +111,6 @@ class LettersViewModel @Inject constructor(
         const val FILL_DURATION_MS = 4_000L
         const val LETTER_HOLD_MS = 1_500L
         const val TICK_MS = 50L
-        const val FADE_DURATION_MS = 500L
+        const val FADE_DURATION_MS = 800L
     }
 }

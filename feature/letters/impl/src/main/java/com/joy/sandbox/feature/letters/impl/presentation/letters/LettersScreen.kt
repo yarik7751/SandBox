@@ -44,6 +44,7 @@ import com.joy.sandbox.feature.letters.api.LettersJoyScreen
 import com.joy.sandbox.feature.letters.api.model.Alphabet
 import com.joy.sandbox.feature.letters.api.model.LettersOrder
 import com.joy.sandbox.feature.letters.impl.presentation.letters.LettersViewModel.Commands
+import com.joy.sandbox.feature.letters.impl.presentation.letters.model.FillDirection
 import com.joy.sandbox.utils.observe
 import kotlin.math.abs
 import kotlin.random.Random
@@ -125,6 +126,7 @@ fun LettersScreen(
                 glyphPath = androidPath.asComposePath(),
                 glyphBounds = Rect(bounds.left, bounds.top, bounds.right, bounds.bottom),
                 fillColor = letter.fillColor,
+                fillDirection = letter.fillDirection,
                 seed = letter.char.code,
             )
         }
@@ -172,22 +174,29 @@ fun LettersScreen(
                 topLeft = topLeft,
                 color = LETTER_HOLLOW_COLOR,
             )
-            // 2. Цветная заливка — волнообразный clip, растущий от нижней
-            //    точки буквы к верхней, дополнительно обрезанный контуром
-            //    самого глифа (NonZero: пересекающиеся контуры глифа
-            //    суммируются и остаются частью буквы). Верх области заливки
-            //    поднят на максимальную высоту зазубрины (амплитуду волны),
-            //    чтобы при полной заливке не оставалось белых пиков.
-            val fillBounds = render.glyphBounds.translate(topLeft).let { bounds ->
-                bounds.copy(
-                    top = bounds.top - bounds.height * WAVE_AMPLITUDE_FRACTION,
-                )
-            }
+            // 2. Цветная заливка — волнистая линия, движущаяся по оси
+            //    направления [FillDirection.axis] от угла-источника к целевому,
+            //    дополнительно обрезанная контуром самого глифа (NonZero:
+            //    пересекающиеся контуры глифа суммируются и остаются частью
+            //    буквы). Область заливки расширена на амплитуду волны со
+            //    всех сторон — при полной заливке не остаётся белых пиков
+            //    ни в одном направлении.
+            val glyphBounds = render.glyphBounds.translate(topLeft)
+            val waveAmplitude = minOf(glyphBounds.width, glyphBounds.height) *
+                WAVE_AMPLITUDE_FRACTION
+            val fillBounds = Rect(
+                left = glyphBounds.left - waveAmplitude,
+                top = glyphBounds.top - waveAmplitude,
+                right = glyphBounds.right + waveAmplitude,
+                bottom = glyphBounds.bottom + waveAmplitude,
+            )
             clipPath(
                 path = revealPath(
                     bounds = fillBounds,
+                    amplitude = waveAmplitude,
                     progress = state.fillProgress,
                     seed = render.seed,
+                    direction = render.fillDirection,
                 ),
             ) {
                 withTransform({ translate(topLeft.x, topLeft.y) }) {
@@ -226,6 +235,7 @@ private class LetterRender(
     val glyphPath: Path,
     val glyphBounds: Rect,
     val fillColor: Color,
+    val fillDirection: FillDirection,
     val seed: Int,
 )
 
@@ -240,25 +250,61 @@ private fun glyphPaint(textSizePx: Float): android.graphics.Paint =
     }
 
 /**
- * Clip-область закраски: от низа [bounds] до волнистой линии, высота
- * которой растёт с [progress] — заливка поднимается с нижней точки
- * буквы до верхней. Форма волн детерминирована [seed] — у каждой буквы
- * своя, но стабильная между кадрами.
+ * Clip-область закраски: сторона угла-источника волнистой линии,
+ * движущейся по оси [direction] к целевому углу с ростом [progress].
+ * Форма волн детерминирована [seed] — у каждой буквы своя, но стабильная
+ * между кадрами. Смещения волны не превышают [amplitude] — вызывающий
+ * код расширяет bounds как минимум на эту величину, тогда при
+ * progress = 1 вся исходная область закрашена.
  */
-private fun revealPath(bounds: Rect, progress: Float, seed: Int): Path {
-    val fillTop = bounds.bottom - bounds.height * progress
-    val amplitude = bounds.height * WAVE_AMPLITUDE_FRACTION
+private fun revealPath(
+    bounds: Rect,
+    amplitude: Float,
+    progress: Float,
+    seed: Int,
+    direction: FillDirection,
+): Path {
+    val u = direction.axis
+    val v = Offset(x = -u.y, y = u.x)
+    val corners = listOf(
+        Offset(bounds.left, bounds.top),
+        Offset(bounds.right, bounds.top),
+        Offset(bounds.right, bounds.bottom),
+        Offset(bounds.left, bounds.bottom),
+    )
+    val projectionsU = corners.map { it.x * u.x + it.y * u.y }
+    val projectionsV = corners.map { it.x * v.x + it.y * v.y }
+    val minU = projectionsU.min()
+    val maxU = projectionsU.max()
+    val minV = projectionsV.min()
+    val maxV = projectionsV.max()
+
+    val threshold = minU + (maxU - minU) * progress
     val random = Random(seed)
     val offsets = List(WAVE_SEGMENTS + 1) { random.nextFloat() * amplitude }
 
+    // Базовая точка линии: lineBase·u = threshold; v ортогонален u,
+    // поэтому прибавление v * s растягивает линию вдоль поперечной оси.
+    val lineBase = Offset(x = u.x * threshold, y = u.y * threshold)
+    // Замыкаем полигон за краем у источника (сторона x·u <= threshold) —
+    // клип глифа обрежет лишнее.
+    val farProjection = minU - (maxU - minU)
+    val farBase = Offset(x = u.x * farProjection, y = u.y * farProjection)
+
     val path = Path()
-    path.moveTo(bounds.left, fillTop + offsets.first())
-    for (i in 1..WAVE_SEGMENTS) {
-        val x = bounds.left + bounds.width * i / WAVE_SEGMENTS
-        path.lineTo(x, fillTop + offsets[i])
+    for (i in 0..WAVE_SEGMENTS) {
+        val alongV = minV + (maxV - minV) * i / WAVE_SEGMENTS
+        val point = lineBase + v * alongV + u * offsets[i]
+        if (i == 0) {
+            path.moveTo(point.x, point.y)
+        } else {
+            path.lineTo(point.x, point.y)
+        }
     }
-    path.lineTo(bounds.right, bounds.bottom)
-    path.lineTo(bounds.left, bounds.bottom)
+    val farEnd = farBase + v * maxV
+    val farStart = farBase + v * minV
+    path.lineTo(farEnd.x, farEnd.y)
+    path.lineTo(farStart.x, farStart.y)
     path.close()
     return path
 }
