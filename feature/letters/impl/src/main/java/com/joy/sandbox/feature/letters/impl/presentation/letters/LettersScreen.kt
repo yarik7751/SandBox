@@ -161,10 +161,17 @@ fun LettersScreen(
             // 2. Цветная заливка — волнообразный clip, растущий от нижней
             //    точки буквы к верхней, дополнительно обрезанный контуром
             //    самого глифа (NonZero: пересекающиеся контуры глифа
-            //    суммируются и остаются частью буквы).
+            //    суммируются и остаются частью буквы). Верх области заливки
+            //    поднят на максимальную высоту зазубрины (амплитуду волны),
+            //    чтобы при полной заливке не оставалось белых пиков.
+            val fillBounds = render.glyphBounds.translate(topLeft).let { bounds ->
+                bounds.copy(
+                    top = bounds.top - bounds.height * WAVE_AMPLITUDE_FRACTION,
+                )
+            }
             clipPath(
                 path = revealPath(
-                    bounds = render.glyphBounds.translate(topLeft),
+                    bounds = fillBounds,
                     progress = state.fillProgress,
                     seed = render.seed,
                 ),
