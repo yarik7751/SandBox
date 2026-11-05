@@ -7,9 +7,11 @@ import com.joy.sandbox.core.ui.ViewModelKey
 import com.joy.sandbox.feature.letters.api.LettersJoyScreen
 import com.joy.sandbox.feature.letters.api.LettersSettingsJoyScreen
 import com.joy.sandbox.feature.letters.impl.data.LettersSettingsRepositoryImpl
+import com.joy.sandbox.feature.letters.impl.data.LettersSpeakerImpl
 import com.joy.sandbox.feature.letters.impl.domain.LettersInteractor
 import com.joy.sandbox.feature.letters.impl.domain.LettersInteractorImpl
 import com.joy.sandbox.feature.letters.impl.domain.LettersSettingsRepository
+import com.joy.sandbox.feature.letters.impl.domain.LettersSpeaker
 import com.joy.sandbox.feature.letters.impl.presentation.letters.LettersScreenProvider
 import com.joy.sandbox.feature.letters.impl.presentation.letters.LettersViewModel
 import com.joy.sandbox.feature.letters.impl.presentation.settings.LettersSettingsScreenProvider
@@ -28,6 +30,9 @@ class LettersModule {
     fun provideLettersSettingsRepository(
         impl: LettersSettingsRepositoryImpl,
     ): LettersSettingsRepository = impl
+
+    @Provides
+    fun provideLettersSpeaker(impl: LettersSpeakerImpl): LettersSpeaker = impl
 
     @Provides
     @IntoMap

@@ -6,6 +6,7 @@ import com.joy.sandbox.core.ui.CommandFlow
 import com.joy.sandbox.feature.letters.api.model.Alphabet
 import com.joy.sandbox.feature.letters.api.model.LettersOrder
 import com.joy.sandbox.feature.letters.impl.domain.LettersInteractor
+import com.joy.sandbox.feature.letters.impl.domain.LettersSpeaker
 import com.joy.sandbox.feature.letters.impl.presentation.letters.LetterColorProvider
 import com.joy.sandbox.feature.letters.impl.presentation.letters.mapper.LetterUiModelMapper
 import com.joy.sandbox.feature.letters.impl.presentation.letters.model.FillDirection
@@ -21,6 +22,8 @@ import javax.inject.Inject
 /**
  * Показывает буквы по одной: контур уже на месте, заливка растёт
  * ([State.fillProgress]) — как будто букву закрашивают вручную.
+ * После полной заливки озвучивается название буквы; следующая буква
+ * появляется только по окончании проигрывания.
  *
  * Экран без обработки нажатий: единственное действие — жест-крест,
  * который приводит к [Commands.ExitToHome].
@@ -29,6 +32,7 @@ class LettersViewModel @Inject constructor(
     private val lettersInteractor: LettersInteractor,
     private val letterUiModelMapper: LetterUiModelMapper,
     private val letterColorProvider: LetterColorProvider,
+    private val lettersSpeaker: LettersSpeaker,
 ) : BaseViewModel() {
 
     val stateFlow = MutableStateFlow(State())
@@ -37,6 +41,7 @@ class LettersViewModel @Inject constructor(
 
     private var initialized = false
     private var showJob: Job? = null
+    private var alphabet: Alphabet = Alphabet.CYRILLIC
 
     data class State(
         val letter: LetterUiModel? = null,
@@ -57,6 +62,7 @@ class LettersViewModel @Inject constructor(
     fun init(alphabet: Alphabet, order: LettersOrder) {
         if (initialized) return
         initialized = true
+        this.alphabet = alphabet
         val letters = lettersInteractor.getLetters(alphabet, order)
         startShow(letters)
     }
@@ -67,6 +73,7 @@ class LettersViewModel @Inject constructor(
 
     override fun onCleared() {
         showJob?.cancel()
+        lettersSpeaker.release()
         super.onCleared()
     }
 
@@ -95,7 +102,11 @@ class LettersViewModel @Inject constructor(
                     stateFlow.update { it.copy(fillProgress = progress) }
                 }
 
-                delay(LETTER_HOLD_MS)
+                // Буква полностью закрашена: озвучиваем название и ждём
+                // конца проигрывания — только потом уходим на следующую.
+                lettersSpeaker.awaitLetterSpoken(letters[index], alphabet)
+
+                delay(AFTER_SPEECH_HOLD_MS)
 
                 // Исчезновение через fade перед переключением на следующую.
                 stateFlow.update { it.copy(letterVisible = false) }
@@ -109,7 +120,7 @@ class LettersViewModel @Inject constructor(
     private companion object {
 
         const val FILL_DURATION_MS = 4_000L
-        const val LETTER_HOLD_MS = 1_500L
+        const val AFTER_SPEECH_HOLD_MS = 500L
         const val TICK_MS = 50L
         const val FADE_DURATION_MS = 800L
     }
