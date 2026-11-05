@@ -69,7 +69,7 @@ class NightLettersViewModel @Inject constructor(
 
     sealed interface Commands {
 
-        data object ExitToHome : Commands
+        data object ExitToSettings : Commands
     }
 
     /**
@@ -108,7 +108,7 @@ class NightLettersViewModel @Inject constructor(
     }
 
     fun onCrossDrawn() {
-        commandsFlow.tryEmit(Commands.ExitToHome)
+        commandsFlow.tryEmit(Commands.ExitToSettings)
     }
 
     override fun onCleared() {
@@ -211,6 +211,6 @@ class NightLettersViewModel @Inject constructor(
     private suspend fun finishSession() {
         stateFlow.update { it.copy(letterVisible = false, finished = true) }
         delay(NightModeConfig.FINAL_BLACK_MS)
-        if (currentCoroutineContext().isActive) commandsFlow.tryEmit(Commands.ExitToHome)
+        if (currentCoroutineContext().isActive) commandsFlow.tryEmit(Commands.ExitToSettings)
     }
 }

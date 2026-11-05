@@ -28,7 +28,7 @@ import javax.inject.Inject
  * появляется только по окончании проигрывания.
  *
  * Экран без обработки нажатий: единственное действие — жест-крест,
- * который приводит к [Commands.ExitToHome].
+ * который приводит к [Commands.ExitToSettings].
  */
 class LettersViewModel @Inject constructor(
     private val lettersInteractor: LettersDaySettingsInteractor,
@@ -56,7 +56,7 @@ class LettersViewModel @Inject constructor(
 
     sealed interface Commands {
 
-        data object ExitToHome : Commands
+        data object ExitToSettings : Commands
     }
 
     /**
@@ -73,7 +73,7 @@ class LettersViewModel @Inject constructor(
     }
 
     fun onCrossDrawn() {
-        commandsFlow.tryEmit(Commands.ExitToHome)
+        commandsFlow.tryEmit(Commands.ExitToSettings)
     }
 
     override fun onCleared() {

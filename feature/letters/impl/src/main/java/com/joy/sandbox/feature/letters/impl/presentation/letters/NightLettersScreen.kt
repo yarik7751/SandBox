@@ -41,6 +41,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.joy.sandbox.core.navigation.currentNavStringArgument
 import com.joy.sandbox.core.navigation.router.JoyRouter
 import com.joy.sandbox.core.ui.ViewModelFactory
+import com.joy.sandbox.feature.letters.api.LettersSettingsJoyScreen
 import com.joy.sandbox.feature.letters.api.NightLettersJoyScreen
 import com.joy.sandbox.feature.letters.api.model.Alphabet
 import com.joy.sandbox.feature.letters.api.model.LettersOrder
@@ -266,7 +267,9 @@ private fun HandleCommands(
 ) {
     viewModel.commandsFlow.observe { command ->
         when (command) {
-            Commands.ExitToHome -> router.exit()
+            // Выход — на настройки: показ заменяется ими, в стеке
+            // не остаётся (back из настроек попадает на Главный).
+            Commands.ExitToSettings -> router.replaceScreen(LettersSettingsJoyScreen)
         }
     }
 }
