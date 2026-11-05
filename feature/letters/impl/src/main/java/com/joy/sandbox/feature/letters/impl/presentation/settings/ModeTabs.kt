@@ -56,11 +56,28 @@ import kotlin.math.roundToInt
 fun ModeTabs(
     selectedMode: LettersMode,
     onModeSelect: (LettersMode) -> Unit,
+    nightMode: Boolean,
 ) {
     val modes = LettersMode.entries
     val count = modes.size
     val density = LocalDensity.current
     val scope = rememberCoroutineScope()
+
+    val trackColor: Color
+    val thumbColor: Color
+    val labelIdleColor: Color
+    val labelActiveColor: Color
+    if (nightMode) {
+        trackColor = LettersColors.TabsTrackNight
+        thumbColor = LettersColors.TabsThumbNight
+        labelIdleColor = LettersColors.TabsLabelIdleNight
+        labelActiveColor = LettersColors.TabsLabelActiveNight
+    } else {
+        trackColor = LettersColors.TabsTrackDay
+        thumbColor = LettersColors.TabsThumbDay
+        labelIdleColor = LettersColors.TabsLabelIdleDay
+        labelActiveColor = LettersColors.TabsLabelActiveDay
+    }
 
     var trackWidthPx by remember { mutableIntStateOf(0) }
     val slotWidthPx = trackWidthPx.toFloat() / count
@@ -93,7 +110,7 @@ fun ModeTabs(
             .fillMaxWidth()
             .height(TAB_HEIGHT)
             .clip(TRACK_SHAPE)
-            .background(TRACK_COLOR)
+            .background(trackColor)
             .onSizeChanged { trackWidthPx = it.width }
             .pointerInput(count) {
                 detectDragGestures(
@@ -160,7 +177,7 @@ fun ModeTabs(
                     .padding(THUMB_PADDING)
                     .shadow(elevation = THUMB_ELEVATION, shape = THUMB_SHAPE)
                     .clip(THUMB_SHAPE)
-                    .background(THUMB_COLOR),
+                    .background(thumbColor),
             )
         }
         Row(modifier = Modifier.fillMaxSize()) {
@@ -183,7 +200,7 @@ fun ModeTabs(
                 ) {
                     Text(
                         text = stringResource(mode.labelRes),
-                        color = lerp(LABEL_IDLE_COLOR, LABEL_ACTIVE_COLOR, coverage),
+                        color = lerp(labelIdleColor, labelActiveColor, coverage),
                     )
                 }
             }
@@ -203,8 +220,3 @@ private val TRACK_SHAPE = RoundedCornerShape(percent = 50)
 private val THUMB_SHAPE = RoundedCornerShape(percent = 50)
 
 private const val TAB_ANIM_MS = 250
-
-private val TRACK_COLOR = Color(0xFFF1F1F1)
-private val THUMB_COLOR = Color.White
-private val LABEL_IDLE_COLOR = Color(0xFF6B6B6B)
-private val LABEL_ACTIVE_COLOR = Color(0xFF1A1A1A)

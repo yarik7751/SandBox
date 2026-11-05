@@ -1,5 +1,6 @@
 package com.joy.sandbox.feature.letters.impl.presentation.settings
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,10 +11,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -56,9 +60,17 @@ fun LettersSettingsScreen(
             )
         },
     ) { padding ->
+        val nightMode = state.selectedMode == LettersMode.NIGHT
+        val background = if (nightMode) {
+            LettersColors.SettingsBackgroundNight
+        } else {
+            LettersColors.SettingsBackgroundDay
+        }
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .background(background)
                 .padding(padding)
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 24.dp, vertical = 16.dp),
@@ -66,16 +78,19 @@ fun LettersSettingsScreen(
             ModeTabs(
                 selectedMode = state.selectedMode,
                 onModeSelect = viewModel::onModeSelect,
+                nightMode = nightMode,
             )
             when (state.selectedMode) {
                 LettersMode.DAY -> DaySettings(
                     state = state,
                     viewModel = viewModel,
+                    nightMode = nightMode,
                 )
 
                 LettersMode.NIGHT -> NightSettings(
                     state = state,
                     viewModel = viewModel,
+                    nightMode = nightMode,
                 )
             }
         }
@@ -92,26 +107,31 @@ fun LettersSettingsScreen(
 private fun DaySettings(
     state: LettersSettingsViewModel.State,
     viewModel: LettersSettingsViewModel,
+    nightMode: Boolean,
 ) {
     SettingsGroup(
         title = stringResource(R.string.letters_settings_alphabet_group),
         options = state.alphabetOptions,
         onOptionClick = viewModel::onAlphabetSelect,
+        nightMode = nightMode,
     )
     SettingsGroup(
         title = stringResource(R.string.letters_settings_order_group),
         options = state.orderOptions,
         onOptionClick = viewModel::onOrderSelect,
+        nightMode = nightMode,
     )
     SoundSwitchRow(
         title = stringResource(R.string.letters_settings_sound_group),
         checked = state.soundEnabled,
         onCheckedChange = viewModel::onSoundToggle,
+        nightMode = nightMode,
     )
     Button(
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 8.dp),
+        colors = runButtonColors(nightMode),
         onClick = viewModel::onRunClick,
     ) {
         Text(text = stringResource(R.string.letters_button_run))
@@ -123,26 +143,31 @@ private fun DaySettings(
 private fun NightSettings(
     state: LettersSettingsViewModel.State,
     viewModel: LettersSettingsViewModel,
+    nightMode: Boolean,
 ) {
     SettingsGroup(
         title = stringResource(R.string.letters_settings_alphabet_group),
         options = state.nightAlphabetOptions,
         onOptionClick = viewModel::onNightAlphabetSelect,
+        nightMode = nightMode,
     )
     SettingsGroup(
         title = stringResource(R.string.letters_settings_order_group),
         options = state.nightOrderOptions,
         onOptionClick = viewModel::onNightOrderSelect,
+        nightMode = nightMode,
     )
     SettingsGroup(
         title = stringResource(R.string.letters_night_timer_group),
         options = state.nightDurationOptions,
         onOptionClick = viewModel::onNightDurationSelect,
+        nightMode = nightMode,
     )
     Button(
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 8.dp),
+        colors = runButtonColors(nightMode),
         onClick = viewModel::onNightRunClick,
     ) {
         Text(text = stringResource(R.string.letters_button_run_night))
@@ -154,6 +179,7 @@ private fun <T> SettingsGroup(
     title: String,
     options: List<SettingsOptionUiModel<T>>,
     onOptionClick: (T) -> Unit,
+    nightMode: Boolean,
 ) {
     Text(
         text = title,
@@ -169,6 +195,14 @@ private fun <T> SettingsGroup(
             RadioButton(
                 selected = option.selected,
                 onClick = null,
+                colors = RadioButtonDefaults.colors(
+                    selectedColor = accentColor(nightMode),
+                    unselectedColor = if (nightMode) {
+                        LettersColors.TabsLabelIdleNight
+                    } else {
+                        LettersColors.TabsLabelIdleDay
+                    },
+                ),
             )
             Text(
                 modifier = Modifier.padding(start = 8.dp),
@@ -183,6 +217,7 @@ private fun SoundSwitchRow(
     title: String,
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
+    nightMode: Boolean,
 ) {
     Row(
         modifier = Modifier
@@ -198,8 +233,38 @@ private fun SoundSwitchRow(
         Switch(
             checked = checked,
             onCheckedChange = onCheckedChange,
+            colors = SwitchDefaults.colors(
+                checkedTrackColor = accentColor(nightMode),
+                checkedThumbColor = if (nightMode) {
+                    LettersColors.TabsThumbNight
+                } else {
+                    LettersColors.TabsThumbDay
+                },
+            ),
         )
     }
+}
+
+/** Цвета кнопок «Запустить» — тёплый акцент, день/ночь по выбранному режиму. */
+@Composable
+private fun runButtonColors(nightMode: Boolean) = ButtonDefaults.buttonColors(
+    containerColor = if (nightMode) {
+        LettersColors.ButtonContainerNight
+    } else {
+        LettersColors.ButtonContainerDay
+    },
+    contentColor = if (nightMode) {
+        LettersColors.ButtonContentNight
+    } else {
+        LettersColors.ButtonContentDay
+    },
+)
+
+/** Тёплый акцент фичи — для радиокнопок и переключателей. */
+private fun accentColor(nightMode: Boolean) = if (nightMode) {
+    LettersColors.ButtonContainerNight
+} else {
+    LettersColors.ButtonContainerDay
 }
 
 @Composable
