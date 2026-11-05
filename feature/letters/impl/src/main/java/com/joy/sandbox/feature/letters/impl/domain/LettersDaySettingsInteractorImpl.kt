@@ -4,9 +4,9 @@ import com.joy.sandbox.feature.letters.api.model.Alphabet
 import com.joy.sandbox.feature.letters.api.model.LettersOrder
 import javax.inject.Inject
 
-class LettersInteractorImpl @Inject constructor(
-    private val settingsRepository: LettersSettingsRepository,
-) : LettersInteractor {
+class LettersDaySettingsInteractorImpl @Inject constructor(
+    private val settingsRepository: LettersDaySettingsRepository,
+) : LettersDaySettingsInteractor {
 
     override fun getLetters(alphabet: Alphabet, order: LettersOrder): List<Char> {
         val letters = when (alphabet) {
@@ -38,12 +38,6 @@ class LettersInteractorImpl @Inject constructor(
 
     override fun saveSoundEnabled(enabled: Boolean) {
         settingsRepository.saveSoundEnabled(enabled)
-    }
-
-    override fun getNightDurationMin(): Int = settingsRepository.getNightDurationMin()
-
-    override fun saveNightDurationMin(minutes: Int) {
-        settingsRepository.saveNightDurationMin(minutes)
     }
 
     private companion object {

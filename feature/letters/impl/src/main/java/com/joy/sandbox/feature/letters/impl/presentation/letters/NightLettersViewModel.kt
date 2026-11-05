@@ -6,7 +6,7 @@ import com.joy.sandbox.core.ui.BaseViewModel
 import com.joy.sandbox.core.ui.CommandFlow
 import com.joy.sandbox.feature.letters.api.model.Alphabet
 import com.joy.sandbox.feature.letters.api.model.LettersOrder
-import com.joy.sandbox.feature.letters.impl.domain.LettersInteractor
+import com.joy.sandbox.feature.letters.impl.domain.LettersDaySettingsInteractor
 import com.joy.sandbox.feature.letters.impl.presentation.letters.mapper.LetterUiModelMapper
 import com.joy.sandbox.feature.letters.impl.presentation.letters.model.FillDirection
 import com.joy.sandbox.feature.letters.impl.presentation.letters.model.LetterUiModel
@@ -31,7 +31,7 @@ import javax.inject.Inject
  * возврате показ продолжается с того же кадра.
  */
 class NightLettersViewModel @Inject constructor(
-    private val lettersInteractor: LettersInteractor,
+    private val lettersInteractor: LettersDaySettingsInteractor,
     private val letterUiModelMapper: LetterUiModelMapper,
 ) : BaseViewModel() {
 
@@ -79,8 +79,9 @@ class NightLettersViewModel @Inject constructor(
     fun init(alphabet: Alphabet, order: LettersOrder, minutes: Int) {
         if (initialized) return
         initialized = true
-        // 2.1: выбранные алфавит и порядок наследуются; звук игнорируется —
-        // диктор в ночном режиме не используется вовсе.
+        // Алфавит и порядок — свои, ночные (переданы route-аргументами
+        // из ночного раздела настроек); звук игнорируется — диктор
+        // в ночном режиме не используется вовсе.
         letters = lettersInteractor.getLetters(alphabet, order)
         colors = NightModeConfig.WARM_PALETTE.shuffled()
         durationMs = if (minutes == NightModeConfig.INFINITE_MINUTES) {

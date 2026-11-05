@@ -5,7 +5,7 @@ import com.joy.sandbox.core.ui.BaseViewModel
 import com.joy.sandbox.core.ui.CommandFlow
 import com.joy.sandbox.feature.letters.api.model.Alphabet
 import com.joy.sandbox.feature.letters.api.model.LettersOrder
-import com.joy.sandbox.feature.letters.impl.domain.LettersInteractor
+import com.joy.sandbox.feature.letters.impl.domain.LettersDaySettingsInteractor
 import com.joy.sandbox.feature.letters.impl.domain.LettersSpeaker
 import com.joy.sandbox.feature.letters.impl.presentation.letters.LetterColorProvider
 import com.joy.sandbox.feature.letters.impl.presentation.letters.mapper.LetterUiModelMapper
@@ -31,7 +31,7 @@ import javax.inject.Inject
  * который приводит к [Commands.ExitToHome].
  */
 class LettersViewModel @Inject constructor(
-    private val lettersInteractor: LettersInteractor,
+    private val lettersInteractor: LettersDaySettingsInteractor,
     private val letterUiModelMapper: LetterUiModelMapper,
     private val letterColorProvider: LetterColorProvider,
     private val lettersSpeaker: LettersSpeaker,

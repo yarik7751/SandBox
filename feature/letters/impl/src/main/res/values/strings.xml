@@ -9,7 +9,9 @@
     <string name="letters_order_alphabetical">По алфавиту</string>
     <string name="letters_order_random">Случайный</string>
     <string name="letters_button_run">Запустить</string>
-    <string name="letters_night_timer_group">Ночной режим: таймер</string>
+    <string name="letters_mode_day">День</string>
+    <string name="letters_mode_night">Ночь</string>
+    <string name="letters_night_timer_group">Таймер</string>
     <string name="letters_night_timer_10">10 минут</string>
     <string name="letters_night_timer_20">20 минут</string>
     <string name="letters_night_timer_30">30 минут</string>

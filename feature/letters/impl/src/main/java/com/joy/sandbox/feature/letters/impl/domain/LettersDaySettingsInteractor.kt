@@ -4,10 +4,11 @@ import com.joy.sandbox.feature.letters.api.model.Alphabet
 import com.joy.sandbox.feature.letters.api.model.LettersOrder
 
 /**
- * Источник букв для показа: набор знаков выбранного алфавита
- * в заданном порядке, а также сохранённый выбор настроек.
+ * Источник букв для дневного показа: набор знаков выбранного алфавита
+ * в заданном порядке, а также сохранённый выбор дневных настроек
+ * (алфавит, порядок, звук).
  */
-interface LettersInteractor {
+interface LettersDaySettingsInteractor {
 
     fun getLetters(alphabet: Alphabet, order: LettersOrder): List<Char>
 
@@ -22,9 +23,4 @@ interface LettersInteractor {
     fun isSoundEnabled(): Boolean
 
     fun saveSoundEnabled(enabled: Boolean)
-
-    /** Длительность ночного режима в минутах; -1 — бесконечность. */
-    fun getNightDurationMin(): Int
-
-    fun saveNightDurationMin(minutes: Int)
 }

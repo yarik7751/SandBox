@@ -5,14 +5,24 @@ import com.joy.sandbox.core.ui.BaseViewModel
 import com.joy.sandbox.core.ui.CommandFlow
 import com.joy.sandbox.feature.letters.api.model.Alphabet
 import com.joy.sandbox.feature.letters.api.model.LettersOrder
-import com.joy.sandbox.feature.letters.impl.domain.LettersInteractor
+import com.joy.sandbox.feature.letters.impl.domain.LettersDaySettingsInteractor
+import com.joy.sandbox.feature.letters.impl.domain.LettersNightSettingsInteractor
 import com.joy.sandbox.feature.letters.impl.presentation.settings.mapper.SettingsUiMapper
+import com.joy.sandbox.feature.letters.impl.presentation.settings.model.LettersMode
 import com.joy.sandbox.feature.letters.impl.presentation.settings.model.SettingsOptionUiModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import javax.inject.Inject
 
+/**
+ * Настройки фичи «Буквы». Экран разбит на две вкладки-режима
+ * ([LettersMode]): «День» и «Ночь»; у каждой режима свои настройки
+ * (включая алфавит и порядок показа) и свой источник данных —
+ * дневные через [LettersDaySettingsInteractor], ночные через
+ * [LettersNightSettingsInteractor].
+ */
 class LettersSettingsViewModel @Inject constructor(
-    private val lettersInteractor: LettersInteractor,
+    private val daySettingsInteractor: LettersDaySettingsInteractor,
+    private val nightSettingsInteractor: LettersNightSettingsInteractor,
     private val settingsUiMapper: SettingsUiMapper,
 ) : BaseViewModel() {
 
@@ -20,15 +30,21 @@ class LettersSettingsViewModel @Inject constructor(
 
     val commandsFlow = CommandFlow<Commands>(viewModelScope)
 
-    private var selectedAlphabet: Alphabet = lettersInteractor.getSelectedAlphabet()
-    private var selectedOrder: LettersOrder = lettersInteractor.getSelectedOrder()
-    private var soundEnabled: Boolean = lettersInteractor.isSoundEnabled()
-    private var selectedNightMinutes: Int = lettersInteractor.getNightDurationMin()
+    private var selectedAlphabet: Alphabet = daySettingsInteractor.getSelectedAlphabet()
+    private var selectedOrder: LettersOrder = daySettingsInteractor.getSelectedOrder()
+    private var soundEnabled: Boolean = daySettingsInteractor.isSoundEnabled()
+
+    private var selectedNightAlphabet: Alphabet = nightSettingsInteractor.getSelectedAlphabet()
+    private var selectedNightOrder: LettersOrder = nightSettingsInteractor.getSelectedOrder()
+    private var selectedNightMinutes: Int = nightSettingsInteractor.getNightDurationMin()
 
     data class State(
+        val selectedMode: LettersMode = LettersMode.DAY,
         val alphabetOptions: List<SettingsOptionUiModel<Alphabet>> = emptyList(),
         val orderOptions: List<SettingsOptionUiModel<LettersOrder>> = emptyList(),
         val soundEnabled: Boolean = true,
+        val nightAlphabetOptions: List<SettingsOptionUiModel<Alphabet>> = emptyList(),
+        val nightOrderOptions: List<SettingsOptionUiModel<LettersOrder>> = emptyList(),
         val nightDurationOptions: List<SettingsOptionUiModel<Int>> = emptyList(),
     )
 
@@ -50,26 +66,42 @@ class LettersSettingsViewModel @Inject constructor(
         updateOptions()
     }
 
+    fun onModeSelect(mode: LettersMode) {
+        stateFlow.value = stateFlow.value.copy(selectedMode = mode)
+    }
+
     fun onAlphabetSelect(alphabet: Alphabet) {
-        lettersInteractor.saveAlphabet(alphabet)
+        daySettingsInteractor.saveAlphabet(alphabet)
         selectedAlphabet = alphabet
         updateOptions()
     }
 
     fun onOrderSelect(order: LettersOrder) {
-        lettersInteractor.saveOrder(order)
+        daySettingsInteractor.saveOrder(order)
         selectedOrder = order
         updateOptions()
     }
 
     fun onSoundToggle(enabled: Boolean) {
-        lettersInteractor.saveSoundEnabled(enabled)
+        daySettingsInteractor.saveSoundEnabled(enabled)
         soundEnabled = enabled
         updateOptions()
     }
 
+    fun onNightAlphabetSelect(alphabet: Alphabet) {
+        nightSettingsInteractor.saveAlphabet(alphabet)
+        selectedNightAlphabet = alphabet
+        updateOptions()
+    }
+
+    fun onNightOrderSelect(order: LettersOrder) {
+        nightSettingsInteractor.saveOrder(order)
+        selectedNightOrder = order
+        updateOptions()
+    }
+
     fun onNightDurationSelect(minutes: Int) {
-        lettersInteractor.saveNightDurationMin(minutes)
+        nightSettingsInteractor.saveNightDurationMin(minutes)
         selectedNightMinutes = minutes
         updateOptions()
     }
@@ -79,14 +111,18 @@ class LettersSettingsViewModel @Inject constructor(
     }
 
     fun onNightRunClick() {
-        commandsFlow.tryEmit(Commands.RunNight(selectedAlphabet, selectedOrder, selectedNightMinutes))
+        commandsFlow.tryEmit(
+            Commands.RunNight(selectedNightAlphabet, selectedNightOrder, selectedNightMinutes),
+        )
     }
 
     private fun updateOptions() {
-        stateFlow.value = State(
+        stateFlow.value = stateFlow.value.copy(
             alphabetOptions = settingsUiMapper.mapAlphabetOptions(selectedAlphabet),
             orderOptions = settingsUiMapper.mapOrderOptions(selectedOrder),
             soundEnabled = soundEnabled,
+            nightAlphabetOptions = settingsUiMapper.mapAlphabetOptions(selectedNightAlphabet),
+            nightOrderOptions = settingsUiMapper.mapOrderOptions(selectedNightOrder),
             nightDurationOptions = settingsUiMapper.mapNightDurationOptions(selectedNightMinutes),
         )
     }

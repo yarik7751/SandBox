@@ -13,6 +13,9 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,14 +33,15 @@ import com.joy.sandbox.feature.letters.api.LettersJoyScreen
 import com.joy.sandbox.feature.letters.api.NightLettersJoyScreen
 import com.joy.sandbox.feature.letters.impl.R
 import com.joy.sandbox.feature.letters.impl.presentation.settings.LettersSettingsViewModel.Commands
+import com.joy.sandbox.feature.letters.impl.presentation.settings.model.LettersMode
 import com.joy.sandbox.feature.letters.impl.presentation.settings.model.SettingsOptionUiModel
 import com.joy.sandbox.utils.observe
 
 /**
- * Настройки фичи «Буквы»: алфавит, порядок показа и звук, а также
- * длительность таймера ночного режима. «Запустить» открывает показ
- * через replace — настройки выпадают из стека, возврат с экрана показа
- * попадает сразу на Главный.
+ * Настройки фичи «Буквы»: вкладки-режимы «День» и «Ночь» переключают
+ * разделы; в каждом — настройки своего режима из своего источника
+ * данных. «Запустить» открывает показ через replace — настройки
+ * выпадают из стека, возврат с экрана показа попадает сразу на Главный.
  */
 @Composable
 fun LettersSettingsScreen(
@@ -62,41 +66,20 @@ fun LettersSettingsScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 24.dp, vertical = 16.dp),
         ) {
-            SettingsGroup(
-                title = stringResource(R.string.letters_settings_alphabet_group),
-                options = state.alphabetOptions,
-                onOptionClick = viewModel::onAlphabetSelect,
+            ModeTabs(
+                selectedMode = state.selectedMode,
+                onModeSelect = viewModel::onModeSelect,
             )
-            SettingsGroup(
-                title = stringResource(R.string.letters_settings_order_group),
-                options = state.orderOptions,
-                onOptionClick = viewModel::onOrderSelect,
-            )
-            SoundSwitchRow(
-                title = stringResource(R.string.letters_settings_sound_group),
-                checked = state.soundEnabled,
-                onCheckedChange = viewModel::onSoundToggle,
-            )
-            SettingsGroup(
-                title = stringResource(R.string.letters_night_timer_group),
-                options = state.nightDurationOptions,
-                onOptionClick = viewModel::onNightDurationSelect,
-            )
-            Button(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp),
-                onClick = viewModel::onRunClick,
-            ) {
-                Text(text = stringResource(R.string.letters_button_run))
-            }
-            Button(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp),
-                onClick = viewModel::onNightRunClick,
-            ) {
-                Text(text = stringResource(R.string.letters_button_run_night))
+            when (state.selectedMode) {
+                LettersMode.DAY -> DaySettings(
+                    state = state,
+                    viewModel = viewModel,
+                )
+
+                LettersMode.NIGHT -> NightSettings(
+                    state = state,
+                    viewModel = viewModel,
+                )
             }
         }
     }
@@ -105,6 +88,90 @@ fun LettersSettingsScreen(
         viewModel = viewModel,
         router = router,
     )
+}
+
+/** Вкладки-режимы: «День» / «Ночь». */
+@Composable
+private fun ModeTabs(
+    selectedMode: LettersMode,
+    onModeSelect: (LettersMode) -> Unit,
+) {
+    SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+        LettersMode.entries.forEachIndexed { index, mode ->
+            SegmentedButton(
+                selected = selectedMode == mode,
+                onClick = { onModeSelect(mode) },
+                shape = SegmentedButtonDefaults.itemShape(
+                    index = index,
+                    count = LettersMode.entries.size,
+                ),
+            ) {
+                Text(text = stringResource(mode.labelRes))
+            }
+        }
+    }
+}
+
+/** Раздел дневного режима: алфавит, порядок, звук, запуск. */
+@Composable
+private fun DaySettings(
+    state: LettersSettingsViewModel.State,
+    viewModel: LettersSettingsViewModel,
+) {
+    SettingsGroup(
+        title = stringResource(R.string.letters_settings_alphabet_group),
+        options = state.alphabetOptions,
+        onOptionClick = viewModel::onAlphabetSelect,
+    )
+    SettingsGroup(
+        title = stringResource(R.string.letters_settings_order_group),
+        options = state.orderOptions,
+        onOptionClick = viewModel::onOrderSelect,
+    )
+    SoundSwitchRow(
+        title = stringResource(R.string.letters_settings_sound_group),
+        checked = state.soundEnabled,
+        onCheckedChange = viewModel::onSoundToggle,
+    )
+    Button(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 8.dp),
+        onClick = viewModel::onRunClick,
+    ) {
+        Text(text = stringResource(R.string.letters_button_run))
+    }
+}
+
+/** Раздел ночного режима: алфавит, порядок, таймер, запуск. */
+@Composable
+private fun NightSettings(
+    state: LettersSettingsViewModel.State,
+    viewModel: LettersSettingsViewModel,
+) {
+    SettingsGroup(
+        title = stringResource(R.string.letters_settings_alphabet_group),
+        options = state.nightAlphabetOptions,
+        onOptionClick = viewModel::onNightAlphabetSelect,
+    )
+    SettingsGroup(
+        title = stringResource(R.string.letters_settings_order_group),
+        options = state.nightOrderOptions,
+        onOptionClick = viewModel::onNightOrderSelect,
+    )
+    SettingsGroup(
+        title = stringResource(R.string.letters_night_timer_group),
+        options = state.nightDurationOptions,
+        onOptionClick = viewModel::onNightDurationSelect,
+    )
+    Button(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 8.dp),
+        onClick = viewModel::onNightRunClick,
+    ) {
+        Text(text = stringResource(R.string.letters_button_run_night))
+    }
 }
 
 @Composable

@@ -3,14 +3,14 @@ package com.joy.sandbox.feature.letters.impl.data
 import com.joy.sandbox.feature.letters.api.model.Alphabet
 import com.joy.sandbox.feature.letters.api.model.LettersOrder
 import com.joy.sandbox.feature.letters.impl.data.mapper.LettersSettingsDataMapper
-import com.joy.sandbox.feature.letters.impl.domain.LettersSettingsRepository
-import com.joy.sandbox.feature.letters.impl.localdatasource.LettersSettingsLocalDataSource
+import com.joy.sandbox.feature.letters.impl.domain.LettersNightSettingsRepository
+import com.joy.sandbox.feature.letters.impl.localdatasource.LettersNightSettingsLocalDataSource
 import javax.inject.Inject
 
-class LettersSettingsRepositoryImpl @Inject constructor(
-    private val localDataSource: LettersSettingsLocalDataSource,
+class LettersNightSettingsRepositoryImpl @Inject constructor(
+    private val localDataSource: LettersNightSettingsLocalDataSource,
     private val mapper: LettersSettingsDataMapper,
-) : LettersSettingsRepository {
+) : LettersNightSettingsRepository {
 
     override fun getSelectedAlphabet(): Alphabet =
         mapper.toAlphabet(localDataSource.loadAlphabet())
@@ -26,16 +26,9 @@ class LettersSettingsRepositoryImpl @Inject constructor(
         localDataSource.saveOrder(order.name)
     }
 
-    override fun getSoundEnabled(): Boolean =
-        localDataSource.loadSoundEnabled()
-
-    override fun saveSoundEnabled(enabled: Boolean) {
-        localDataSource.saveSoundEnabled(enabled)
-    }
-
-    override fun getNightDurationMin(): Int = localDataSource.loadNightMinutes()
+    override fun getNightDurationMin(): Int = localDataSource.loadTimerMinutes()
 
     override fun saveNightDurationMin(minutes: Int) {
-        localDataSource.saveNightMinutes(minutes)
+        localDataSource.saveTimerMinutes(minutes)
     }
 }
