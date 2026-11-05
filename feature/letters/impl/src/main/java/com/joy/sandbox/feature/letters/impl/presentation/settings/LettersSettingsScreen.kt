@@ -13,9 +13,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -88,28 +85,6 @@ fun LettersSettingsScreen(
         viewModel = viewModel,
         router = router,
     )
-}
-
-/** Вкладки-режимы: «День» / «Ночь». */
-@Composable
-private fun ModeTabs(
-    selectedMode: LettersMode,
-    onModeSelect: (LettersMode) -> Unit,
-) {
-    SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
-        LettersMode.entries.forEachIndexed { index, mode ->
-            SegmentedButton(
-                selected = selectedMode == mode,
-                onClick = { onModeSelect(mode) },
-                shape = SegmentedButtonDefaults.itemShape(
-                    index = index,
-                    count = LettersMode.entries.size,
-                ),
-            ) {
-                Text(text = stringResource(mode.labelRes))
-            }
-        }
-    }
 }
 
 /** Раздел дневного режима: алфавит, порядок, звук, запуск. */
