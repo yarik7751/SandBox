@@ -3,6 +3,7 @@
     <string name="letters_settings_title">Буквы</string>
     <string name="letters_settings_alphabet_group">Алфавит</string>
     <string name="letters_settings_order_group">Порядок</string>
+    <string name="letters_settings_sound_group">Звук букв</string>
     <string name="letters_alphabet_cyrillic">Кириллица (русская)</string>
     <string name="letters_alphabet_latin">Латиница</string>
     <string name="letters_order_alphabetical">По алфавиту</string>

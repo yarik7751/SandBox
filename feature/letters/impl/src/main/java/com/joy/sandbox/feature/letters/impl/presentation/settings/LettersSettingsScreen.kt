@@ -3,6 +3,7 @@ package com.joy.sandbox.feature.letters.impl.presentation.settings
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -12,6 +13,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -68,6 +70,11 @@ fun LettersSettingsScreen(
                 options = state.orderOptions,
                 onOptionClick = viewModel::onOrderSelect,
             )
+            SoundSwitchRow(
+                title = stringResource(R.string.letters_settings_sound_group),
+                checked = state.soundEnabled,
+                onCheckedChange = viewModel::onSoundToggle,
+            )
             Button(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -111,6 +118,30 @@ private fun <T> SettingsGroup(
                 text = stringResource(option.labelRes),
             )
         }
+    }
+}
+
+@Composable
+private fun SoundSwitchRow(
+    title: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleMedium,
+        )
+        Spacer(modifier = Modifier.weight(1f))
+        Switch(
+            checked = checked,
+            onCheckedChange = onCheckedChange,
+        )
     }
 }
 

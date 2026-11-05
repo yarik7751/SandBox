@@ -25,4 +25,11 @@ class LettersSettingsRepositoryImpl @Inject constructor(
     override fun saveOrder(order: LettersOrder) {
         localDataSource.saveOrder(order.name)
     }
+
+    override fun getSoundEnabled(): Boolean =
+        localDataSource.loadSoundEnabled()
+
+    override fun saveSoundEnabled(enabled: Boolean) {
+        localDataSource.saveSoundEnabled(enabled)
+    }
 }

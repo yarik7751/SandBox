@@ -17,4 +17,8 @@ interface LettersSettingsRepository {
     fun saveAlphabet(alphabet: Alphabet)
 
     fun saveOrder(order: LettersOrder)
+
+    fun getSoundEnabled(): Boolean
+
+    fun saveSoundEnabled(enabled: Boolean)
 }

@@ -22,10 +22,12 @@ class LettersSettingsViewModel @Inject constructor(
 
     private var selectedAlphabet: Alphabet = lettersInteractor.getSelectedAlphabet()
     private var selectedOrder: LettersOrder = lettersInteractor.getSelectedOrder()
+    private var soundEnabled: Boolean = lettersInteractor.isSoundEnabled()
 
     data class State(
         val alphabetOptions: List<SettingsOptionUiModel<Alphabet>> = emptyList(),
         val orderOptions: List<SettingsOptionUiModel<LettersOrder>> = emptyList(),
+        val soundEnabled: Boolean = true,
     )
 
     sealed interface Commands {
@@ -52,6 +54,12 @@ class LettersSettingsViewModel @Inject constructor(
         updateOptions()
     }
 
+    fun onSoundToggle(enabled: Boolean) {
+        lettersInteractor.saveSoundEnabled(enabled)
+        soundEnabled = enabled
+        updateOptions()
+    }
+
     fun onRunClick() {
         commandsFlow.tryEmit(Commands.Run(selectedAlphabet, selectedOrder))
     }
@@ -60,6 +68,7 @@ class LettersSettingsViewModel @Inject constructor(
         stateFlow.value = State(
             alphabetOptions = settingsUiMapper.mapAlphabetOptions(selectedAlphabet),
             orderOptions = settingsUiMapper.mapOrderOptions(selectedOrder),
+            soundEnabled = soundEnabled,
         )
     }
 }

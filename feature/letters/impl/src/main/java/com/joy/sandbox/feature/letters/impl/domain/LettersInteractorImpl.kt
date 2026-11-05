@@ -33,6 +33,13 @@ class LettersInteractorImpl @Inject constructor(
         settingsRepository.saveOrder(order)
     }
 
+    override fun isSoundEnabled(): Boolean =
+        settingsRepository.getSoundEnabled()
+
+    override fun saveSoundEnabled(enabled: Boolean) {
+        settingsRepository.saveSoundEnabled(enabled)
+    }
+
     private companion object {
 
         /** А–Я плюс Ё на своём алфавитном месте (после Е). */

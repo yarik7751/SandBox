@@ -42,6 +42,7 @@ class LettersViewModel @Inject constructor(
     private var initialized = false
     private var showJob: Job? = null
     private var alphabet: Alphabet = Alphabet.CYRILLIC
+    private var soundEnabled: Boolean = true
 
     data class State(
         val letter: LetterUiModel? = null,
@@ -63,6 +64,7 @@ class LettersViewModel @Inject constructor(
         if (initialized) return
         initialized = true
         this.alphabet = alphabet
+        soundEnabled = lettersInteractor.isSoundEnabled()
         val letters = lettersInteractor.getLetters(alphabet, order)
         startShow(letters)
     }
@@ -104,7 +106,10 @@ class LettersViewModel @Inject constructor(
 
                 // Буква полностью закрашена: озвучиваем название и ждём
                 // конца проигрывания — только потом уходим на следующую.
-                lettersSpeaker.awaitLetterSpoken(letters[index], alphabet)
+                // Звук выключен — проигрывания нет, буква сменяется сразу.
+                if (soundEnabled) {
+                    lettersSpeaker.awaitLetterSpoken(letters[index], alphabet)
+                }
 
                 delay(AFTER_SPEECH_HOLD_MS)
 

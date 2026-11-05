@@ -18,4 +18,8 @@ interface LettersInteractor {
     fun saveAlphabet(alphabet: Alphabet)
 
     fun saveOrder(order: LettersOrder)
+
+    fun isSoundEnabled(): Boolean
+
+    fun saveSoundEnabled(enabled: Boolean)
 }
