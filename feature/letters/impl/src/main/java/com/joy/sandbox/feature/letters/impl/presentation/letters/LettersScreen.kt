@@ -3,6 +3,8 @@ package com.joy.sandbox.feature.letters.impl.presentation.letters
 import android.os.SystemClock
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
@@ -146,6 +148,23 @@ fun LettersScreen(
         animationSpec = tween(durationMillis = FADE_DURATION_MS.toInt()),
     )
 
+    // Прогресс заливки кадрируется по кадрам отрисовки (Compose-анимация,
+    // LinearEasing) — без дискретных тиков, плавно на 60/120 fps.
+    // Ключ — буква: на каждый кадр показа заливка стартует с нуля.
+    val fillProgress = remember(state.letter) { Animatable(0f) }
+    LaunchedEffect(state.letter) {
+        if (state.letter != null) {
+            fillProgress.snapTo(0f)
+            fillProgress.animateTo(
+                targetValue = 1f,
+                animationSpec = tween(
+                    durationMillis = LettersViewModel.FILL_DURATION_MS.toInt(),
+                    easing = LinearEasing,
+                ),
+            )
+        }
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -202,7 +221,7 @@ fun LettersScreen(
                 path = revealPath(
                     bounds = fillBounds,
                     amplitude = waveAmplitude,
-                    progress = state.fillProgress,
+                    progress = fillProgress.value,
                     seed = render.seed,
                     direction = render.fillDirection,
                 ),

@@ -3,6 +3,7 @@ package com.joy.sandbox.feature.letters.impl.presentation.letters
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
@@ -139,6 +140,23 @@ fun NightLettersScreen(
         }
     }
 
+    // 2.5→8 с: волнистая заливка кадрируется по кадрам отрисовки
+    // (Compose-анимация, LinearEasing) — без дискретных тиков.
+    // Ключ — буква: на каждый кадр показа заливка стартует с нуля.
+    val fillProgress = remember(state.letter) { Animatable(0f) }
+    LaunchedEffect(state.letter) {
+        if (state.letter != null) {
+            fillProgress.snapTo(0f)
+            fillProgress.animateTo(
+                targetValue = 1f,
+                animationSpec = tween(
+                    durationMillis = NightModeConfig.FILL_DURATION_MS.toInt(),
+                    easing = LinearEasing,
+                ),
+            )
+        }
+    }
+
     // 2.5: появление через мягкий fade-in 1 с; исчезновение — длиннее:
     // чёрный промежуток между кадрами (2.2).
     val letterAlpha by animateFloatAsState(
@@ -208,7 +226,7 @@ fun NightLettersScreen(
                 path = revealPath(
                     bounds = fillBounds,
                     amplitude = waveAmplitude,
-                    progress = state.fillProgress,
+                    progress = fillProgress.value,
                     seed = render.seed,
                     direction = render.fillDirection,
                 ),

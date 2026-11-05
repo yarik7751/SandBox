@@ -61,8 +61,6 @@ class NightLettersViewModel @Inject constructor(
         val letter: LetterUiModel? = null,
         // false по умолчанию: первая буква тоже появляется через fade.
         val letterVisible: Boolean = false,
-        /** Прогресс волнистой заливки (0..1), 8 с — в 2 раза медленнее дня. */
-        val fillProgress: Float = 0f,
         /** Яркость окна (0.15 → 0.05 к концу таймера). */
         val brightness: Float = NightModeConfig.START_BRIGHTNESS,
         /** Сеанс завершён: экран уходит к чисто чёрному. */
@@ -135,7 +133,6 @@ class NightLettersViewModel @Inject constructor(
                     held += NightModeConfig.TICK_MS
                     elapsedSessionMs += NightModeConfig.TICK_MS
                     updateBrightness()
-                    updateFillProgress(held)
                     if (!timerEnded && isTimerFinished()) {
                         enterHoldPhase()
                         break
@@ -168,23 +165,14 @@ class NightLettersViewModel @Inject constructor(
             // сеанса, цвета берутся по кругу — за сеанс все цвета
             // показываются примерно одинаковое число раз.
             fillColor = colors[index % colors.size],
-            // fillDirection не влияет на отрисовку (заливка отключена),
-            // но модель его требует — значение безразлично.
             fillDirection = FillDirection.entries.random(),
         )
         stateFlow.value = State(
             letter = letter,
             letterVisible = true,
-            fillProgress = 0f,
             brightness = stateFlow.value.brightness,
             finished = false,
         )
-    }
-
-    /** Волнистая заливка растёт в течение [NightModeConfig.FILL_DURATION_MS]. */
-    private fun updateFillProgress(heldMs: Long) {
-        val progress = (heldMs.toFloat() / NightModeConfig.FILL_DURATION_MS).coerceIn(0f, 1f)
-        stateFlow.update { if (it.fillProgress != progress) it.copy(fillProgress = progress) else it }
     }
 
     /** Прогресс замедления темпа: доля сеанса (0..1). */

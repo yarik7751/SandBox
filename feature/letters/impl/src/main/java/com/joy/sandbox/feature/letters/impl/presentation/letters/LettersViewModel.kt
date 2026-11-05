@@ -20,8 +20,10 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
- * Показывает буквы по одной: контур уже на месте, заливка растёт
- * ([State.fillProgress]) — как будто букву закрашивают вручную.
+ * Показывает буквы по одной: контур уже на месте, заливка растёт —
+ * как будто букву закрашивают вручную. Сама заливка кадрируется
+ * на экране (см. LettersScreen), ViewModel только отмеряет её
+ * длительность [FILL_DURATION_MS].
  * После полной заливки озвучивается название буквы; следующая буква
  * появляется только по окончании проигрывания.
  *
@@ -46,9 +48,10 @@ class LettersViewModel @Inject constructor(
 
     data class State(
         val letter: LetterUiModel? = null,
-        val fillProgress: Float = 0f,
         // false по умолчанию: первая буква тоже появляется через fade.
         val letterVisible: Boolean = false,
+        /** true — экран анимирует заливку буквы (0 → 1 за [FILL_DURATION_MS]). */
+        val fillActive: Boolean = false,
     )
 
     sealed interface Commands {
@@ -89,20 +92,17 @@ class LettersViewModel @Inject constructor(
                     fillColor = colors[index % colors.size],
                     fillDirection = FillDirection.entries.random(),
                 )
-                // Новая буква появляется через fade (letterVisible = true).
+                // Новая буква появляется через fade (letterVisible = true),
+                // экран стартует её заливку (fillActive = true).
                 stateFlow.value = State(
                     letter = letter,
-                    fillProgress = 0f,
                     letterVisible = true,
+                    fillActive = true,
                 )
 
-                var elapsed = 0L
-                while (elapsed < FILL_DURATION_MS && isActive) {
-                    delay(TICK_MS)
-                    elapsed += TICK_MS
-                    val progress = (elapsed.toFloat() / FILL_DURATION_MS).coerceIn(0f, 1f)
-                    stateFlow.update { it.copy(fillProgress = progress) }
-                }
+                // Заливка идёт FILL_DURATION_MS; ожидание совпадает
+                // с ней по длительности, озвучка — только после неё.
+                delay(FILL_DURATION_MS)
 
                 // Буква полностью закрашена: озвучиваем название и ждём
                 // конца проигрывания — только потом уходим на следующую.
@@ -122,11 +122,10 @@ class LettersViewModel @Inject constructor(
         }
     }
 
-    private companion object {
+    internal companion object {
 
         const val FILL_DURATION_MS = 4_000L
         const val AFTER_SPEECH_HOLD_MS = 500L
-        const val TICK_MS = 50L
         const val FADE_DURATION_MS = 800L
     }
 }
