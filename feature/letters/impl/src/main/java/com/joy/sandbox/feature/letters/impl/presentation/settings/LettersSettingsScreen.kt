@@ -27,15 +27,17 @@ import com.joy.sandbox.core.navigation.router.JoyRouter
 import com.joy.sandbox.core.ui.SandBoxToolbar
 import com.joy.sandbox.core.ui.ViewModelFactory
 import com.joy.sandbox.feature.letters.api.LettersJoyScreen
+import com.joy.sandbox.feature.letters.api.NightLettersJoyScreen
 import com.joy.sandbox.feature.letters.impl.R
 import com.joy.sandbox.feature.letters.impl.presentation.settings.LettersSettingsViewModel.Commands
 import com.joy.sandbox.feature.letters.impl.presentation.settings.model.SettingsOptionUiModel
 import com.joy.sandbox.utils.observe
 
 /**
- * Настройки фичи «Буквы»: алфавит и порядок показа.
- * «Запустить» открывает показ через replace — настройки выпадают из стека,
- * возврат с экрана показа попадает сразу на Главный.
+ * Настройки фичи «Буквы»: алфавит, порядок показа и звук, а также
+ * длительность таймера ночного режима. «Запустить» открывает показ
+ * через replace — настройки выпадают из стека, возврат с экрана показа
+ * попадает сразу на Главный.
  */
 @Composable
 fun LettersSettingsScreen(
@@ -75,13 +77,26 @@ fun LettersSettingsScreen(
                 checked = state.soundEnabled,
                 onCheckedChange = viewModel::onSoundToggle,
             )
+            SettingsGroup(
+                title = stringResource(R.string.letters_night_timer_group),
+                options = state.nightDurationOptions,
+                onOptionClick = viewModel::onNightDurationSelect,
+            )
             Button(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 24.dp),
+                    .padding(top = 8.dp),
                 onClick = viewModel::onRunClick,
             ) {
                 Text(text = stringResource(R.string.letters_button_run))
+            }
+            Button(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp),
+                onClick = viewModel::onNightRunClick,
+            ) {
+                Text(text = stringResource(R.string.letters_button_run_night))
             }
         }
     }
@@ -156,6 +171,14 @@ private fun HandleCommands(
                 LettersJoyScreen.create(
                     alphabet = command.alphabet,
                     order = command.order,
+                ),
+            )
+
+            is Commands.RunNight -> router.replaceScreen(
+                NightLettersJoyScreen.create(
+                    alphabet = command.alphabet,
+                    order = command.order,
+                    minutes = command.minutes,
                 ),
             )
         }

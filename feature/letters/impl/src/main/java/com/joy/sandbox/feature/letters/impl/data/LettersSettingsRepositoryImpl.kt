@@ -32,4 +32,10 @@ class LettersSettingsRepositoryImpl @Inject constructor(
     override fun saveSoundEnabled(enabled: Boolean) {
         localDataSource.saveSoundEnabled(enabled)
     }
+
+    override fun getNightDurationMin(): Int = localDataSource.loadNightMinutes()
+
+    override fun saveNightDurationMin(minutes: Int) {
+        localDataSource.saveNightMinutes(minutes)
+    }
 }

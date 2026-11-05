@@ -6,6 +6,7 @@ import com.joy.sandbox.core.ui.ScreenKey
 import com.joy.sandbox.core.ui.ViewModelKey
 import com.joy.sandbox.feature.letters.api.LettersJoyScreen
 import com.joy.sandbox.feature.letters.api.LettersSettingsJoyScreen
+import com.joy.sandbox.feature.letters.api.NightLettersJoyScreen
 import com.joy.sandbox.feature.letters.impl.data.LettersSettingsRepositoryImpl
 import com.joy.sandbox.feature.letters.impl.data.LettersSpeakerImpl
 import com.joy.sandbox.feature.letters.impl.domain.LettersInteractor
@@ -14,6 +15,8 @@ import com.joy.sandbox.feature.letters.impl.domain.LettersSettingsRepository
 import com.joy.sandbox.feature.letters.impl.domain.LettersSpeaker
 import com.joy.sandbox.feature.letters.impl.presentation.letters.LettersScreenProvider
 import com.joy.sandbox.feature.letters.impl.presentation.letters.LettersViewModel
+import com.joy.sandbox.feature.letters.impl.presentation.letters.NightLettersScreenProvider
+import com.joy.sandbox.feature.letters.impl.presentation.letters.NightLettersViewModel
 import com.joy.sandbox.feature.letters.impl.presentation.settings.LettersSettingsScreenProvider
 import com.joy.sandbox.feature.letters.impl.presentation.settings.LettersSettingsViewModel
 import dagger.Module
@@ -46,6 +49,11 @@ class LettersModule {
 
     @Provides
     @IntoMap
+    @ViewModelKey(NightLettersViewModel::class)
+    fun provideNightLettersViewModel(viewModel: NightLettersViewModel): ViewModel = viewModel
+
+    @Provides
+    @IntoMap
     @ScreenKey(LettersSettingsJoyScreen.ROUTE)
     fun provideLettersSettingsContent(): ScreenContentProvider = LettersSettingsScreenProvider()
 
@@ -53,4 +61,9 @@ class LettersModule {
     @IntoMap
     @ScreenKey(LettersJoyScreen.ROUTE_PATTERN)
     fun provideLettersContent(): ScreenContentProvider = LettersScreenProvider()
+
+    @Provides
+    @IntoMap
+    @ScreenKey(NightLettersJoyScreen.ROUTE_PATTERN)
+    fun provideNightLettersContent(): ScreenContentProvider = NightLettersScreenProvider()
 }

@@ -21,4 +21,9 @@ interface LettersSettingsRepository {
     fun getSoundEnabled(): Boolean
 
     fun saveSoundEnabled(enabled: Boolean)
+
+    /** Длительность ночного режима в минутах; -1 — бесконечность. */
+    fun getNightDurationMin(): Int
+
+    fun saveNightDurationMin(minutes: Int)
 }

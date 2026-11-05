@@ -40,6 +40,12 @@ class LettersInteractorImpl @Inject constructor(
         settingsRepository.saveSoundEnabled(enabled)
     }
 
+    override fun getNightDurationMin(): Int = settingsRepository.getNightDurationMin()
+
+    override fun saveNightDurationMin(minutes: Int) {
+        settingsRepository.saveNightDurationMin(minutes)
+    }
+
     private companion object {
 
         /** А–Я плюс Ё на своём алфавитном месте (после Е). */

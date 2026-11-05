@@ -23,11 +23,13 @@ class LettersSettingsViewModel @Inject constructor(
     private var selectedAlphabet: Alphabet = lettersInteractor.getSelectedAlphabet()
     private var selectedOrder: LettersOrder = lettersInteractor.getSelectedOrder()
     private var soundEnabled: Boolean = lettersInteractor.isSoundEnabled()
+    private var selectedNightMinutes: Int = lettersInteractor.getNightDurationMin()
 
     data class State(
         val alphabetOptions: List<SettingsOptionUiModel<Alphabet>> = emptyList(),
         val orderOptions: List<SettingsOptionUiModel<LettersOrder>> = emptyList(),
         val soundEnabled: Boolean = true,
+        val nightDurationOptions: List<SettingsOptionUiModel<Int>> = emptyList(),
     )
 
     sealed interface Commands {
@@ -35,6 +37,12 @@ class LettersSettingsViewModel @Inject constructor(
         data class Run(
             val alphabet: Alphabet,
             val order: LettersOrder,
+        ) : Commands
+
+        data class RunNight(
+            val alphabet: Alphabet,
+            val order: LettersOrder,
+            val minutes: Int,
         ) : Commands
     }
 
@@ -60,8 +68,18 @@ class LettersSettingsViewModel @Inject constructor(
         updateOptions()
     }
 
+    fun onNightDurationSelect(minutes: Int) {
+        lettersInteractor.saveNightDurationMin(minutes)
+        selectedNightMinutes = minutes
+        updateOptions()
+    }
+
     fun onRunClick() {
         commandsFlow.tryEmit(Commands.Run(selectedAlphabet, selectedOrder))
+    }
+
+    fun onNightRunClick() {
+        commandsFlow.tryEmit(Commands.RunNight(selectedAlphabet, selectedOrder, selectedNightMinutes))
     }
 
     private fun updateOptions() {
@@ -69,6 +87,7 @@ class LettersSettingsViewModel @Inject constructor(
             alphabetOptions = settingsUiMapper.mapAlphabetOptions(selectedAlphabet),
             orderOptions = settingsUiMapper.mapOrderOptions(selectedOrder),
             soundEnabled = soundEnabled,
+            nightDurationOptions = settingsUiMapper.mapNightDurationOptions(selectedNightMinutes),
         )
     }
 }

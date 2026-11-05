@@ -238,7 +238,7 @@ private fun HandleCommands(
     }
 }
 
-private class LetterRender(
+internal class LetterRender(
     val layout: TextLayoutResult,
     val glyphPath: Path,
     val glyphBounds: Rect,
@@ -251,7 +251,7 @@ private class LetterRender(
  * Paint платформенной раскладки текста для построения контура глифа:
  * жирный sans-serif того же размера, что у измеренного layout.
  */
-private fun glyphPaint(textSizePx: Float): android.graphics.Paint =
+internal fun glyphPaint(textSizePx: Float): android.graphics.Paint =
     android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
         typeface = android.graphics.Typeface.DEFAULT_BOLD
         textSize = textSizePx
@@ -265,7 +265,7 @@ private fun glyphPaint(textSizePx: Float): android.graphics.Paint =
  * код расширяет bounds как минимум на эту величину, тогда при
  * progress = 1 вся исходная область закрашена.
  */
-private fun revealPath(
+internal fun revealPath(
     bounds: Rect,
     amplitude: Float,
     progress: Float,
@@ -321,7 +321,7 @@ private fun revealPath(
  * Детектор жеста-креста: первый штрих сверху вниз, второй (после
  * отпускания, в пределах таймаута) справа налево → [onCross].
  */
-private fun Modifier.crossGesture(
+internal fun Modifier.crossGesture(
     minStrokeLength: () -> Float,
     onCross: () -> Unit,
 ): Modifier = this.pointerInput(Unit) {
@@ -366,7 +366,7 @@ private fun Modifier.crossGesture(
     }
 }
 
-private class Stroke(points: List<Offset>) {
+internal class Stroke(points: List<Offset>) {
 
     private val first = points.first()
     private val last = points.lastOrNull() ?: first
@@ -382,7 +382,7 @@ private class Stroke(points: List<Offset>) {
 }
 
 @Composable
-private fun KeepScreenOnEffect() {
+internal fun KeepScreenOnEffect() {
     val view = LocalView.current
     DisposableEffect(Unit) {
         view.keepScreenOn = true
@@ -396,7 +396,7 @@ private fun KeepScreenOnEffect() {
  * системные бары восстанавливаются.
  */
 @Composable
-private fun ImmersiveModeEffect() {
+internal fun ImmersiveModeEffect() {
     val activity = LocalContext.current as ComponentActivity
     val insetsController = remember { WindowInsetsControllerCompat(activity.window, activity.window.decorView) }
     DisposableEffect(Unit) {
@@ -407,19 +407,19 @@ private fun ImmersiveModeEffect() {
     }
 }
 
-private const val STAGE_NONE = 0
-private const val STAGE_VERTICAL_DONE = 1
+internal const val STAGE_NONE = 0
+internal const val STAGE_VERTICAL_DONE = 1
 
-private const val MIN_STROKE_FRACTION = 0.3f
-private const val DOMINANT_AXIS_RATIO = 2f
-private const val STROKES_TIMEOUT_MS = 2_000L
+internal const val MIN_STROKE_FRACTION = 0.3f
+internal const val DOMINANT_AXIS_RATIO = 2f
+internal const val STROKES_TIMEOUT_MS = 2_000L
 
-private const val LETTER_WIDTH_FRACTION = 0.8f
-private const val LETTER_MAX_HEIGHT_FRACTION = 0.8f
-private const val REFERENCE_FONT_SIZE_PX = 100f
-private const val WAVE_AMPLITUDE_FRACTION = 0.02f
-private const val WAVE_SEGMENTS = 24
-private const val FADE_DURATION_MS = 300L
+internal const val LETTER_WIDTH_FRACTION = 0.8f
+internal const val LETTER_MAX_HEIGHT_FRACTION = 0.8f
+internal const val REFERENCE_FONT_SIZE_PX = 100f
+internal const val WAVE_AMPLITUDE_FRACTION = 0.02f
+internal const val WAVE_SEGMENTS = 24
+internal const val FADE_DURATION_MS = 300L
 
-private val PLATE_COLOR = Color.Black
-private val LETTER_HOLLOW_COLOR = Color.White
+internal val PLATE_COLOR = Color.Black
+internal val LETTER_HOLLOW_COLOR = Color.White
