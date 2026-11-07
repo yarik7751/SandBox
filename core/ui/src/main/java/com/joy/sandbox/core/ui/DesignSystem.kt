@@ -22,8 +22,16 @@ object DesignSystem {
         object Letters {
 
             // Фон экрана настроек
-            val SettingsBackgroundDay = Color(0xFFF8F6F3)
+            val SettingsBackgroundDay = Color(0xFFFCF4DC)
             val SettingsBackgroundNight = Color(0xFF161412)
+
+            // Тулбар: днём — насыщенный крем (мягко отделяется от фона),
+            // ночью — чуть светлее фона экрана
+            val ToolbarBackgroundDay = Color(0xFFF7ECC9)
+            val ToolbarContentDay = Color(0xFF1A1A1A)
+
+            val ToolbarBackgroundNight = Color(0xFF221F1C)
+            val ToolbarContentNight = Color(0xFFF2EFE9)
 
             // Табы «День» / «Ночь»
             val TabsTrackDay = Color(0xFFECEAE6)

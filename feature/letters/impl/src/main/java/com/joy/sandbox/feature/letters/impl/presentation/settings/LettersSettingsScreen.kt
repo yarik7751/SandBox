@@ -52,16 +52,26 @@ fun LettersSettingsScreen(
 ) {
     val viewModel: LettersSettingsViewModel = viewModel(factory = viewModelFactory)
     val state by viewModel.stateFlow.collectAsStateWithLifecycle()
+    val nightMode = state.selectedMode == LettersMode.NIGHT
 
     Scaffold(
         topBar = {
             SandBoxToolbar(
                 title = stringResource(R.string.letters_settings_title),
                 onBackClick = { router.exit() },
+                backgroundColor = if (nightMode) {
+                    DesignSystem.Colors.Letters.ToolbarBackgroundNight
+                } else {
+                    DesignSystem.Colors.Letters.ToolbarBackgroundDay
+                },
+                contentColor = if (nightMode) {
+                    DesignSystem.Colors.Letters.ToolbarContentNight
+                } else {
+                    DesignSystem.Colors.Letters.ToolbarContentDay
+                },
             )
         },
     ) { padding ->
-        val nightMode = state.selectedMode == LettersMode.NIGHT
         val background = if (nightMode) {
             DesignSystem.Colors.Letters.SettingsBackgroundNight
         } else {
