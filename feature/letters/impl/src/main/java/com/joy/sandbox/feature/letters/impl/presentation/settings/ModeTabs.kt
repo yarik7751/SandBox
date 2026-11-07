@@ -125,8 +125,10 @@ fun ModeTabs(
                     onDragEnd = {
                         val releasedX = dragX
                         dragX = Float.NaN
-                        // Ближайший раздел — по центру указателя.
-                        val targetIndex = ((releasedX + slotWidthPx / 2f) / slotWidthPx)
+                        // Ближайший раздел — по левой кромке указателя в
+                        // делениях дорожки: порог — середина между центрами
+                        // слотов (индекс 0 достижим при тяге влево).
+                        val targetIndex = (releasedX / slotWidthPx)
                             .roundToInt()
                             .coerceIn(0, count - 1)
                         scope.launch {
