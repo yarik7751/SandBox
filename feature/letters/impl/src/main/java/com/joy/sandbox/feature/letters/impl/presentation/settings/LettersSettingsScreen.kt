@@ -35,6 +35,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.joy.sandbox.core.navigation.router.JoyRouter
 import com.joy.sandbox.core.ui.DesignSystem
 import com.joy.sandbox.core.ui.SandBoxToolbar
+import com.joy.sandbox.core.ui.SystemBarColors
 import com.joy.sandbox.core.ui.ViewModelFactory
 import com.joy.sandbox.feature.letters.api.LettersJoyScreen
 import com.joy.sandbox.feature.letters.api.NightLettersJoyScreen
@@ -61,17 +62,18 @@ fun LettersSettingsScreen(
     // и тулбар плавно лерпятся по ней, следуя за движением указателя.
     val thumbFraction = remember { mutableFloatStateOf(0f) }
     val fraction = thumbFraction.floatValue
+    val toolbarBackground = lerp(
+        DesignSystem.Colors.Letters.ToolbarBackgroundDay,
+        DesignSystem.Colors.Letters.ToolbarBackgroundNight,
+        fraction,
+    )
 
     Scaffold(
         topBar = {
             SandBoxToolbar(
                 title = stringResource(R.string.letters_settings_title),
                 onBackClick = { router.exit() },
-                backgroundColor = lerp(
-                    DesignSystem.Colors.Letters.ToolbarBackgroundDay,
-                    DesignSystem.Colors.Letters.ToolbarBackgroundNight,
-                    fraction,
-                ),
+                backgroundColor = toolbarBackground,
                 contentColor = lerp(
                     DesignSystem.Colors.Letters.ToolbarContentDay,
                     DesignSystem.Colors.Letters.ToolbarContentNight,
@@ -84,6 +86,12 @@ fun LettersSettingsScreen(
             DesignSystem.Colors.Letters.SettingsBackgroundDay,
             DesignSystem.Colors.Letters.SettingsBackgroundNight,
             fraction,
+        )
+        // Status bar — в цвет тулбара, navigation bar — в цвет фона.
+        SystemBarColors(
+            statusBarColor = toolbarBackground,
+            navigationBarColor = background,
+            lightIcons = fraction >= 0.5f,
         )
 
         Column(
