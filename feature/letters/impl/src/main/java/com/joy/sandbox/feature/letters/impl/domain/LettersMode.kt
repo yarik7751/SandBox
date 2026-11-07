@@ -1,11 +1,12 @@
-package com.joy.sandbox.feature.letters.impl.presentation.settings.model
+package com.joy.sandbox.feature.letters.impl.domain
 
 import androidx.annotation.StringRes
 import com.joy.sandbox.feature.letters.impl.R
 
 /**
  * Режим показа букв — вкладки экрана настроек. У каждого режима
- * свои настройки и свой источник данных.
+ * свои настройки и свой источник данных. Последний выбранный режим
+ * сохраняется и восстанавливается при входе в настройки.
  */
 enum class LettersMode(@StringRes val labelRes: Int) {
 

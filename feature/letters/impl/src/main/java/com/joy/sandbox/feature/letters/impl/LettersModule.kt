@@ -8,11 +8,15 @@ import com.joy.sandbox.feature.letters.api.LettersJoyScreen
 import com.joy.sandbox.feature.letters.api.LettersSettingsJoyScreen
 import com.joy.sandbox.feature.letters.api.NightLettersJoyScreen
 import com.joy.sandbox.feature.letters.impl.data.LettersDaySettingsRepositoryImpl
+import com.joy.sandbox.feature.letters.impl.data.LettersModeRepositoryImpl
 import com.joy.sandbox.feature.letters.impl.data.LettersNightSettingsRepositoryImpl
 import com.joy.sandbox.feature.letters.impl.data.LettersSpeakerImpl
 import com.joy.sandbox.feature.letters.impl.domain.LettersDaySettingsInteractor
 import com.joy.sandbox.feature.letters.impl.domain.LettersDaySettingsInteractorImpl
 import com.joy.sandbox.feature.letters.impl.domain.LettersDaySettingsRepository
+import com.joy.sandbox.feature.letters.impl.domain.LettersModeInteractor
+import com.joy.sandbox.feature.letters.impl.domain.LettersModeInteractorImpl
+import com.joy.sandbox.feature.letters.impl.domain.LettersModeRepository
 import com.joy.sandbox.feature.letters.impl.domain.LettersNightSettingsInteractor
 import com.joy.sandbox.feature.letters.impl.domain.LettersNightSettingsInteractorImpl
 import com.joy.sandbox.feature.letters.impl.domain.LettersNightSettingsRepository
@@ -39,6 +43,16 @@ class LettersModule {
     fun provideLettersNightSettingsInteractor(
         impl: LettersNightSettingsInteractorImpl,
     ): LettersNightSettingsInteractor = impl
+
+    @Provides
+    fun provideLettersModeInteractor(
+        impl: LettersModeInteractorImpl,
+    ): LettersModeInteractor = impl
+
+    @Provides
+    fun provideLettersModeRepository(
+        impl: LettersModeRepositoryImpl,
+    ): LettersModeRepository = impl
 
     @Provides
     fun provideLettersDaySettingsRepository(

@@ -6,9 +6,10 @@ import com.joy.sandbox.core.ui.CommandFlow
 import com.joy.sandbox.feature.letters.api.model.Alphabet
 import com.joy.sandbox.feature.letters.api.model.LettersOrder
 import com.joy.sandbox.feature.letters.impl.domain.LettersDaySettingsInteractor
+import com.joy.sandbox.feature.letters.impl.domain.LettersMode
+import com.joy.sandbox.feature.letters.impl.domain.LettersModeInteractor
 import com.joy.sandbox.feature.letters.impl.domain.LettersNightSettingsInteractor
 import com.joy.sandbox.feature.letters.impl.presentation.settings.mapper.SettingsUiMapper
-import com.joy.sandbox.feature.letters.impl.presentation.settings.model.LettersMode
 import com.joy.sandbox.feature.letters.impl.presentation.settings.model.SettingsOptionUiModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import javax.inject.Inject
@@ -23,10 +24,15 @@ import javax.inject.Inject
 class LettersSettingsViewModel @Inject constructor(
     private val daySettingsInteractor: LettersDaySettingsInteractor,
     private val nightSettingsInteractor: LettersNightSettingsInteractor,
+    private val lettersModeInteractor: LettersModeInteractor,
     private val settingsUiMapper: SettingsUiMapper,
 ) : BaseViewModel() {
 
-    val stateFlow = MutableStateFlow(State())
+    // При входе на экран открывается последний выбранный режим;
+    // если режим ещё не выбирался — ночной (см. LettersModeRepository).
+    val stateFlow = MutableStateFlow(
+        State(selectedMode = lettersModeInteractor.loadLastMode()),
+    )
 
     val commandsFlow = CommandFlow<Commands>(viewModelScope)
 
@@ -67,6 +73,7 @@ class LettersSettingsViewModel @Inject constructor(
     }
 
     fun onModeSelect(mode: LettersMode) {
+        lettersModeInteractor.saveMode(mode)
         stateFlow.value = stateFlow.value.copy(selectedMode = mode)
     }
 

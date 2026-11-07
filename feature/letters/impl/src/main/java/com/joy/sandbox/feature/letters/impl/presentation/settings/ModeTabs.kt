@@ -24,6 +24,7 @@ import androidx.compose.runtime.MutableFloatState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -40,7 +41,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.joy.sandbox.core.ui.DesignSystem
-import com.joy.sandbox.feature.letters.impl.presentation.settings.model.LettersMode
+import com.joy.sandbox.feature.letters.impl.domain.LettersMode
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 import kotlin.math.roundToInt
@@ -85,21 +86,27 @@ fun ModeTabs(
     val slotWidthPx = trackWidthPx.toFloat() / count
 
     // Позиция указателя (левая кромка) в покое — анимированная.
-    val thumbX = remember { Animatable(-1f) }
+    val thumbX = remember { Animatable(0f) }
+    // До инициализации (первого измерения дорожки) позиция не берётся
+    // из аниматора — показываем выбранный режим напрямую (см. ниже),
+    // стартовый кадр не зависит от эффектов.
+    var isThumbInitialized by remember { mutableStateOf(false) }
     // Во время drag позицию держим вне аниматора — без запуска
     // корутин на каждое событие; NaN = drag не идёт.
     var dragX by remember { mutableFloatStateOf(Float.NaN) }
 
-    // Первичная постановка указателя на выбранный раздел.
+    // Инициализация аниматора при первом измерении дорожки.
     LaunchedEffect(trackWidthPx) {
-        if (trackWidthPx > 0 && thumbX.value < 0f) {
+        if (trackWidthPx > 0 && !isThumbInitialized) {
             thumbX.snapTo(selectedMode.ordinal * slotWidthPx)
+            isThumbInitialized = true
         }
     }
 
-    // Синхронизация с выбранным режимом извне (не во время drag).
+    // Синхронизация с выбранным режимом извне (не во время drag) —
+    // только после инициализации: до неё позицию задаёт selectedMode напрямую.
     LaunchedEffect(selectedMode) {
-        if (trackWidthPx > 0 && dragX.isNaN()) {
+        if (isThumbInitialized && trackWidthPx > 0 && dragX.isNaN()) {
             thumbX.animateTo(
                 targetValue = selectedMode.ordinal * slotWidthPx,
                 animationSpec = tween(durationMillis = TAB_ANIM_MS),
@@ -113,11 +120,13 @@ fun ModeTabs(
             .height(TAB_HEIGHT)
             .clip(TRACK_SHAPE)
             .background(trackColor)
-            .onSizeChanged { trackWidthPx = it.width }
+            .onSizeChanged {
+                trackWidthPx = it.width
+            }
             .pointerInput(count) {
                 detectDragGestures(
                     onDragStart = { start ->
-                        dragX = if (thumbX.value < 0f) {
+                        dragX = if (!isThumbInitialized) {
                             start.x - slotWidthPx / 2f
                         } else {
                             thumbX.value
@@ -161,7 +170,10 @@ fun ModeTabs(
                     if (trackWidthPx == 0) return@detectTapGestures
                     val index = (offset.x / slotWidthPx).toInt().coerceIn(0, count - 1)
                     scope.launch {
-                        if (thumbX.value < 0f) thumbX.snapTo(index * slotWidthPx)
+                        if (!isThumbInitialized) {
+                            thumbX.snapTo(index * slotWidthPx)
+                            isThumbInitialized = true
+                        }
                         thumbX.animateTo(
                             targetValue = index * slotWidthPx,
                             animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
@@ -172,11 +184,22 @@ fun ModeTabs(
             },
     ) {
         if (trackWidthPx > 0) {
-            val thumbPosition = if (dragX.isNaN()) thumbX.value else dragX
+            // Позиция: до инициализации аниматора — сразу на выбранном
+            // режиме (не зависит от эффектов); в покое — анимированная;
+            // во время drag — drag-позиция.
+            val targetX = selectedMode.ordinal * slotWidthPx
+            val thumbPosition = when {
+                !isThumbInitialized -> targetX
+                dragX.isNaN() -> thumbX.value
+                else -> dragX
+            }
             // Доля позиции указателя между «Днем» (0) и «Ночью» (1) —
             // внешние цвета (фон, тулбар) лерпятся по ней.
             val maxX = trackWidthPx - slotWidthPx
-            thumbFraction.floatValue = if (maxX > 0f) thumbPosition / maxX else 0f
+            val newFraction = if (maxX > 0f) (thumbPosition / maxX).coerceIn(0f, 1f) else 0f
+            if (thumbFraction.floatValue != newFraction) {
+                thumbFraction.floatValue = newFraction
+            }
             Box(
                 modifier = Modifier
                     .offset { IntOffset(thumbPosition.roundToInt(), 0) }
