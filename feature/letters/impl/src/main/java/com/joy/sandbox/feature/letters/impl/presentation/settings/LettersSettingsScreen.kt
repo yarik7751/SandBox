@@ -21,8 +21,11 @@ import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -54,29 +57,34 @@ fun LettersSettingsScreen(
     val state by viewModel.stateFlow.collectAsStateWithLifecycle()
     val nightMode = state.selectedMode == LettersMode.NIGHT
 
+    // Доля позиции ползунка табов (0 = «День», 1 = «Ночь») — фон экрана
+    // и тулбар плавно лерпятся по ней, следуя за движением указателя.
+    val thumbFraction = remember { mutableFloatStateOf(0f) }
+    val fraction = thumbFraction.floatValue
+
     Scaffold(
         topBar = {
             SandBoxToolbar(
                 title = stringResource(R.string.letters_settings_title),
                 onBackClick = { router.exit() },
-                backgroundColor = if (nightMode) {
-                    DesignSystem.Colors.Letters.ToolbarBackgroundNight
-                } else {
-                    DesignSystem.Colors.Letters.ToolbarBackgroundDay
-                },
-                contentColor = if (nightMode) {
-                    DesignSystem.Colors.Letters.ToolbarContentNight
-                } else {
-                    DesignSystem.Colors.Letters.ToolbarContentDay
-                },
+                backgroundColor = lerp(
+                    DesignSystem.Colors.Letters.ToolbarBackgroundDay,
+                    DesignSystem.Colors.Letters.ToolbarBackgroundNight,
+                    fraction,
+                ),
+                contentColor = lerp(
+                    DesignSystem.Colors.Letters.ToolbarContentDay,
+                    DesignSystem.Colors.Letters.ToolbarContentNight,
+                    fraction,
+                ),
             )
         },
     ) { padding ->
-        val background = if (nightMode) {
-            DesignSystem.Colors.Letters.SettingsBackgroundNight
-        } else {
-            DesignSystem.Colors.Letters.SettingsBackgroundDay
-        }
+        val background = lerp(
+            DesignSystem.Colors.Letters.SettingsBackgroundDay,
+            DesignSystem.Colors.Letters.SettingsBackgroundNight,
+            fraction,
+        )
 
         Column(
             modifier = Modifier
@@ -89,7 +97,7 @@ fun LettersSettingsScreen(
             ModeTabs(
                 selectedMode = state.selectedMode,
                 onModeSelect = viewModel::onModeSelect,
-                nightMode = nightMode,
+                thumbFraction = thumbFraction,
             )
             when (state.selectedMode) {
                 LettersMode.DAY -> DaySettings(

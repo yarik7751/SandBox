@@ -20,6 +20,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableFloatState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
@@ -57,28 +58,28 @@ import kotlin.math.roundToInt
 fun ModeTabs(
     selectedMode: LettersMode,
     onModeSelect: (LettersMode) -> Unit,
-    nightMode: Boolean,
+    thumbFraction: MutableFloatState,
 ) {
     val modes = LettersMode.entries
     val count = modes.size
     val density = LocalDensity.current
     val scope = rememberCoroutineScope()
 
-    val trackColor: Color
-    val thumbColor: Color
-    val labelIdleColor: Color
-    val labelActiveColor: Color
-    if (nightMode) {
-        trackColor = DesignSystem.Colors.Letters.TabsTrackNight
-        thumbColor = DesignSystem.Colors.Letters.TabsThumbNight
-        labelIdleColor = DesignSystem.Colors.Letters.TabsLabelIdleNight
-        labelActiveColor = DesignSystem.Colors.Letters.TabsLabelActiveNight
-    } else {
-        trackColor = DesignSystem.Colors.Letters.TabsTrackDay
-        thumbColor = DesignSystem.Colors.Letters.TabsThumbDay
-        labelIdleColor = DesignSystem.Colors.Letters.TabsLabelIdleDay
-        labelActiveColor = DesignSystem.Colors.Letters.TabsLabelActiveDay
-    }
+    // Цвета лерпятся по позиции указателя: плавно следуют за ползунком
+    // и в drag, и в анимации (0 = «День», 1 = «Ночь»).
+    val fraction = thumbFraction.floatValue
+    val trackColor = lerp(DesignSystem.Colors.Letters.TabsTrackDay, DesignSystem.Colors.Letters.TabsTrackNight, fraction)
+    val thumbColor = lerp(DesignSystem.Colors.Letters.TabsThumbDay, DesignSystem.Colors.Letters.TabsThumbNight, fraction)
+    val labelIdleColor = lerp(
+        DesignSystem.Colors.Letters.TabsLabelIdleDay,
+        DesignSystem.Colors.Letters.TabsLabelIdleNight,
+        fraction,
+    )
+    val labelActiveColor = lerp(
+        DesignSystem.Colors.Letters.TabsLabelActiveDay,
+        DesignSystem.Colors.Letters.TabsLabelActiveNight,
+        fraction,
+    )
 
     var trackWidthPx by remember { mutableIntStateOf(0) }
     val slotWidthPx = trackWidthPx.toFloat() / count
@@ -172,6 +173,10 @@ fun ModeTabs(
     ) {
         if (trackWidthPx > 0) {
             val thumbPosition = if (dragX.isNaN()) thumbX.value else dragX
+            // Доля позиции указателя между «Днем» (0) и «Ночью» (1) —
+            // внешние цвета (фон, тулбар) лерпятся по ней.
+            val maxX = trackWidthPx - slotWidthPx
+            thumbFraction.floatValue = if (maxX > 0f) thumbPosition / maxX else 0f
             Box(
                 modifier = Modifier
                     .offset { IntOffset(thumbPosition.roundToInt(), 0) }
