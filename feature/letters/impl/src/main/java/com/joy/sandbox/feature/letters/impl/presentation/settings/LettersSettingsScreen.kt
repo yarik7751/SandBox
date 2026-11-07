@@ -184,6 +184,7 @@ private fun <T> SettingsGroup(
     Text(
         text = title,
         style = MaterialTheme.typography.titleMedium,
+        color = textColor(nightMode),
     )
     options.forEach { option ->
         Row(
@@ -207,6 +208,7 @@ private fun <T> SettingsGroup(
             Text(
                 modifier = Modifier.padding(start = 8.dp),
                 text = stringResource(option.labelRes),
+                color = textColor(nightMode),
             )
         }
     }
@@ -228,17 +230,18 @@ private fun SoundSwitchRow(
         Text(
             text = title,
             style = MaterialTheme.typography.titleMedium,
+            color = textColor(nightMode),
         )
         Spacer(modifier = Modifier.weight(1f))
         Switch(
             checked = checked,
             onCheckedChange = onCheckedChange,
             colors = SwitchDefaults.colors(
-                checkedTrackColor = accentColor(nightMode),
-                checkedThumbColor = if (nightMode) {
-                    LettersColors.TabsThumbNight
+                checkedThumbColor = accentColor(nightMode),
+                checkedTrackColor = if (nightMode) {
+                    LettersColors.SwitchTrackCheckedNight
                 } else {
-                    LettersColors.TabsThumbDay
+                    LettersColors.SwitchTrackCheckedDay
                 },
             ),
         )
@@ -265,6 +268,13 @@ private fun accentColor(nightMode: Boolean) = if (nightMode) {
     LettersColors.ButtonContainerNight
 } else {
     LettersColors.ButtonContainerDay
+}
+
+/** Основной цвет текста настроек. */
+private fun textColor(nightMode: Boolean) = if (nightMode) {
+    LettersColors.TextPrimaryNight
+} else {
+    LettersColors.TextPrimaryDay
 }
 
 @Composable

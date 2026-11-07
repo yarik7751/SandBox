@@ -32,4 +32,12 @@ object LettersColors {
 
     val ButtonContainerNight = Color(0xFFA85C33)
     val ButtonContentNight = Color(0xFFFBEDE3)
+
+    // Текст (заголовки групп, подписи опций)
+    val TextPrimaryDay = Color(0xFF1A1A1A)
+    val TextPrimaryNight = Color(0xFFF2EFE9)
+
+    // Switch во включённом состоянии: подложка — светлый оттенок акцента
+    val SwitchTrackCheckedDay = Color(0xFFF2C4A8)
+    val SwitchTrackCheckedNight = Color(0xFF6E4630)
 }
