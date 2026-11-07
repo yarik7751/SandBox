@@ -25,13 +25,16 @@ import androidx.compose.ui.unit.dp
 /**
  * Единый Toolbar для всех экранов приложения.
  *
- * Высота 56dp, нижние углы скруглены на 16dp, фон белый,
- * заголовок и стрелка назад — черные.
+ * Высота 56dp, нижние углы скруглены на 16dp. По умолчанию фон белый,
+ * заголовок и стрелка назад — черные; переопределяется через
+ * [backgroundColor] и [contentColor].
  *
  * [title] — заголовок экрана.
  * [onBackClick] — обработчик нажатия на стрелку назад; если null,
  * стрелка скрывается (например, на корневом экране стека).
  * [actions] — дополнительные действия справа от заголовка.
+ * [backgroundColor] — цвет фона тулбара.
+ * [contentColor] — цвет заголовка и стрелки назад.
  */
 @Composable
 fun SandBoxToolbar(
@@ -39,13 +42,15 @@ fun SandBoxToolbar(
     modifier: Modifier = Modifier,
     onBackClick: (() -> Unit)? = null,
     actions: (@Composable RowScope.() -> Unit)? = null,
+    backgroundColor: Color = Color.White,
+    contentColor: Color = Color.Black,
 ) {
     Surface(
         modifier = modifier
             .fillMaxWidth()
             .height(TOOLBAR_HEIGHT),
         shape = RoundedCornerShape(bottomStart = TOOLBAR_CORNER, bottomEnd = TOOLBAR_CORNER),
-        color = Color.White,
+        color = backgroundColor,
         // Тень по скруглённой форме — делает скругление заметным на любом фоне.
         shadowElevation = TOOLBAR_SHADOW,
         tonalElevation = 0.dp,
@@ -61,7 +66,7 @@ fun SandBoxToolbar(
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = null,
-                        tint = Color.Black,
+                        tint = contentColor,
                     )
                 }
             } else {
@@ -70,7 +75,7 @@ fun SandBoxToolbar(
             Text(
                 modifier = Modifier.weight(1f),
                 text = title,
-                color = Color.Black,
+                color = contentColor,
                 style = MaterialTheme.typography.titleLarge,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,

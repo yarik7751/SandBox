@@ -7,6 +7,7 @@
 Workflow:
 1. The owner gives a task.
 2. I build a plan and wait for "ок" or plan corrections.
+   - План включает примеры будущих изменений в коде: фрагменты кода, сигнатуры функций/интерфейсов, структуру новых файлов — то, что помогает оценить план до реализации. Это эскиз, а не финальный код.
 3. I implement the task and propose a short English commit message.
 4. The owner confirms or changes the commit message — only then commit.
 
