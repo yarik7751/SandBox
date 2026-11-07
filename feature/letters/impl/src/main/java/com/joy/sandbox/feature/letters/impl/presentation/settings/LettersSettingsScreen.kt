@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.joy.sandbox.core.navigation.router.JoyRouter
+import com.joy.sandbox.core.ui.DesignSystem
 import com.joy.sandbox.core.ui.SandBoxToolbar
 import com.joy.sandbox.core.ui.ViewModelFactory
 import com.joy.sandbox.feature.letters.api.LettersJoyScreen
@@ -62,9 +63,9 @@ fun LettersSettingsScreen(
     ) { padding ->
         val nightMode = state.selectedMode == LettersMode.NIGHT
         val background = if (nightMode) {
-            LettersColors.SettingsBackgroundNight
+            DesignSystem.Colors.Letters.SettingsBackgroundNight
         } else {
-            LettersColors.SettingsBackgroundDay
+            DesignSystem.Colors.Letters.SettingsBackgroundDay
         }
 
         Column(
@@ -199,9 +200,9 @@ private fun <T> SettingsGroup(
                 colors = RadioButtonDefaults.colors(
                     selectedColor = accentColor(nightMode),
                     unselectedColor = if (nightMode) {
-                        LettersColors.TabsLabelIdleNight
+                        DesignSystem.Colors.Letters.TabsLabelIdleNight
                     } else {
-                        LettersColors.TabsLabelIdleDay
+                        DesignSystem.Colors.Letters.TabsLabelIdleDay
                     },
                 ),
             )
@@ -239,9 +240,9 @@ private fun SoundSwitchRow(
             colors = SwitchDefaults.colors(
                 checkedThumbColor = accentColor(nightMode),
                 checkedTrackColor = if (nightMode) {
-                    LettersColors.SwitchTrackCheckedNight
+                    DesignSystem.Colors.Letters.SwitchTrackCheckedNight
                 } else {
-                    LettersColors.SwitchTrackCheckedDay
+                    DesignSystem.Colors.Letters.SwitchTrackCheckedDay
                 },
             ),
         )
@@ -252,29 +253,29 @@ private fun SoundSwitchRow(
 @Composable
 private fun runButtonColors(nightMode: Boolean) = ButtonDefaults.buttonColors(
     containerColor = if (nightMode) {
-        LettersColors.ButtonContainerNight
+        DesignSystem.Colors.Letters.ButtonContainerNight
     } else {
-        LettersColors.ButtonContainerDay
+        DesignSystem.Colors.Letters.ButtonContainerDay
     },
     contentColor = if (nightMode) {
-        LettersColors.ButtonContentNight
+        DesignSystem.Colors.Letters.ButtonContentNight
     } else {
-        LettersColors.ButtonContentDay
+        DesignSystem.Colors.Letters.ButtonContentDay
     },
 )
 
 /** Тёплый акцент фичи — для радиокнопок и переключателей. */
 private fun accentColor(nightMode: Boolean) = if (nightMode) {
-    LettersColors.ButtonContainerNight
+    DesignSystem.Colors.Letters.ButtonContainerNight
 } else {
-    LettersColors.ButtonContainerDay
+    DesignSystem.Colors.Letters.ButtonContainerDay
 }
 
 /** Основной цвет текста настроек. */
 private fun textColor(nightMode: Boolean) = if (nightMode) {
-    LettersColors.TextPrimaryNight
+    DesignSystem.Colors.Letters.TextPrimaryNight
 } else {
-    LettersColors.TextPrimaryDay
+    DesignSystem.Colors.Letters.TextPrimaryDay
 }
 
 @Composable

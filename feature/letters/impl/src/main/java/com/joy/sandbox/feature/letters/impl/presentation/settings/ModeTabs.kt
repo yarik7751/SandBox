@@ -38,6 +38,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import com.joy.sandbox.core.ui.DesignSystem
 import com.joy.sandbox.feature.letters.impl.presentation.settings.model.LettersMode
 import kotlinx.coroutines.launch
 import kotlin.math.abs
@@ -68,15 +69,15 @@ fun ModeTabs(
     val labelIdleColor: Color
     val labelActiveColor: Color
     if (nightMode) {
-        trackColor = LettersColors.TabsTrackNight
-        thumbColor = LettersColors.TabsThumbNight
-        labelIdleColor = LettersColors.TabsLabelIdleNight
-        labelActiveColor = LettersColors.TabsLabelActiveNight
+        trackColor = DesignSystem.Colors.Letters.TabsTrackNight
+        thumbColor = DesignSystem.Colors.Letters.TabsThumbNight
+        labelIdleColor = DesignSystem.Colors.Letters.TabsLabelIdleNight
+        labelActiveColor = DesignSystem.Colors.Letters.TabsLabelActiveNight
     } else {
-        trackColor = LettersColors.TabsTrackDay
-        thumbColor = LettersColors.TabsThumbDay
-        labelIdleColor = LettersColors.TabsLabelIdleDay
-        labelActiveColor = LettersColors.TabsLabelActiveDay
+        trackColor = DesignSystem.Colors.Letters.TabsTrackDay
+        thumbColor = DesignSystem.Colors.Letters.TabsThumbDay
+        labelIdleColor = DesignSystem.Colors.Letters.TabsLabelIdleDay
+        labelActiveColor = DesignSystem.Colors.Letters.TabsLabelActiveDay
     }
 
     var trackWidthPx by remember { mutableIntStateOf(0) }
