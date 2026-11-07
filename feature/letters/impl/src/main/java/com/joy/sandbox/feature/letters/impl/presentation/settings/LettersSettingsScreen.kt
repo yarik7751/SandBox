@@ -3,6 +3,7 @@ package com.joy.sandbox.feature.letters.impl.presentation.settings
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,8 +15,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
@@ -27,6 +26,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -110,22 +110,39 @@ fun LettersSettingsScreen(
             // Обе области в композиции всегда: Box занимает высоту самой
             // высокой, короткая центрируется; альфа кроссфейдит области
             // синхронно с ползунком, интерактивность — у той, что видна.
+            // Активная область рисуется последней (поверх), чтобы тапы
+            // не перехватывал угасающий слой.
             Box(
                 modifier = Modifier.fillMaxWidth(),
                 contentAlignment = Alignment.Center,
             ) {
-                DaySettings(
-                    state = state,
-                    viewModel = viewModel,
-                    alpha = 1f - fraction,
-                    enabled = fraction < 0.5f,
-                )
-                NightSettings(
-                    state = state,
-                    viewModel = viewModel,
-                    alpha = fraction,
-                    enabled = fraction >= 0.5f,
-                )
+                if (fraction < 0.5f) {
+                    NightSettings(
+                        state = state,
+                        viewModel = viewModel,
+                        alpha = fraction,
+                        enabled = false,
+                    )
+                    DaySettings(
+                        state = state,
+                        viewModel = viewModel,
+                        alpha = 1f - fraction,
+                        enabled = true,
+                    )
+                } else {
+                    DaySettings(
+                        state = state,
+                        viewModel = viewModel,
+                        alpha = 1f - fraction,
+                        enabled = false,
+                    )
+                    NightSettings(
+                        state = state,
+                        viewModel = viewModel,
+                        alpha = fraction,
+                        enabled = true,
+                    )
+                }
             }
         }
     }
@@ -248,31 +265,48 @@ private fun <T> SettingsGroup(
         color = textColor(nightMode),
     )
     options.forEach { option ->
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable(enabled = enabled) { onOptionClick(option.value) },
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            RadioButton(
-                selected = option.selected,
-                onClick = null,
-                colors = RadioButtonDefaults.colors(
-                    selectedColor = accentColor(nightMode),
-                    unselectedColor = if (nightMode) {
-                        DesignSystem.Colors.Letters.TabsLabelIdleNight
-                    } else {
-                        DesignSystem.Colors.Letters.TabsLabelIdleDay
-                    },
-                ),
-            )
-            Text(
-                modifier = Modifier.padding(start = 8.dp),
-                text = stringResource(option.labelRes),
-                color = textColor(nightMode),
-            )
-        }
+        OptionTile(
+            text = stringResource(option.labelRes),
+            selected = option.selected,
+            enabled = enabled,
+            nightMode = nightMode,
+            onClick = { onOptionClick(option.value) },
+        )
     }
+}
+
+/** Плитка опции: серый — не выбрана, белый — выбрана. */
+@Composable
+private fun OptionTile(
+    text: String,
+    selected: Boolean,
+    enabled: Boolean,
+    nightMode: Boolean,
+    onClick: () -> Unit,
+) {
+    val background = when {
+        selected && nightMode -> DesignSystem.Colors.Letters.OptionTileSelectedNight
+        selected -> DesignSystem.Colors.Letters.OptionTileSelectedDay
+        nightMode -> DesignSystem.Colors.Letters.OptionTileUnselectedNight
+        else -> DesignSystem.Colors.Letters.OptionTileUnselectedDay
+    }
+    Text(
+        text = text,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 8.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .background(background)
+            // Обработчик вешаем только на активную область: угасающая
+            // не должна участвовать во вводе и перехватывать тапы слоя ниже.
+            .then(if (enabled) Modifier.clickable(onClick = onClick) else Modifier)
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        color = if (selected) {
+            DesignSystem.Colors.Letters.OptionTileSelectedText
+        } else {
+            textColor(nightMode)
+        },
+    )
 }
 
 @Composable

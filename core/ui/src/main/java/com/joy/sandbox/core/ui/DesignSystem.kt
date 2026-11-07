@@ -60,6 +60,16 @@ object DesignSystem {
             // Switch во включённом состоянии: подложка — светлый оттенок акцента
             val SwitchTrackCheckedDay = Color(0xFFF2C4A8)
             val SwitchTrackCheckedNight = Color(0xFF6E4630)
+
+            // Плитки опций: не выбранная — серая, выбранная — белая
+            val OptionTileUnselectedDay = Color(0xFFECEAE6)
+            val OptionTileSelectedDay = Color(0xFFFFFFFF)
+
+            val OptionTileUnselectedNight = Color(0xFF2A2724)
+            val OptionTileSelectedNight = Color(0xFFFFFFFF)
+
+            // Текст на выбранной (белой) плитке — тёмный в обоих режимах
+            val OptionTileSelectedText = Color(0xFF1A1A1A)
         }
     }
 }
