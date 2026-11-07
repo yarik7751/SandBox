@@ -2,6 +2,7 @@ package com.joy.sandbox.feature.letters.impl.presentation.settings
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -25,6 +26,7 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -38,7 +40,6 @@ import com.joy.sandbox.feature.letters.api.LettersJoyScreen
 import com.joy.sandbox.feature.letters.api.NightLettersJoyScreen
 import com.joy.sandbox.feature.letters.impl.R
 import com.joy.sandbox.feature.letters.impl.presentation.settings.LettersSettingsViewModel.Commands
-import com.joy.sandbox.feature.letters.impl.presentation.settings.model.LettersMode
 import com.joy.sandbox.feature.letters.impl.presentation.settings.model.SettingsOptionUiModel
 import com.joy.sandbox.utils.observe
 
@@ -55,7 +56,6 @@ fun LettersSettingsScreen(
 ) {
     val viewModel: LettersSettingsViewModel = viewModel(factory = viewModelFactory)
     val state by viewModel.stateFlow.collectAsStateWithLifecycle()
-    val nightMode = state.selectedMode == LettersMode.NIGHT
 
     // Доля позиции ползунка табов (0 = «День», 1 = «Ночь») — фон экрана
     // и тулбар плавно лерпятся по ней, следуя за движением указателя.
@@ -99,17 +99,24 @@ fun LettersSettingsScreen(
                 onModeSelect = viewModel::onModeSelect,
                 thumbFraction = thumbFraction,
             )
-            when (state.selectedMode) {
-                LettersMode.DAY -> DaySettings(
+            // Обе области в композиции всегда: Box занимает высоту самой
+            // высокой, короткая центрируется; альфа кроссфейдит области
+            // синхронно с ползунком, интерактивность — у той, что видна.
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center,
+            ) {
+                DaySettings(
                     state = state,
                     viewModel = viewModel,
-                    nightMode = nightMode,
+                    alpha = 1f - fraction,
+                    enabled = fraction < 0.5f,
                 )
-
-                LettersMode.NIGHT -> NightSettings(
+                NightSettings(
                     state = state,
                     viewModel = viewModel,
-                    nightMode = nightMode,
+                    alpha = fraction,
+                    enabled = fraction >= 0.5f,
                 )
             }
         }
@@ -121,75 +128,101 @@ fun LettersSettingsScreen(
     )
 }
 
-/** Раздел дневного режима: алфавит, порядок, звук, запуск. */
+/**
+ * Раздел дневного режима: алфавит, порядок, звук, запуск.
+ * Всегда в дневной палитре; плавность переключения даёт [alpha].
+ */
 @Composable
 private fun DaySettings(
     state: LettersSettingsViewModel.State,
     viewModel: LettersSettingsViewModel,
-    nightMode: Boolean,
+    alpha: Float,
+    enabled: Boolean,
 ) {
-    SettingsGroup(
-        title = stringResource(R.string.letters_settings_alphabet_group),
-        options = state.alphabetOptions,
-        onOptionClick = viewModel::onAlphabetSelect,
-        nightMode = nightMode,
-    )
-    SettingsGroup(
-        title = stringResource(R.string.letters_settings_order_group),
-        options = state.orderOptions,
-        onOptionClick = viewModel::onOrderSelect,
-        nightMode = nightMode,
-    )
-    SoundSwitchRow(
-        title = stringResource(R.string.letters_settings_sound_group),
-        checked = state.soundEnabled,
-        onCheckedChange = viewModel::onSoundToggle,
-        nightMode = nightMode,
-    )
-    Button(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 8.dp),
-        colors = runButtonColors(nightMode),
-        onClick = viewModel::onRunClick,
-    ) {
-        Text(text = stringResource(R.string.letters_button_run))
+    Column(modifier = Modifier.fillMaxWidth().alpha(alpha)) {
+        SettingsGroup(
+            title = stringResource(R.string.letters_settings_alphabet_group),
+            options = state.alphabetOptions,
+            onOptionClick = viewModel::onAlphabetSelect,
+            nightMode = false,
+            enabled = enabled,
+        )
+        SettingsGroup(
+            title = stringResource(R.string.letters_settings_order_group),
+            options = state.orderOptions,
+            onOptionClick = viewModel::onOrderSelect,
+            nightMode = false,
+            enabled = enabled,
+        )
+        SoundSwitchRow(
+            title = stringResource(R.string.letters_settings_sound_group),
+            checked = state.soundEnabled,
+            onCheckedChange = viewModel::onSoundToggle,
+            nightMode = false,
+            enabled = enabled,
+        )
+        Button(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp),
+            enabled = enabled,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = DesignSystem.Colors.Letters.ButtonContainerDay,
+                contentColor = DesignSystem.Colors.Letters.ButtonContentDay,
+            ),
+            onClick = viewModel::onRunClick,
+        ) {
+            Text(text = stringResource(R.string.letters_button_run))
+        }
     }
 }
 
-/** Раздел ночного режима: алфавит, порядок, таймер, запуск. */
+/**
+ * Раздел ночного режима: алфавит, порядок, таймер, запуск.
+ * Всегда в ночной палитре; плавность переключения даёт [alpha].
+ */
 @Composable
 private fun NightSettings(
     state: LettersSettingsViewModel.State,
     viewModel: LettersSettingsViewModel,
-    nightMode: Boolean,
+    alpha: Float,
+    enabled: Boolean,
 ) {
-    SettingsGroup(
-        title = stringResource(R.string.letters_settings_alphabet_group),
-        options = state.nightAlphabetOptions,
-        onOptionClick = viewModel::onNightAlphabetSelect,
-        nightMode = nightMode,
-    )
-    SettingsGroup(
-        title = stringResource(R.string.letters_settings_order_group),
-        options = state.nightOrderOptions,
-        onOptionClick = viewModel::onNightOrderSelect,
-        nightMode = nightMode,
-    )
-    SettingsGroup(
-        title = stringResource(R.string.letters_night_timer_group),
-        options = state.nightDurationOptions,
-        onOptionClick = viewModel::onNightDurationSelect,
-        nightMode = nightMode,
-    )
-    Button(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 8.dp),
-        colors = runButtonColors(nightMode),
-        onClick = viewModel::onNightRunClick,
-    ) {
-        Text(text = stringResource(R.string.letters_button_run_night))
+    Column(modifier = Modifier.fillMaxWidth().alpha(alpha)) {
+        SettingsGroup(
+            title = stringResource(R.string.letters_settings_alphabet_group),
+            options = state.nightAlphabetOptions,
+            onOptionClick = viewModel::onNightAlphabetSelect,
+            nightMode = true,
+            enabled = enabled,
+        )
+        SettingsGroup(
+            title = stringResource(R.string.letters_settings_order_group),
+            options = state.nightOrderOptions,
+            onOptionClick = viewModel::onNightOrderSelect,
+            nightMode = true,
+            enabled = enabled,
+        )
+        SettingsGroup(
+            title = stringResource(R.string.letters_night_timer_group),
+            options = state.nightDurationOptions,
+            onOptionClick = viewModel::onNightDurationSelect,
+            nightMode = true,
+            enabled = enabled,
+        )
+        Button(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp),
+            enabled = enabled,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = DesignSystem.Colors.Letters.ButtonContainerNight,
+                contentColor = DesignSystem.Colors.Letters.ButtonContentNight,
+            ),
+            onClick = viewModel::onNightRunClick,
+        ) {
+            Text(text = stringResource(R.string.letters_button_run_night))
+        }
     }
 }
 
@@ -199,6 +232,7 @@ private fun <T> SettingsGroup(
     options: List<SettingsOptionUiModel<T>>,
     onOptionClick: (T) -> Unit,
     nightMode: Boolean,
+    enabled: Boolean,
 ) {
     Text(
         text = title,
@@ -209,7 +243,7 @@ private fun <T> SettingsGroup(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { onOptionClick(option.value) },
+                .clickable(enabled = enabled) { onOptionClick(option.value) },
             verticalAlignment = Alignment.CenterVertically,
         ) {
             RadioButton(
@@ -239,6 +273,7 @@ private fun SoundSwitchRow(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     nightMode: Boolean,
+    enabled: Boolean,
 ) {
     Row(
         modifier = Modifier
@@ -255,6 +290,7 @@ private fun SoundSwitchRow(
         Switch(
             checked = checked,
             onCheckedChange = onCheckedChange,
+            enabled = enabled,
             colors = SwitchDefaults.colors(
                 checkedThumbColor = accentColor(nightMode),
                 checkedTrackColor = if (nightMode) {
@@ -266,21 +302,6 @@ private fun SoundSwitchRow(
         )
     }
 }
-
-/** Цвета кнопок «Запустить» — тёплый акцент, день/ночь по выбранному режиму. */
-@Composable
-private fun runButtonColors(nightMode: Boolean) = ButtonDefaults.buttonColors(
-    containerColor = if (nightMode) {
-        DesignSystem.Colors.Letters.ButtonContainerNight
-    } else {
-        DesignSystem.Colors.Letters.ButtonContainerDay
-    },
-    contentColor = if (nightMode) {
-        DesignSystem.Colors.Letters.ButtonContentNight
-    } else {
-        DesignSystem.Colors.Letters.ButtonContentDay
-    },
-)
 
 /** Тёплый акцент фичи — для радиокнопок и переключателей. */
 private fun accentColor(nightMode: Boolean) = if (nightMode) {
