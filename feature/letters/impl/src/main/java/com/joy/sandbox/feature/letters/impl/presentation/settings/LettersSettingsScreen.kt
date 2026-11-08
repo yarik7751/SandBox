@@ -60,7 +60,9 @@ fun LettersSettingsScreen(
 
     // Доля позиции ползунка табов (0 = «День», 1 = «Ночь») — фон экрана
     // и тулбар плавно лерпятся по ней, следуя за движением указателя.
-    val thumbFraction = remember { mutableFloatStateOf(0f) }
+    // Стартует от выбранного режима: при входе восстанавливается
+    // сохранённый, а не всегда «День».
+    val thumbFraction = remember { mutableFloatStateOf(state.selectedMode.fraction) }
     val fraction = thumbFraction.floatValue
     val toolbarBackground = lerp(
         DesignSystem.Colors.Letters.ToolbarBackgroundDay,

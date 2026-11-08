@@ -12,4 +12,9 @@ enum class LettersMode(@StringRes val labelRes: Int) {
 
     DAY(R.string.letters_mode_day),
     NIGHT(R.string.letters_mode_night),
+    ;
+
+    /** Доля позиции указателя: 0 — «День», 1 — «Ночь». */
+    val fraction: Float
+        get() = ordinal.toFloat() / (entries.size - 1)
 }

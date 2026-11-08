@@ -95,22 +95,22 @@ fun ModeTabs(
     // корутин на каждое событие; NaN = drag не идёт.
     var dragX by remember { mutableFloatStateOf(Float.NaN) }
 
-    // Инициализация аниматора при первом измерении дорожки.
-    LaunchedEffect(trackWidthPx) {
-        if (trackWidthPx > 0 && !isThumbInitialized) {
-            thumbX.snapTo(selectedMode.ordinal * slotWidthPx)
-            isThumbInitialized = true
-        }
-    }
-
-    // Синхронизация с выбранным режимом извне (не во время drag) —
-    // только после инициализации: до неё позицию задаёт selectedMode напрямую.
-    LaunchedEffect(selectedMode) {
-        if (isThumbInitialized && trackWidthPx > 0 && dragX.isNaN()) {
-            thumbX.animateTo(
-                targetValue = selectedMode.ordinal * slotWidthPx,
-                animationSpec = tween(durationMillis = TAB_ANIM_MS),
-            )
+    // Постановка указателя на выбранный режим. Ключи — и режим, и ширина:
+    // при первом появлении ширины (или сразу, если она уже измерена)
+    // указатель встаёт на выбранный раздел без анимации; при смене
+    // режима извне (тап, drag) — анимируется к новому разделу.
+    LaunchedEffect(selectedMode, trackWidthPx) {
+        if (trackWidthPx > 0 && dragX.isNaN()) {
+            val target = selectedMode.ordinal * slotWidthPx
+            if (!isThumbInitialized) {
+                thumbX.snapTo(target)
+                isThumbInitialized = true
+            } else {
+                thumbX.animateTo(
+                    targetValue = target,
+                    animationSpec = tween(durationMillis = TAB_ANIM_MS),
+                )
+            }
         }
     }
 
@@ -215,14 +215,21 @@ fun ModeTabs(
             modes.forEachIndexed { index, mode ->
                 // Доля перекрытия центра подписи указателем — от неё
                 // плавно лерпится цвет текста (перетекание на указатель).
+                // Позиция — та же resolved-позиция, что у самого указателя:
+                // до инициализации аниматора это выбранный режим, а не
+                // стартовый 0 аниматора.
                 val slotCenter = (index + 0.5f) * slotWidthPx
-                val thumbCenter = thumbPositionForLabel(
-                    thumbX = thumbX.value,
-                    dragX = dragX,
-                    slotWidthPx = slotWidthPx,
-                )
-                val coverage = (1f - abs(slotCenter - thumbCenter) / slotWidthPx)
-                    .coerceIn(0f, 1f)
+                val thumbPosition = when {
+                    !isThumbInitialized -> selectedMode.ordinal * slotWidthPx
+                    dragX.isNaN() -> thumbX.value
+                    else -> dragX
+                }
+                val thumbCenter = thumbPosition + slotWidthPx / 2f
+                val coverage = if (slotWidthPx > 0f) {
+                    (1f - abs(slotCenter - thumbCenter) / slotWidthPx).coerceIn(0f, 1f)
+                } else {
+                    0f
+                }
                 Box(
                     modifier = Modifier
                         .weight(1f)
@@ -238,10 +245,6 @@ fun ModeTabs(
         }
     }
 }
-
-/** Центр указателя: во время drag — drag-позиция, в покое — анимированная. */
-private fun thumbPositionForLabel(thumbX: Float, dragX: Float, slotWidthPx: Float): Float =
-    (if (dragX.isNaN()) thumbX else dragX) + slotWidthPx / 2f
 
 private val TAB_HEIGHT = 40.dp
 private val THUMB_PADDING = 4.dp
