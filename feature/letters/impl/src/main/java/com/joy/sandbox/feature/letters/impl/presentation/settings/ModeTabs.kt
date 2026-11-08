@@ -24,7 +24,6 @@ import androidx.compose.runtime.MutableFloatState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -85,32 +84,22 @@ fun ModeTabs(
     var trackWidthPx by remember { mutableIntStateOf(0) }
     val slotWidthPx = trackWidthPx.toFloat() / count
 
-    // Позиция указателя (левая кромка) в покое — анимированная.
-    val thumbX = remember { Animatable(0f) }
-    // До инициализации (первого измерения дорожки) позиция не берётся
-    // из аниматора — показываем выбранный режим напрямую (см. ниже),
-    // стартовый кадр не зависит от эффектов.
-    var isThumbInitialized by remember { mutableStateOf(false) }
-    // Во время drag позицию держим вне аниматора — без запуска
+    // Позиция указателя как доля дорожки: 0 = «День», 1 = «Ночь».
+    // Инициализируется выбранным режимом сразу — стартового «Дня» нет,
+    // первичная постановка не зависит ни от эффектов, ни от измерения.
+    val thumbPos = remember { Animatable(selectedMode.fraction) }
+    // Во время drag долю держим вне аниматора — без запуска
     // корутин на каждое событие; NaN = drag не идёт.
-    var dragX by remember { mutableFloatStateOf(Float.NaN) }
+    var dragFraction by remember { mutableFloatStateOf(Float.NaN) }
 
-    // Постановка указателя на выбранный режим. Ключи — и режим, и ширина:
-    // при первом появлении ширины (или сразу, если она уже измерена)
-    // указатель встаёт на выбранный раздел без анимации; при смене
-    // режима извне (тап, drag) — анимируется к новому разделу.
-    LaunchedEffect(selectedMode, trackWidthPx) {
-        if (trackWidthPx > 0 && dragX.isNaN()) {
-            val target = selectedMode.ordinal * slotWidthPx
-            if (!isThumbInitialized) {
-                thumbX.snapTo(target)
-                isThumbInitialized = true
-            } else {
-                thumbX.animateTo(
-                    targetValue = target,
-                    animationSpec = tween(durationMillis = TAB_ANIM_MS),
-                )
-            }
+    // Синхронизация с выбранным режимом извне (тап, drag-end, cancel).
+    // При входе цель совпадает со стартовым значением — движения нет.
+    LaunchedEffect(selectedMode) {
+        if (dragFraction.isNaN()) {
+            thumbPos.animateTo(
+                targetValue = selectedMode.fraction,
+                animationSpec = tween(durationMillis = TAB_ANIM_MS),
+            )
         }
     }
 
@@ -125,36 +114,32 @@ fun ModeTabs(
             }
             .pointerInput(count) {
                 detectDragGestures(
-                    onDragStart = { start ->
-                        dragX = if (!isThumbInitialized) {
-                            start.x - slotWidthPx / 2f
-                        } else {
-                            thumbX.value
-                        }
+                    onDragStart = {
+                        dragFraction = thumbPos.value
                     },
                     onDragEnd = {
-                        val releasedX = dragX
-                        dragX = Float.NaN
-                        // Ближайший раздел — по левой кромке указателя в
-                        // делениях дорожки: порог — середина между центрами
-                        // слотов (индекс 0 достижим при тяге влево).
-                        val targetIndex = (releasedX / slotWidthPx)
+                        val releasedFraction = dragFraction
+                        dragFraction = Float.NaN
+                        // Ближайший раздел — по доле позиции: порог —
+                        // середина между разделами (индекс 0 достижим
+                        // при тяге влево).
+                        val targetIndex = (releasedFraction * (count - 1))
                             .roundToInt()
                             .coerceIn(0, count - 1)
                         scope.launch {
-                            thumbX.snapTo(releasedX)
-                            thumbX.animateTo(
-                                targetValue = targetIndex * slotWidthPx,
+                            thumbPos.snapTo(releasedFraction)
+                            thumbPos.animateTo(
+                                targetValue = modes[targetIndex].fraction,
                                 animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
                             )
                         }
                         onModeSelect(modes[targetIndex])
                     },
                     onDragCancel = {
-                        dragX = Float.NaN
+                        dragFraction = Float.NaN
                         scope.launch {
-                            thumbX.animateTo(
-                                targetValue = selectedMode.ordinal * slotWidthPx,
+                            thumbPos.animateTo(
+                                targetValue = selectedMode.fraction,
                                 animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
                             )
                         }
@@ -162,7 +147,10 @@ fun ModeTabs(
                 ) { change, dragAmount ->
                     change.consume()
                     val maxX = trackWidthPx - slotWidthPx
-                    dragX = (dragX + dragAmount.x).coerceIn(0f, maxX)
+                    if (maxX > 0) {
+                        dragFraction = (dragFraction + dragAmount.x / maxX)
+                            .coerceIn(0f, 1f)
+                    }
                 }
             }
             .pointerInput(count) {
@@ -170,12 +158,8 @@ fun ModeTabs(
                     if (trackWidthPx == 0) return@detectTapGestures
                     val index = (offset.x / slotWidthPx).toInt().coerceIn(0, count - 1)
                     scope.launch {
-                        if (!isThumbInitialized) {
-                            thumbX.snapTo(index * slotWidthPx)
-                            isThumbInitialized = true
-                        }
-                        thumbX.animateTo(
-                            targetValue = index * slotWidthPx,
+                        thumbPos.animateTo(
+                            targetValue = modes[index].fraction,
                             animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
                         )
                     }
@@ -183,23 +167,18 @@ fun ModeTabs(
                 }
             },
     ) {
+        // Доля позиции указателя: в покое — анимированная, во время
+        // drag — drag-доля. Валидна с первого кадра (инициализирована
+        // выбранным режимом) — стартового «Дня» нет.
+        val positionFraction = if (dragFraction.isNaN()) thumbPos.value else dragFraction
+        val maxX = (trackWidthPx - slotWidthPx).toFloat().coerceAtLeast(0f)
         if (trackWidthPx > 0) {
-            // Позиция: до инициализации аниматора — сразу на выбранном
-            // режиме (не зависит от эффектов); в покое — анимированная;
-            // во время drag — drag-позиция.
-            val targetX = selectedMode.ordinal * slotWidthPx
-            val thumbPosition = when {
-                !isThumbInitialized -> targetX
-                dragX.isNaN() -> thumbX.value
-                else -> dragX
-            }
             // Доля позиции указателя между «Днем» (0) и «Ночью» (1) —
             // внешние цвета (фон, тулбар) лерпятся по ней.
-            val maxX = trackWidthPx - slotWidthPx
-            val newFraction = if (maxX > 0f) (thumbPosition / maxX).coerceIn(0f, 1f) else 0f
-            if (thumbFraction.floatValue != newFraction) {
-                thumbFraction.floatValue = newFraction
+            if (thumbFraction.floatValue != positionFraction) {
+                thumbFraction.floatValue = positionFraction
             }
+            val thumbPosition = positionFraction * maxX
             Box(
                 modifier = Modifier
                     .offset { IntOffset(thumbPosition.roundToInt(), 0) }
@@ -215,16 +194,8 @@ fun ModeTabs(
             modes.forEachIndexed { index, mode ->
                 // Доля перекрытия центра подписи указателем — от неё
                 // плавно лерпится цвет текста (перетекание на указатель).
-                // Позиция — та же resolved-позиция, что у самого указателя:
-                // до инициализации аниматора это выбранный режим, а не
-                // стартовый 0 аниматора.
                 val slotCenter = (index + 0.5f) * slotWidthPx
-                val thumbPosition = when {
-                    !isThumbInitialized -> selectedMode.ordinal * slotWidthPx
-                    dragX.isNaN() -> thumbX.value
-                    else -> dragX
-                }
-                val thumbCenter = thumbPosition + slotWidthPx / 2f
+                val thumbCenter = positionFraction * maxX + slotWidthPx / 2f
                 val coverage = if (slotWidthPx > 0f) {
                     (1f - abs(slotCenter - thumbCenter) / slotWidthPx).coerceIn(0f, 1f)
                 } else {
