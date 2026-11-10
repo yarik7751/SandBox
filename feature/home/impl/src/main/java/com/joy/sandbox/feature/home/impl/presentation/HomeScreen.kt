@@ -21,7 +21,7 @@ import com.joy.sandbox.core.ui.SandBoxToolbar
 import com.joy.sandbox.core.ui.ViewModelFactory
 import com.joy.sandbox.feature.home.impl.R
 import com.joy.sandbox.feature.home.impl.presentation.HomeViewModel.Commands
-import com.joy.sandbox.feature.letters.api.LettersSettingsJoyScreen
+import com.joy.sandbox.feature.letters.api.LettersMainJoyScreen
 import com.joy.sandbox.feature.websocket.api.WebSocketJoyScreen
 import com.joy.sandbox.utils.observe
 
@@ -84,7 +84,7 @@ private fun HandleCommands(
     viewModel.commandsFlow.observe { command ->
         when (command) {
             Commands.OpenWebSocket -> router.navigateTo(WebSocketJoyScreen)
-            Commands.OpenLetters -> router.navigateTo(LettersSettingsJoyScreen)
+            Commands.OpenLetters -> router.navigateTo(LettersMainJoyScreen)
         }
     }
 }
