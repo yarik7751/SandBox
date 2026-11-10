@@ -1,0 +1,32 @@
+<resources>
+    <string name="dungeon_title">Подземелье</string>
+    <string name="dungeon_title_subtitle">Головоломка по мотивам «Башни знаний» (1996)</string>
+    <string name="dungeon_start">Начать</string>
+    <string name="dungeon_levels">Уровни</string>
+    <string name="dungeon_level_locked">Заблокирован — пройдите предыдущий уровень</string>
+    <string name="dungeon_level_best">Рекорд: %1$d ходов</string>
+    <string name="dungeon_level_par">Пар: %1$d</string>
+    <string name="dungeon_intro_goal">Цель: выведите всех пленников через выход в правом верхнем углу, заперев Повелителя Тьмы.</string>
+    <string name="dungeon_enter">Войти в подземелье</string>
+    <string name="dungeon_stats">Уровень %1$d · Ходы %2$d · Пар %3$d</string>
+    <string name="dungeon_hostages_left">Пленники: %1$d</string>
+    <string name="dungeon_undo">Отмена</string>
+    <string name="dungeon_restart">Заново</string>
+    <string name="dungeon_pause">Пауза</string>
+    <string name="dungeon_sound_on">Звук: вкл</string>
+    <string name="dungeon_sound_off">Звук: выкл</string>
+    <string name="dungeon_exit_label">ВЫХОД</string>
+    <string name="dungeon_enemy_label">ПТ</string>
+    <string name="dungeon_continue">Продолжить</string>
+    <string name="dungeon_to_title">В меню</string>
+    <string name="dungeon_vibration_on">Вибрация: вкл</string>
+    <string name="dungeon_vibration_off">Вибрация: выкл</string>
+    <string name="dungeon_win_title">Победа!</string>
+    <string name="dungeon_win_stats">Ходы: %1$d · Пар: %2$d</string>
+    <string name="dungeon_new_record">Новый рекорд!</string>
+    <string name="dungeon_next">Дальше</string>
+    <string name="dungeon_again">Ещё раз</string>
+    <string name="dungeon_lose_title">Поражение</string>
+    <string name="dungeon_final_title">Подземелье пройдено!</string>
+    <string name="dungeon_final_text">Все пленники выведены из тьмы. Повелитель повержен — замок снова свободен.</string>
+</resources>

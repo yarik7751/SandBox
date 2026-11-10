@@ -19,6 +19,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.joy.sandbox.core.navigation.router.JoyRouter
 import com.joy.sandbox.core.ui.SandBoxToolbar
 import com.joy.sandbox.core.ui.ViewModelFactory
+import com.joy.sandbox.feature.dungeon.api.DungeonJoyScreen
 import com.joy.sandbox.feature.home.impl.R
 import com.joy.sandbox.feature.home.impl.presentation.HomeViewModel.Commands
 import com.joy.sandbox.feature.letters.api.LettersMainJoyScreen
@@ -66,6 +67,12 @@ fun HomeScreen(
                 ) {
                     Text(text = stringResource(R.string.home_button_letters))
                 }
+                Button(
+                    modifier = Modifier.padding(top = 8.dp),
+                    onClick = viewModel::onDungeonClick,
+                ) {
+                    Text(text = stringResource(R.string.home_button_dungeon))
+                }
             }
         }
     }
@@ -85,6 +92,7 @@ private fun HandleCommands(
         when (command) {
             Commands.OpenWebSocket -> router.navigateTo(WebSocketJoyScreen)
             Commands.OpenLetters -> router.navigateTo(LettersMainJoyScreen)
+            Commands.OpenDungeon -> router.navigateTo(DungeonJoyScreen)
         }
     }
 }
