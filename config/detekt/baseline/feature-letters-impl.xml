@@ -1,0 +1,17 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>CyclomaticComplexMethod:LettersSpeakerImpl.kt:LettersSpeakerImpl$private fun letterAudioRes: Int?</ID>
+    <ID>CyclomaticComplexMethod:NightLettersScreen.kt:@Composable fun NightLettersScreen</ID>
+    <ID>LongMethod:LettersScreen.kt:@Composable fun LettersScreen</ID>
+    <ID>LongMethod:LettersSettingsScreen.kt:@Composable fun LettersSettingsScreen</ID>
+    <ID>LongMethod:ModeTabs.kt:@Composable fun ModeTabs</ID>
+    <ID>LongMethod:NightLettersScreen.kt:@Composable fun NightLettersScreen</ID>
+    <ID>MagicNumber:NightLettersViewModel.kt:NightLettersViewModel$60_000L</ID>
+    <ID>MaxLineLength:ModeTabs.kt:val thumbColor = lerp(DesignSystem.Colors.Letters.TabsThumbDay, DesignSystem.Colors.Letters.TabsThumbNight, fraction)</ID>
+    <ID>MaxLineLength:ModeTabs.kt:val trackColor = lerp(DesignSystem.Colors.Letters.TabsTrackDay, DesignSystem.Colors.Letters.TabsTrackNight, fraction)</ID>
+    <ID>TooManyFunctions:LettersModule.kt:LettersModule</ID>
+    <ID>TooManyFunctions:NightLettersViewModel.kt:NightLettersViewModel : BaseViewModel</ID>
+  </CurrentIssues>
+</SmellBaseline>

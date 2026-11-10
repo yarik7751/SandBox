@@ -1,0 +1,11 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>NewLineAtEndOfFile:Color.kt:com.joy.sandbox.ui.theme.Color.kt</ID>
+    <ID>NewLineAtEndOfFile:ExampleUnitTest.kt:com.joy.sandbox.ExampleUnitTest.kt</ID>
+    <ID>NewLineAtEndOfFile:Theme.kt:com.joy.sandbox.ui.theme.Theme.kt</ID>
+    <ID>NewLineAtEndOfFile:Type.kt:com.joy.sandbox.ui.theme.Type.kt</ID>
+    <ID>WildcardImport:ExampleUnitTest.kt:import org.junit.Assert.*</ID>
+  </CurrentIssues>
+</SmellBaseline>

@@ -1,0 +1,20 @@
+# Project detekt rules — applied on top of detekt's default config
+# (buildUponDefaultConfig = true in the root build.gradle.kts).
+
+naming:
+  FunctionNaming:
+    # Compose functions are PascalCase by convention.
+    ignoreAnnotated:
+      - 'Composable'
+
+complexity:
+  LongMethod:
+    allowedLines: 80
+
+style:
+  MagicNumber:
+    # Compose dimensions/colors are full of "magic" numbers.
+    ignoreAnnotated:
+      - 'Composable'
+  MaxLineLength:
+    maxLineLength: 120
