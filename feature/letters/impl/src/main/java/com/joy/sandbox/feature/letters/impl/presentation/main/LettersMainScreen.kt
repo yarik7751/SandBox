@@ -1,5 +1,6 @@
 package com.joy.sandbox.feature.letters.impl.presentation.main
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,7 +18,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.joy.sandbox.core.navigation.router.JoyRouter
+import com.joy.sandbox.core.ui.DesignSystem
 import com.joy.sandbox.core.ui.SandBoxToolbar
+import com.joy.sandbox.core.ui.SystemBarColors
 import com.joy.sandbox.core.ui.ViewModelFactory
 import com.joy.sandbox.feature.letters.api.LettersDaySettingsJoyScreen
 import com.joy.sandbox.feature.letters.api.LettersNightSettingsJoyScreen
@@ -42,12 +45,24 @@ fun LettersMainScreen(
             SandBoxToolbar(
                 title = stringResource(R.string.letters_main_title),
                 onBackClick = { router.exit() },
+                backgroundColor = DesignSystem.Colors.Letters.ToolbarBackgroundDay,
+                contentColor = DesignSystem.Colors.Letters.ToolbarContentDay,
             )
         },
     ) { padding ->
+        // Status bar — в цвет тулбара, navigation bar — в цвет фона,
+        // как на дневных настройках: переход между экранами без смены
+        // цвета системных баров.
+        SystemBarColors(
+            statusBarColor = DesignSystem.Colors.Letters.ToolbarBackgroundDay,
+            navigationBarColor = DesignSystem.Colors.Letters.SettingsBackgroundDay,
+            lightIcons = false,
+        )
+
         Box(
             modifier = Modifier
                 .fillMaxSize()
+                .background(DesignSystem.Colors.Letters.SettingsBackgroundDay)
                 .padding(padding),
         ) {
             Column(
