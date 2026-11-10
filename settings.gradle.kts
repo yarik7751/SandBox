@@ -36,3 +36,6 @@ include(":feature:home:impl")
 
 include(":feature:websocket:api")
 include(":feature:websocket:impl")
+
+include(":feature:letters:api")
+include(":feature:letters:impl")

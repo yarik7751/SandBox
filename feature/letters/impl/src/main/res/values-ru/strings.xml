@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="letters_main_title">Буквы</string>
+    <string name="letters_main_button_day">Буквы</string>
+    <string name="letters_main_button_night">Ночник</string>
+    <string name="letters_day_settings_title">Буквы</string>
+    <string name="letters_night_settings_title">Ночник</string>
+    <string name="letters_settings_alphabet_group">Алфавит</string>
+    <string name="letters_settings_order_group">Порядок</string>
+    <string name="letters_settings_sound_group">Звук букв</string>
+    <string name="letters_alphabet_cyrillic">Кириллица (русская)</string>
+    <string name="letters_alphabet_latin">Латиница</string>
+    <string name="letters_order_alphabetical">По алфавиту</string>
+    <string name="letters_order_random">Случайный</string>
+    <string name="letters_button_run">Запустить</string>
+    <string name="letters_night_timer_group">Таймер</string>
+    <string name="letters_night_timer_10">10 минут</string>
+    <string name="letters_night_timer_20">20 минут</string>
+    <string name="letters_night_timer_30">30 минут</string>
+    <string name="letters_night_timer_infinite">Бесконечно</string>
+    <string name="letters_button_run_night">Запустить ночной режим</string>
+</resources>

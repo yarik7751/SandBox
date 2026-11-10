@@ -8,6 +8,7 @@ import com.joy.sandbox.di.module.DateTimeModule
 import com.joy.sandbox.di.module.SnackBarModule
 import com.joy.sandbox.di.module.navigation.NavigationModule
 import com.joy.sandbox.feature.home.impl.HomeModule
+import com.joy.sandbox.feature.letters.impl.LettersModule
 import com.joy.sandbox.feature.start.impl.StartModule
 import com.joy.sandbox.feature.websocket.impl.WebSocketModule
 import com.joy.sandbox.feature.websocket.impl.di.RestOkHttpClientModule
@@ -26,6 +27,7 @@ import javax.inject.Singleton
         StartModule::class,
         HomeModule::class,
         WebSocketModule::class,
+        LettersModule::class,
         ProductsDatabaseModule::class,
         WebSocketOkHttpClientModule::class,
         RestOkHttpClientModule::class,

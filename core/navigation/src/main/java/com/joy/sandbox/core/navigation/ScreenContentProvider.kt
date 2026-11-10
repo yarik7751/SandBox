@@ -15,6 +15,13 @@ interface ScreenContentProvider {
 
     val screen: JoyScreen<*>
 
+    /**
+     * Имена string-аргументов route. Все прочие `{placeholder}` в route
+     * регистрируются как Long-аргументы.
+     */
+    val stringArgs: List<String>
+        get() = emptyList()
+
     @Composable
     fun Content(viewModelFactory: ViewModelFactory, router: JoyRouter)
 }

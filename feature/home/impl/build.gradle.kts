@@ -29,6 +29,7 @@ dependencies {
 
     implementation(project(":core:navigation"))
     implementation(project(":core:ui"))
+    implementation(project(":feature:letters:api"))
     implementation(project(":feature:websocket:api"))
     implementation(project(":utils"))
 

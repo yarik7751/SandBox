@@ -21,8 +21,8 @@ import com.joy.sandbox.feature.start.api.StartJoyScreen
  * подключаемый к NavController здесь же.
  *
  * Route вида "screen?arg={arg}" регистрируется как destination с navArgument.
- * Поддерживаются только Long-аргументы — этого достаточно для id сущностей;
- * другие типы при необходимости добавим явно.
+ * Поддерживаются Long-аргументы (по умолчанию) и string-аргументы, имена
+ * которых провайдер объявляет в [ScreenContentProvider.stringArgs].
  */
 @Composable
 fun SandBoxNavHost(
@@ -46,7 +46,9 @@ fun SandBoxNavHost(
             composable(
                 route = route,
                 arguments = argNames.map { name ->
-                    navArgument(name) { type = NavType.LongType }
+                    navArgument(name) {
+                        type = if (name in provider.stringArgs) NavType.StringType else NavType.LongType
+                    }
                 },
             ) {
                 provider.Content(

@@ -1,0 +1,9 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>CyclomaticComplexMethod:PriceDtoMapper.kt:private fun Yaticker.QuoteType.mapToQuoteType: QuoteType</ID>
+    <ID>ReturnCount:PriceDataModelMapper.kt:PriceDataModelMapper$fun map: PriceDataModel?</ID>
+    <ID>TooManyFunctions:PricesRemoteDataSource.kt:PricesRemoteDataSource</ID>
+  </CurrentIssues>
+</SmellBaseline>

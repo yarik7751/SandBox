@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="letters_main_title">Letters</string>
+    <string name="letters_main_button_day">Letters</string>
+    <string name="letters_main_button_night">Night light</string>
+    <string name="letters_day_settings_title">Letters</string>
+    <string name="letters_night_settings_title">Night light</string>
+    <string name="letters_settings_alphabet_group">Alphabet</string>
+    <string name="letters_settings_order_group">Order</string>
+    <string name="letters_settings_sound_group">Letter sound</string>
+    <string name="letters_alphabet_cyrillic">Cyrillic (Russian)</string>
+    <string name="letters_alphabet_latin">Latin</string>
+    <string name="letters_order_alphabetical">Alphabetical</string>
+    <string name="letters_order_random">Random</string>
+    <string name="letters_button_run">Start</string>
+    <string name="letters_night_timer_group">Timer</string>
+    <string name="letters_night_timer_10">10 minutes</string>
+    <string name="letters_night_timer_20">20 minutes</string>
+    <string name="letters_night_timer_30">30 minutes</string>
+    <string name="letters_night_timer_infinite">Infinite</string>
+    <string name="letters_button_run_night">Start night mode</string>
+</resources>

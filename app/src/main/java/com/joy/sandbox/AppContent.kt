@@ -84,14 +84,15 @@ private fun ApplySystemBars() {
     SideEffect {
         val window = (view.context as Activity).window
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) { // Android 15+
+            // Фон декора красится здесь один раз; экраны меняют его
+            // через SystemBarColors (statusBarColor на 15+ не работает).
+            window.decorView.setBackgroundColor(DesignSystem.Colors.testBlockBg.toArgb())
             window.decorView.setOnApplyWindowInsetsListener { v, insets ->
                 val statusBarInsets =
                     insets.getInsets(android.view.WindowInsets.Type.statusBars())
 
                 val navBarInsets =
                     insets.getInsets(android.view.WindowInsets.Type.navigationBars())
-                v.setBackgroundColor(DesignSystem.Colors.testBlockBg.toArgb())
-
                 v.setPadding(0, statusBarInsets.top, 0, navBarInsets.bottom)
 
                 insets
