@@ -25,6 +25,7 @@ import com.joy.sandbox.core.ui.SystemBarColors
 import com.joy.sandbox.core.ui.ViewModelFactory
 import com.joy.sandbox.feature.letters.api.LettersJoyScreen
 import com.joy.sandbox.feature.letters.impl.R
+import com.joy.sandbox.feature.letters.impl.presentation.ImmersiveModeEffect
 import com.joy.sandbox.feature.letters.impl.presentation.settings.DaySettingsPalette
 import com.joy.sandbox.feature.letters.impl.presentation.settings.SettingsGroup
 import com.joy.sandbox.feature.letters.impl.presentation.settings.SoundSwitchRow
@@ -43,6 +44,8 @@ fun LettersDaySettingsScreen(
 ) {
     val viewModel: LettersDaySettingsViewModel = viewModel(factory = viewModelFactory)
     val state by viewModel.stateFlow.collectAsStateWithLifecycle()
+
+    ImmersiveModeEffect()
 
     val toolbarBackground = DesignSystem.Colors.Letters.ToolbarBackgroundDay
     val background = DesignSystem.Colors.Letters.SettingsBackgroundDay

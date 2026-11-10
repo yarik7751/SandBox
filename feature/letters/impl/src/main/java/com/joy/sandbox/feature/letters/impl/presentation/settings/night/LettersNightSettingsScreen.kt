@@ -25,6 +25,7 @@ import com.joy.sandbox.core.ui.SystemBarColors
 import com.joy.sandbox.core.ui.ViewModelFactory
 import com.joy.sandbox.feature.letters.api.NightLettersJoyScreen
 import com.joy.sandbox.feature.letters.impl.R
+import com.joy.sandbox.feature.letters.impl.presentation.ImmersiveModeEffect
 import com.joy.sandbox.feature.letters.impl.presentation.settings.NightSettingsPalette
 import com.joy.sandbox.feature.letters.impl.presentation.settings.SettingsGroup
 import com.joy.sandbox.feature.letters.impl.presentation.settings.night.LettersNightSettingsViewModel.Commands
@@ -43,6 +44,8 @@ fun LettersNightSettingsScreen(
 ) {
     val viewModel: LettersNightSettingsViewModel = viewModel(factory = viewModelFactory)
     val state by viewModel.stateFlow.collectAsStateWithLifecycle()
+
+    ImmersiveModeEffect()
 
     val toolbarBackground = DesignSystem.Colors.Letters.ToolbarBackgroundNight
     val background = DesignSystem.Colors.Letters.SettingsBackgroundNight

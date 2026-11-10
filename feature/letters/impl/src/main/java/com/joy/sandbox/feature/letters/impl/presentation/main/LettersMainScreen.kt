@@ -25,6 +25,7 @@ import com.joy.sandbox.core.ui.ViewModelFactory
 import com.joy.sandbox.feature.letters.api.LettersDaySettingsJoyScreen
 import com.joy.sandbox.feature.letters.api.LettersNightSettingsJoyScreen
 import com.joy.sandbox.feature.letters.impl.R
+import com.joy.sandbox.feature.letters.impl.presentation.ImmersiveModeEffect
 import com.joy.sandbox.feature.letters.impl.presentation.main.LettersMainViewModel.Commands
 import com.joy.sandbox.utils.observe
 
@@ -39,6 +40,8 @@ fun LettersMainScreen(
     router: JoyRouter,
 ) {
     val viewModel: LettersMainViewModel = viewModel(factory = viewModelFactory)
+
+    ImmersiveModeEffect()
 
     Scaffold(
         topBar = {
