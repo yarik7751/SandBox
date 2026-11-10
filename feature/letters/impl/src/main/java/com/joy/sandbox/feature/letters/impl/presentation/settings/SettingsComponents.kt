@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
@@ -20,6 +22,27 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.joy.sandbox.core.ui.DesignSystem
 import com.joy.sandbox.feature.letters.impl.presentation.settings.model.SettingsOptionUiModel
+
+/** Кнопка действия экрана: на всю ширину, в цветах палитры экрана. */
+@Composable
+fun SettingsButton(
+    text: String,
+    palette: SettingsPalette,
+    onClick: () -> Unit,
+) {
+    Button(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 8.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = palette.accent,
+            contentColor = palette.buttonContent,
+        ),
+        onClick = onClick,
+    ) {
+        Text(text = text)
+    }
+}
 
 /** Группа опций с заголовком: плитки на выбор. */
 @Composable
