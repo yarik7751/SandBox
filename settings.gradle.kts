@@ -27,6 +27,7 @@ include(":app")
 include(":utils")
 include(":core:navigation")
 include(":core:ui")
+include(":core:dungeon")
 
 include(":feature:start:api")
 include(":feature:start:impl")
