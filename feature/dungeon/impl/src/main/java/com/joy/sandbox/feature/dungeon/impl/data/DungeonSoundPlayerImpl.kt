@@ -48,6 +48,7 @@ class DungeonSoundPlayerImpl @Inject constructor() : DungeonSoundPlayer {
             is DungeonEvent.Free -> playTone(ToneGenerator.TONE_PROP_ACK, FREE_DURATION_MS)
             is DungeonEvent.Exit -> playTone(ToneGenerator.TONE_CDMA_ALERT_NETWORK_LITE, EXIT_DURATION_MS)
             is DungeonEvent.Death -> playTone(ToneGenerator.TONE_SUP_CONGESTION, LOSE_DURATION_MS)
+            is DungeonEvent.Switch -> Unit // переключение бесшумное
             is DungeonEvent.Win -> playWinMelody()
         }
     }

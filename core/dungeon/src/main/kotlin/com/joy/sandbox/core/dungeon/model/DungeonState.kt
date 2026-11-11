@@ -1,6 +1,6 @@
 package com.joy.sandbox.core.dungeon.model
 
-/** Состояние пленника. */
+/** Состояние пленника. Прикованный ([freed] == false) неуязвим для тьмы. */
 data class HostageState(
     val id: Int,
     val room: Pos,
@@ -29,4 +29,8 @@ data class DungeonState(
     val over: GameOver? = null,
     val enemyTrapped: Boolean = false,
     val exitRoom: Pos = Pos(level.w - 1, 0),
+    /** Активный (управляемый) персонаж. Ход делает только он. */
+    val active: CharacterRef = CharacterRef.Hero,
+    /** Улица — клетка над выходом: безопасная зона вне сетки подземелья. */
+    val street: Pos = Pos(level.w - 1, -1),
 )

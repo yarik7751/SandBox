@@ -2,9 +2,14 @@ package com.joy.sandbox.core.dungeon
 
 import com.joy.sandbox.core.dungeon.model.DungeonState
 import com.joy.sandbox.core.dungeon.model.GameOver
-import com.joy.sandbox.core.dungeon.model.Pos
 
-/** Проверки исхода хода: гибель игрока/пленников и победа. Порядок — смерти до победы. */
+/**
+ * Проверки исхода хода: гибель персонажей и победа. Порядок — смерти до победы.
+ *
+ * Гибельны встречи с Повелителем Тьмы для героя и для освобождённых пленников;
+ * прикованные пленники неуязвимы — враг входит в их комнату без последствий.
+ * Победа: герой и все пленники находятся на улице.
+ */
 internal object DungeonOutcome {
 
     /** Проверка гибели. Возвращает состояние с [GameOver], либо null если все живы. */
@@ -24,7 +29,10 @@ internal object DungeonOutcome {
     }
 
     private fun hostageDeath(state: DungeonState, events: MutableList<DungeonEvent>): DungeonState? {
-        val victim = state.hostages.firstOrNull { !it.exited && it.room == state.enemy } ?: return null
+        // Прикованный (!freed) пленник неуязвим; вышедший — вне досягаемости тьмы.
+        val victim = state.hostages.firstOrNull {
+            it.freed && !it.exited && it.room == state.enemy
+        } ?: return null
         events += DungeonEvent.Death(who = Mover.HOSTAGE, hostageId = victim.id)
         return state.copy(
             hostages = state.hostages.map {
@@ -38,14 +46,14 @@ internal object DungeonOutcome {
     }
 
     fun checkWin(state: DungeonState, events: MutableList<DungeonEvent>): DungeonState =
-        if (state.over != null || !state.hostages.all { it.exited }) {
+        if (state.over != null || state.player != state.street || !state.hostages.all { it.exited }) {
             state
         } else {
             events += DungeonEvent.Win
             state.copy(
                 over = GameOver(
                     result = GameOver.Result.WIN,
-                    reason = "Все пленники выведены из подземелья.",
+                    reason = "Герой и все пленники вышли на улицу — тьма осталась позади.",
                 ),
             )
         }

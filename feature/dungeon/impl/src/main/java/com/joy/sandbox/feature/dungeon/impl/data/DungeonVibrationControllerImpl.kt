@@ -22,12 +22,12 @@ class DungeonVibrationControllerImpl @Inject constructor(
 
     override fun pulseOnDeath() {
         if (!enabled) return
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            vibrator?.vibrate(VibrationEffect.createOneShot(DEATH_PULSE_MS, VibrationEffect.DEFAULT_AMPLITUDE))
-        } else {
-            @Suppress("DEPRECATION")
-            vibrator?.vibrate(DEATH_PULSE_MS)
-        }
+        vibrator?.vibrate(
+            VibrationEffect.createOneShot(
+                DEATH_PULSE_MS,
+                VibrationEffect.DEFAULT_AMPLITUDE,
+            )
+        )
     }
 
     private companion object {

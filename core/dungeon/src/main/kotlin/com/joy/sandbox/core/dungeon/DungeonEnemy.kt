@@ -3,7 +3,14 @@ package com.joy.sandbox.core.dungeon
 import com.joy.sandbox.core.dungeon.model.DungeonState
 import com.joy.sandbox.core.dungeon.model.Pos
 
-/** Ход Повелителя Тьмы: выбор цели (игрок → выход → пленники) и движение по BFS. */
+/**
+ * Ход Повелителя Тьмы: выбор цели и движение по BFS.
+ *
+ * Цель — ближайший достижимый живой персонаж: герой (если он в подземелье)
+ * плюс освобождённые не вышедшие пленники. Прикованные пленники неуязвимы
+ * и не цели; улица вне сетки — враг туда не выходит. Tie-break при равных
+ * расстояниях детерминирован: сначала герой, затем пленник с меньшим id.
+ */
 internal object DungeonEnemy {
 
     fun turn(state: DungeonState, events: MutableList<DungeonEvent>): DungeonState {
@@ -17,18 +24,22 @@ internal object DungeonEnemy {
         return DungeonOutcome.checkDeaths(moved, events) ?: moved
     }
 
-    /** Цель врага по порядку: игрок → выход → неосвобождённые пленники. */
     private fun nextRoom(state: DungeonState): Pos? {
-        val toPlayer = bfsTowards(state, listOf(state.player))
-        val toExit = toPlayer ?: bfsTowards(state, listOf(state.exitRoom))
-        return toExit ?: unfreedTarget(state)
+        val distances = DungeonGeometry.bfsDistances(state.enemy, state.level, state.openDoors)
+        val target = state.targets()
+            .filter { it.room != state.enemy && it.room in distances }
+            .minWithOrNull(compareBy<Target> { distances.getValue(it.room) }.thenBy { it.rank })
+            ?: return null
+        return DungeonGeometry.bfsNext(state.enemy, listOf(target.room), state.level, state.openDoors)
     }
 
-    private fun unfreedTarget(state: DungeonState): Pos? {
-        val unfreed = state.hostages.filter { !it.freed && !it.exited }.map { it.room }
-        return unfreed.takeIf { it.isNotEmpty() }?.let { bfsTowards(state, it) }
+    /** Герой вне улицы (ранг 0), затем освобождённые пленники по возрастанию id. */
+    private fun DungeonState.targets(): List<Target> = buildList {
+        if (player != street) add(Target(player, rank = 0))
+        hostages
+            .filter { it.freed && !it.exited }
+            .forEach { add(Target(it.room, rank = it.id + 1)) }
     }
 
-    private fun bfsTowards(state: DungeonState, targets: List<Pos>): Pos? =
-        DungeonGeometry.bfsNext(state.enemy, targets, state.level, state.openDoors)
+    private data class Target(val room: Pos, val rank: Int)
 }

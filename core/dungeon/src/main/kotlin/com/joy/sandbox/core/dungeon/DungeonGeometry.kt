@@ -100,6 +100,25 @@ object DungeonGeometry {
         return found?.let { firstStep(previous, start, it) }
     }
 
+    /** BFS-расстояния (в шагах) от [start] до всех достижимых комнат. */
+    fun bfsDistances(start: Pos, level: DungeonLevel, openDoors: Set<DoorId>): Map<Pos, Int> {
+        val distances = HashMap<Pos, Int>()
+        val queue = ArrayDeque<Pos>()
+        distances[start] = 0
+        queue.add(start)
+        while (queue.isNotEmpty()) {
+            val current = queue.removeFirst()
+            val nextDistance = distances.getValue(current) + 1
+            for ((next, _) in neighbors(current, level, openDoors)) {
+                if (next !in distances) {
+                    distances[next] = nextDistance
+                    queue.add(next)
+                }
+            }
+        }
+        return distances
+    }
+
     private fun scanNeighbors(
         current: Pos,
         targetSet: Set<Pos>,
