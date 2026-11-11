@@ -3,10 +3,10 @@ package com.joy.sandbox.feature.dungeon.impl.presentation.game
 import androidx.lifecycle.viewModelScope
 import com.joy.sandbox.core.dungeon.DungeonAction
 import com.joy.sandbox.core.dungeon.DungeonEvent
+import com.joy.sandbox.core.dungeon.model.CharacterRef
 import com.joy.sandbox.core.dungeon.model.DoorId
 import com.joy.sandbox.core.dungeon.model.DungeonLevels
 import com.joy.sandbox.core.dungeon.model.DungeonState
-import com.joy.sandbox.core.dungeon.model.GameOver
 import com.joy.sandbox.core.dungeon.model.Pos
 import com.joy.sandbox.core.ui.BaseViewModel
 import com.joy.sandbox.core.ui.CommandFlow
@@ -34,6 +34,7 @@ class DungeonGameViewModel @Inject constructor(
     private val soundPlayer: DungeonSoundPlayer,
     private val vibrationController: DungeonVibrationController,
     private val uiMapper: DungeonUiMapper,
+    private val winTracker: WinTracker,
 ) : BaseViewModel() {
 
     val stateFlow = MutableStateFlow<DungeonGameUiModel?>(null)
@@ -52,8 +53,6 @@ class DungeonGameViewModel @Inject constructor(
     private var moveSeq = 0L
     private var soundEnabled = true
     private var vibrationEnabled = true
-    private var winRecorded = false
-    private var newRecord = false
 
     fun init(levelId: Int) {
         if (gameState != null) return
@@ -77,6 +76,25 @@ class DungeonGameViewModel @Inject constructor(
         attempt(DungeonAction.Toggle(door))
     }
 
+    /**
+     * Переключение активного персонажа (герой — id == null) через панель
+     * или тап по фигуре на доске. Ход не тратится и в историю не пишется —
+     * это выбор, чем ходить следующим тапом по клетке.
+     */
+    fun onCharacterClick(id: Int?) {
+        val current = gameState ?: return
+        val target = if (id == null) CharacterRef.Hero else CharacterRef.Hostage(id)
+        val result = gameInteractor.act(current, DungeonAction.Switch(target))
+        if (!result.ok) {
+            soundPlayer.playDeny()
+            return
+        }
+        gameState = result.state
+        moveSeq++
+        soundPlayer.play(result.events)
+        emit()
+    }
+
     fun onUndoClick() {
         val previous = history.pollLast() ?: return
         gameState = previous
@@ -88,8 +106,7 @@ class DungeonGameViewModel @Inject constructor(
         val state = gameState ?: return
         gameState = gameInteractor.createState(state.level)
         history.clear()
-        winRecorded = false
-        newRecord = false
+        winTracker.reset()
         moveSeq++
         emit()
     }
@@ -130,25 +147,8 @@ class DungeonGameViewModel @Inject constructor(
         if (result.events.any { it is DungeonEvent.Death }) {
             vibrationController.pulseOnDeath()
         }
-        recordWinIfNeeded(result.state)
+        winTracker.recordWinIfNeeded(viewModelScope, result.state) { emit() }
         emit()
-    }
-
-    private fun recordWinIfNeeded(state: DungeonState) {
-        val over = state.over
-        if (winRecorded || over == null || over.result != GameOver.Result.WIN) return
-        winRecorded = true
-        val levelId = state.level.id
-        viewModelScope.launch {
-            val progress = progressRepository.load()
-            val best = progress.bestTurns[levelId]
-            newRecord = best == null || state.turns < best
-            if (newRecord) progressRepository.saveBest(levelId, state.turns)
-            if (levelId < DungeonLevels.ALL.size) {
-                progressRepository.saveUnlocked(maxOf(progress.unlockedLevel, levelId + 1))
-            }
-            emit()
-        }
     }
 
     private fun emit() {
@@ -160,7 +160,7 @@ class DungeonGameViewModel @Inject constructor(
                 soundEnabled = soundEnabled,
                 vibrationEnabled = vibrationEnabled,
                 moveSeq = moveSeq,
-                newRecord = newRecord,
+                newRecord = winTracker.newRecord,
             ),
         )
     }

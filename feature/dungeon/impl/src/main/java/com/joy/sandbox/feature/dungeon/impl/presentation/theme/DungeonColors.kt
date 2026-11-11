@@ -37,6 +37,10 @@ internal object DungeonColors {
     val ThreatFrame = Color(0x80D05040)
     val ExitLight = Color(0x4DE8C95A)
     val ExitSteps = Color(0xB3E8C95A)
+    // Улица над выходом
+    val StreetBg = Color(0xFF2E3A4A)
+    val StreetEdge = Color(0xFF4A5A70)
+    val StreetText = Color(0xFFE8C95A)
     val ChainToHostage = Color(0x80969BAA)
     val FollowChain = Color(0x59C9A227)
     val PlayerCloak = Color(0xFF3A5A40)

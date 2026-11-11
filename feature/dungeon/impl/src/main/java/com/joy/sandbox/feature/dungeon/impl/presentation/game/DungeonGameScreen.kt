@@ -32,6 +32,7 @@ import com.joy.sandbox.feature.dungeon.api.DungeonGameJoyScreen
 import com.joy.sandbox.feature.dungeon.api.DungeonIntroJoyScreen
 import com.joy.sandbox.feature.dungeon.api.DungeonJoyScreen
 import com.joy.sandbox.feature.dungeon.impl.R
+import com.joy.sandbox.feature.dungeon.impl.presentation.components.CharacterPanel
 import com.joy.sandbox.feature.dungeon.impl.presentation.components.DungeonDialog
 import com.joy.sandbox.feature.dungeon.impl.presentation.components.DungeonDialogNote
 import com.joy.sandbox.feature.dungeon.impl.presentation.components.DungeonMenuButton
@@ -76,12 +77,18 @@ fun DungeonGameScreen(
             ) {
                 model?.let { state ->
                     StatsRow(state)
+                    CharacterPanel(
+                        characters = state.characters,
+                        onCharacterClick = viewModel::onCharacterClick,
+                    )
                     DungeonBoard(
                         model = state,
                         exitLabel = stringResource(R.string.dungeon_exit_label),
+                        streetLabel = stringResource(R.string.dungeon_street_label),
                         enemyLabel = stringResource(R.string.dungeon_enemy_label),
                         onRoomClick = viewModel::onRoomClick,
                         onDoorClick = viewModel::onDoorClick,
+                        onCharacterClick = viewModel::onCharacterClick,
                         modifier = Modifier
                             .weight(1f)
                             .padding(horizontal = BOARD_PADDING)

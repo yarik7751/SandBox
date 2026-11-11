@@ -18,7 +18,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.text.rememberTextMeasurer
@@ -30,17 +29,21 @@ import com.joy.sandbox.feature.dungeon.impl.presentation.model.PosUi
 import com.joy.sandbox.feature.dungeon.impl.presentation.theme.DungeonColors
 
 /**
- * Игровая доска «Подземелья»: сетка комнат, двери, сущности.
- * Тап по комнате — ход, тап по двери — переключение (ядро отвергает
- * недопустимые действия). Позиции сущностей анимируются между клетками.
+ * Игровая доска «Подземелья»: сетка комнат, двери, сущности и улица над
+ * выходом (нулевая строка доски). Тап по комнате — ход активного персонажа,
+ * тап по двери — переключение героем, тап по персонажу — сделать его
+ * активным, тап по улице — выйти/войти через выход. Ядро отвергает
+ * недопустимые действия. Позиции сущностей анимируются между клетками.
  */
 @Composable
 fun DungeonBoard(
     model: DungeonGameUiModel,
     exitLabel: String,
+    streetLabel: String,
     enemyLabel: String,
     onRoomClick: (PosUi) -> Unit,
     onDoorClick: (String) -> Unit,
+    onCharacterClick: (Int?) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var canvasSize by remember { mutableStateOf(IntSize.Zero) }
@@ -63,18 +66,21 @@ fun DungeonBoard(
                         model = model,
                         onRoomClick = onRoomClick,
                         onDoorClick = onDoorClick,
+                        onCharacterClick = onCharacterClick,
                     )
                 }
             },
     ) {
+        // нулевая строка — улица над выходом, подземелье сдвинуто на одну клетку вниз
         val cellWidth = size.width / model.width
-        val cellHeight = size.height / model.height
+        val cellHeight = size.height / boardRows(model)
 
         drawRect(
             brush = Brush.verticalGradient(
                 colors = listOf(DungeonColors.BoardBgTop, DungeonColors.BoardBgBottom),
             ),
         )
+        drawStreet(model, cellWidth, cellHeight, textMeasurer, streetLabel)
         drawRooms(model, cellWidth, cellHeight)
         drawThreats(model, cellWidth, cellHeight)
         drawDoors(model, cellWidth, cellHeight)
@@ -84,12 +90,21 @@ fun DungeonBoard(
     }
 }
 
+internal fun boardRows(model: DungeonGameUiModel): Int = model.height + 1
+
+/** Центр клетки в «клеточных» координатах доски: подземелье сдвинуто на строку вниз. */
+internal fun PosUi.toCenter(): Offset = Offset(x + HALF_CELL, y + 1 + HALF_CELL)
+
+/** Центр клетки улицы над выходом. */
+internal fun streetCenter(model: DungeonGameUiModel): Offset =
+    Offset(model.exitRoom.x + HALF_CELL, HALF_CELL)
+
 private suspend fun animateEntities(
     model: DungeonGameUiModel,
     positions: MutableMap<String, Animatable<Offset, AnimationVector2D>>,
 ) {
     val targets = buildMap {
-        put(KEY_PLAYER, model.player.toCenter())
+        put(KEY_PLAYER, if (model.heroOnStreet) streetCenter(model) else model.player.toCenter())
         put(KEY_ENEMY, model.enemy.toCenter())
         model.hostages.filter { !it.exited }.forEach { put(hostageKey(it.id), it.room.toCenter()) }
     }
@@ -103,60 +118,87 @@ private suspend fun animateEntities(
 
 internal fun hostageKey(id: Int): String = "hostage:$id"
 
-internal fun PosUi.toCenter(): Offset = Offset(x + HALF_CELL, y + HALF_CELL)
-
 private fun handleTap(
     offset: Offset,
     size: IntSize,
     model: DungeonGameUiModel,
     onRoomClick: (PosUi) -> Unit,
     onDoorClick: (String) -> Unit,
+    onCharacterClick: (Int?) -> Unit,
 ) {
     if (size.width == 0 || size.height == 0) return
     val cellWidth = size.width.toFloat() / model.width
-    val cellHeight = size.height.toFloat() / model.height
+    val cellHeight = size.height.toFloat() / boardRows(model)
     val threshold = minOf(cellWidth, cellHeight) * DOOR_TAP_FACTOR
 
-    allDoorIds(model.width, model.height).forEach { id ->
-        val door = DoorId.parse(id) ?: return@forEach
-        val center = doorCenter(door, cellWidth, cellHeight)
-        if ((offset - center).getDistance() <= threshold) {
-            onDoorClick(id)
-            return
+    val tappedDoor = allDoorIds(model.width, model.height).firstOrNull { id ->
+        val door = DoorId.parse(id) ?: return@firstOrNull false
+        (offset - doorCenter(door, cellWidth, cellHeight)).getDistance() <= threshold
+    }
+    // тап по персонажу делает его активным (герой рисуется поверх — приоритет при совпадении)
+    val tappedCharacter = if (tappedDoor == null) characterAt(offset, model, cellWidth, cellHeight) else null
+    when {
+        tappedDoor != null -> onDoorClick(tappedDoor)
+        tappedCharacter != null -> onCharacterClick(tappedCharacter)
+        else -> dispatchRoomTap(offset, model, cellWidth, cellHeight, onRoomClick)
+    }
+}
+
+/** Тап по клетке: строка 0 — улица над выходом, остальное — комнаты подземелья. */
+private fun dispatchRoomTap(
+    offset: Offset,
+    model: DungeonGameUiModel,
+    cellWidth: Float,
+    cellHeight: Float,
+    onRoomClick: (PosUi) -> Unit,
+) {
+    val column = (offset.x / cellWidth).toInt()
+    val row = (offset.y / cellHeight).toInt()
+    if (row == STREET_ROW) {
+        // улица — только над выходом; тап по ней = переход героя через выход
+        if (column == model.exitRoom.x) onRoomClick(PosUi(model.exitRoom.x, STREET_ROOM_Y))
+    } else {
+        val room = PosUi(column, row - 1)
+        if (room.x in 0 until model.width && room.y in 0 until model.height) {
+            onRoomClick(room)
         }
     }
-    val room = PosUi((offset.x / cellWidth).toInt(), (offset.y / cellHeight).toInt())
-    if (room.x in 0 until model.width && room.y in 0 until model.height) {
-        onRoomClick(room)
-    }
 }
 
-internal fun doorCenter(door: DoorId, cellWidth: Float, cellHeight: Float): Offset =
-    if (door.horizontal) {
-        Offset((door.x + 1) * cellWidth, (door.y + HALF_CELL) * cellHeight)
-    } else {
-        Offset((door.x + HALF_CELL) * cellWidth, (door.y + 1) * cellHeight)
+/** Ближайший к точке касания управляемый персонаж внутри подземелья. */
+private fun characterAt(
+    offset: Offset,
+    model: DungeonGameUiModel,
+    cellWidth: Float,
+    cellHeight: Float,
+): Int? {
+    val radius = minOf(cellWidth, cellHeight) * CHARACTER_TAP_FACTOR
+    val candidates = buildList {
+        if (!model.heroOnStreet) {
+            add(null to model.player.toCenter().toPixels(cellWidth, cellHeight))
+        }
+        model.hostages
+            .filter { it.freed && !it.exited }
+            .forEach { add(it.id to it.room.toCenter().toPixels(cellWidth, cellHeight)) }
     }
-
-internal fun allDoorIds(width: Int, height: Int): List<String> {
-    val ids = mutableListOf<String>()
-    for (y in 0 until height) {
-        for (x in 0 until width - 1) ids += "h:$x,$y"
-    }
-    for (y in 0 until height - 1) {
-        for (x in 0 until width) ids += "v:$x,$y"
-    }
-    return ids
+    val nearest = candidates.minByOrNull { (_, center) -> (offset - center).getDistance() }
+        ?: return null
+    return if ((offset - nearest.second).getDistance() <= radius) nearest.first else null
 }
+
+internal fun Offset.toPixels(cellWidth: Float, cellHeight: Float): Offset =
+    Offset(x * cellWidth, y * cellHeight)
 
 internal const val KEY_PLAYER = "player"
 internal const val KEY_ENEMY = "enemy"
 internal const val HALF_CELL = 0.5f
-internal val ChainPathEffect = PathEffect.dashPathEffect(floatArrayOf(6f, 6f))
-internal val FollowChainPathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f))
+internal const val STREET_ROW = 0
+internal const val STREET_ROOM_Y = -1
+internal val ChainPathEffect = androidx.compose.ui.graphics.PathEffect.dashPathEffect(floatArrayOf(6f, 6f))
 
 private const val DURATION_MS = 220
 private const val DOOR_TAP_FACTOR = 0.22f
+private const val CHARACTER_TAP_FACTOR = 0.35f
 internal const val DOOR_VISUAL_PADDING = 0.35f
 internal const val DOOR_OPEN_STROKE = 6f
 internal const val DOOR_GAP_STROKE = 5f
@@ -185,7 +227,6 @@ internal const val CHAIN_INNER = 0.08f
 internal const val CHAIN_ARC_START = 10f
 internal const val CHAIN_ARC_SWEEP = 160f
 internal const val CHAIN_ARC_TOP = 0.25f
-internal const val FOLLOW_CHAIN_STROKE = 2f
 internal const val ENTITY_RADIUS_FACTOR = 0.24f
 internal const val HOSTAGE_ELDER_RADIUS_FACTOR = 1.0f
 internal const val HOSTAGE_RADIUS_FACTOR = 0.8f
@@ -216,5 +257,8 @@ internal const val EYES_OFFSET = 0.75f
 internal const val EYES_GAP = 0.28f
 internal const val EYE_RADIUS = 0.11f
 internal const val TRAPPED_LABEL_OFFSET = 1.6f
+internal const val ACTIVE_RING_STROKE = 3f
+internal const val ACTIVE_RING_RADIUS = 0.38f
 internal val EXIT_LABEL_SP = 11.sp
+internal val STREET_LABEL_SP = 10.sp
 internal val TRAPPED_LABEL_SP = 12.sp

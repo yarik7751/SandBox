@@ -6,7 +6,7 @@
     <string name="dungeon_level_locked">Заблокирован — пройдите предыдущий уровень</string>
     <string name="dungeon_level_best">Рекорд: %1$d ходов</string>
     <string name="dungeon_level_par">Пар: %1$d</string>
-    <string name="dungeon_intro_goal">Цель: выведите всех пленников через выход в правом верхнем углу, заперев Повелителя Тьмы.</string>
+    <string name="dungeon_intro_goal">Цель: освободите всех пленников, выведите их через выход в правом верхнем углу на улицу, а затем выйдите сами, заперев Повелителя Тьмы внутри.</string>
     <string name="dungeon_enter">Войти в подземелье</string>
     <string name="dungeon_stats">Уровень %1$d · Ходы %2$d · Пар %3$d</string>
     <string name="dungeon_level_number">Уровень %1$d</string>
@@ -18,6 +18,10 @@
     <string name="dungeon_sound_on">Звук: вкл</string>
     <string name="dungeon_sound_off">Звук: выкл</string>
     <string name="dungeon_exit_label">ВЫХОД</string>
+    <string name="dungeon_street_label">УЛИЦА</string>
+    <string name="dungeon_street_indicator">Кто уже на улице</string>
+    <string name="dungeon_hero_button">Г</string>
+    <string name="dungeon_hostage_button">П%1$d</string>
     <string name="dungeon_enemy_label">ПТ</string>
     <string name="dungeon_continue">Продолжить</string>
     <string name="dungeon_to_title">В меню</string>
@@ -30,5 +34,5 @@
     <string name="dungeon_again">Ещё раз</string>
     <string name="dungeon_lose_title">Поражение</string>
     <string name="dungeon_final_title">Подземелье пройдено!</string>
-    <string name="dungeon_final_text">Все пленники выведены из тьмы. Повелитель повержен — замок снова свободен.</string>
+    <string name="dungeon_final_text">Все пленники и герой на воле, Повелитель Тьмы заперт в темнице. Замок снова свободен.</string>
 </resources>

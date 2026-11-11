@@ -1,9 +1,11 @@
 package com.joy.sandbox.feature.dungeon.impl.presentation.mapper
 
 import com.joy.sandbox.core.dungeon.DungeonEngine
+import com.joy.sandbox.core.dungeon.model.CharacterRef
 import com.joy.sandbox.core.dungeon.model.DungeonState
 import com.joy.sandbox.core.dungeon.model.GameOver
 import com.joy.sandbox.core.dungeon.model.Pos
+import com.joy.sandbox.feature.dungeon.impl.presentation.model.CharacterUiModel
 import com.joy.sandbox.feature.dungeon.impl.presentation.model.DungeonGameUiModel
 import com.joy.sandbox.feature.dungeon.impl.presentation.model.HostageUiModel
 import com.joy.sandbox.feature.dungeon.impl.presentation.model.OverUiModel
@@ -43,12 +45,37 @@ class DungeonUiMapper @Inject constructor() {
         threatRooms = DungeonEngine.threatRooms(state).map { it.toUi() }.toSet(),
         exitRoom = state.exitRoom.toUi(),
         enemyTrapped = state.enemyTrapped,
+        heroOnStreet = state.player == state.street,
+        activeIsHero = state.active == CharacterRef.Hero,
+        characters = mapCharacters(state),
         over = state.over?.let { over -> mapOver(over, params.newRecord) },
         canUndo = params.canUndo,
         soundEnabled = params.soundEnabled,
         vibrationEnabled = params.vibrationEnabled,
         moveSeq = params.moveSeq,
     )
+
+    /** Герой и пленники в порядке панели переключения. */
+    private fun mapCharacters(state: DungeonState): List<CharacterUiModel> = buildList {
+        add(
+            CharacterUiModel(
+                id = null,
+                selectable = true,
+                active = state.active == CharacterRef.Hero,
+                onStreet = state.player == state.street,
+            ),
+        )
+        state.hostages.forEach { hostage ->
+            add(
+                CharacterUiModel(
+                    id = hostage.id,
+                    selectable = hostage.freed && !hostage.exited,
+                    active = state.active == CharacterRef.Hostage(hostage.id),
+                    onStreet = hostage.exited,
+                ),
+            )
+        }
+    }
 
     private fun mapOver(over: GameOver, newRecord: Boolean): OverUiModel = OverUiModel(
         win = over.result == GameOver.Result.WIN,

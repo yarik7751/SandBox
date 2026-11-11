@@ -15,19 +15,63 @@ import com.joy.sandbox.core.dungeon.model.DoorId
 import com.joy.sandbox.feature.dungeon.impl.presentation.model.DungeonGameUiModel
 import com.joy.sandbox.feature.dungeon.impl.presentation.theme.DungeonColors
 
+/** Улица над выходом: светлая клетка-строка, куда выходят герой и пленники. */
+internal fun DrawScope.drawStreet(
+    model: DungeonGameUiModel,
+    cellWidth: Float,
+    cellHeight: Float,
+    textMeasurer: TextMeasurer,
+    streetLabel: String,
+) {
+    val topLeft = Offset(model.exitRoom.x * cellWidth, 0f)
+    drawRect(
+        color = DungeonColors.StreetBg,
+        topLeft = topLeft,
+        size = Size(cellWidth, cellHeight),
+    )
+    drawRect(
+        color = DungeonColors.StreetEdge,
+        topLeft = topLeft,
+        size = Size(cellWidth, cellHeight),
+        style = Stroke(width = WALL_STROKE),
+    )
+    // лучи света над «дырой» выхода
+    drawRect(
+        color = DungeonColors.ExitLight,
+        topLeft = topLeft + Offset(cellWidth * EXIT_LIGHT_INSET_X, cellHeight * STREET_LIGHT_TOP),
+        size = Size(cellWidth * (1f - EXIT_LIGHT_INSET_X * 2), cellHeight * STREET_LIGHT_HEIGHT),
+    )
+    val labelLayout = textMeasurer.measure(
+        text = streetLabel,
+        style = TextStyle(
+            color = DungeonColors.StreetText,
+            fontSize = STREET_LABEL_SP,
+            fontWeight = FontWeight.Bold,
+        ),
+    )
+    drawText(
+        textLayoutResult = labelLayout,
+        topLeft = topLeft +
+            Offset(
+                (cellWidth - labelLayout.size.width) / 2f,
+                cellHeight * EXIT_LABEL_TOP,
+            ),
+    )
+}
+
 internal fun DrawScope.drawThreats(
     model: DungeonGameUiModel,
     cellWidth: Float,
     cellHeight: Float,
 ) {
     model.threatRooms.forEach { room ->
-        val topLeft = Offset(room.x * cellWidth, room.y * cellHeight)
+        val topLeft = Offset(room.x * cellWidth, (room.y + 1) * cellHeight)
         drawRect(
             color = DungeonColors.Threat,
             topLeft = topLeft,
             size = Size(cellWidth, cellHeight),
         )
-        if (room == model.player) {
+        if (!model.heroOnStreet && room == model.player) {
             drawRect(
                 color = DungeonColors.ThreatFrame,
                 topLeft = topLeft,
@@ -47,7 +91,7 @@ internal fun DrawScope.drawRooms(
     val wallStroke = maxOf(WALL_STROKE, minOf(cellWidth, cellHeight) * WALL_STROKE_FACTOR)
     for (y in 0 until model.height) {
         for (x in 0 until model.width) {
-            val topLeft = Offset(x * cellWidth, y * cellHeight)
+            val topLeft = Offset(x * cellWidth, (y + 1) * cellHeight)
             val cellSize = Size(cellWidth, cellHeight)
             drawRect(
                 color = if ((x + y) % 2 == 0) DungeonColors.CellEven else DungeonColors.CellOdd,
@@ -82,7 +126,7 @@ internal fun DrawScope.drawExit(
     textMeasurer: TextMeasurer,
     exitLabel: String,
 ) {
-    val topLeft = Offset(model.exitRoom.x * cellWidth, model.exitRoom.y * cellHeight)
+    val topLeft = Offset(model.exitRoom.x * cellWidth, (model.exitRoom.y + 1) * cellHeight)
     // свет сверху
     drawRect(
         color = DungeonColors.ExitLight,
@@ -219,16 +263,27 @@ internal fun DrawScope.drawEntities(
 ) {
     val cellSize = minOf(cellWidth, cellHeight)
     val radius = cellSize * ENTITY_RADIUS_FACTOR
+    val activeHostageId = model.characters.firstOrNull { it.active }?.id
 
-    drawFollowChain(model, positions, cellWidth, cellHeight)
+    // вышедшие пленники — маленькие фигурки на улице
+    drawStreetCrowd(model, cellWidth, cellHeight, radius)
 
     model.hostages.filter { !it.exited }.forEach { hostage ->
         val center = positions[hostageKey(hostage.id)]?.value?.toPixels(cellWidth, cellHeight)
             ?: hostage.room.toCenter().toPixels(cellWidth, cellHeight)
+        if (hostage.id == activeHostageId) {
+            drawActiveRing(center, cellSize)
+        }
         drawHostage(center, hostage.id, hostage.freed, radius)
     }
+    val playerCenter = (positions[KEY_PLAYER]?.value
+        ?: if (model.heroOnStreet) streetCenter(model) else model.player.toCenter()
+    ).toPixels(cellWidth, cellHeight)
+    if (model.activeIsHero) {
+        drawActiveRing(playerCenter, cellSize)
+    }
     drawPlayer(
-        center = (positions[KEY_PLAYER]?.value ?: model.player.toCenter()).toPixels(cellWidth, cellHeight),
+        center = playerCenter,
         radius = radius,
         cellSize = cellSize,
     )
@@ -242,177 +297,39 @@ internal fun DrawScope.drawEntities(
     )
 }
 
-/** Тонкая пунктирная цепочка между игроком и освобождёнными пленниками. */
-private fun DrawScope.drawFollowChain(
+/** Вышедшие на улицу пленники — ряд маленьких голов в клетке улицы. */
+private fun DrawScope.drawStreetCrowd(
     model: DungeonGameUiModel,
-    positions: Map<String, Animatable<Offset, AnimationVector2D>>,
     cellWidth: Float,
     cellHeight: Float,
-) {
-    val chain = buildList {
-        add((positions[KEY_PLAYER]?.value ?: model.player.toCenter()).toPixels(cellWidth, cellHeight))
-        model.hostages
-            .filter { it.freed && !it.exited }
-            .sortedBy { it.id }
-            .forEach { hostage ->
-                add(
-                    positions[hostageKey(hostage.id)]?.value?.toPixels(cellWidth, cellHeight)
-                        ?: hostage.room.toCenter().toPixels(cellWidth, cellHeight),
-                )
-            }
-    }
-    if (chain.size < 2) return
-    for (i in 0 until chain.size - 1) {
-        drawLine(
-            color = DungeonColors.FollowChain,
-            start = chain[i],
-            end = chain[i + 1],
-            strokeWidth = FOLLOW_CHAIN_STROKE,
-            pathEffect = FollowChainPathEffect,
-        )
-    }
-}
-
-/** Пленник: старший (id == 0) крупнее и серее, остальные — сиреневые. */
-private fun DrawScope.drawHostage(
-    center: Offset,
-    id: Int,
-    freed: Boolean,
-    entityRadius: Float,
-) {
-    val radius = entityRadius * if (id == 0) HOSTAGE_ELDER_RADIUS_FACTOR else HOSTAGE_RADIUS_FACTOR
-    val color = if (id == 0) DungeonColors.HostageElder else DungeonColors.Hostage
-    drawCircle(
-        color = color,
-        radius = radius * HEAD_RADIUS_FACTOR,
-        center = center.copy(y = center.y - radius * HEAD_OFFSET),
-    )
-    val body = Path().apply {
-        val top = center.y - radius * BODY_TOP
-        val bottom = center.y + radius * BODY_BOTTOM
-        moveTo(center.x, top)
-        quadraticTo(
-            center.x + radius * BODY_SIDE, center.y + radius * BODY_SHOULDER,
-            center.x + radius * BODY_WAIST, bottom,
-        )
-        lineTo(center.x - radius * BODY_WAIST, bottom)
-        quadraticTo(
-            center.x - radius * BODY_SIDE, center.y + radius * BODY_SHOULDER,
-            center.x, top,
-        )
-        close()
-    }
-    drawPath(path = body, color = color)
-    if (!freed) {
-        drawArc(
-            color = DungeonColors.HostageChain,
-            startAngle = CHAIN_ARC_START,
-            sweepAngle = CHAIN_ARC_SWEEP,
-            useCenter = false,
-            topLeft = center.copy(y = center.y + radius * CHAIN_ARC_TOP) - Offset(radius, radius),
-            size = Size(radius * 2, radius * 2),
-            style = Stroke(width = CHAIN_STROKE),
-        )
-    }
-}
-
-/** Игрок: фигура в капюшоне с фонарём и тёплым светом. */
-private fun DrawScope.drawPlayer(
-    center: Offset,
     radius: Float,
-    cellSize: Float,
 ) {
-    // свет фонаря
-    drawCircle(
-        color = DungeonColors.LanternLight,
-        radius = cellSize * LANTERN_LIGHT_RADIUS,
-        center = center,
-    )
-    val cloak = Path().apply {
-        val top = center.y - radius * HOOD_TOP
-        val bottom = center.y + radius * BODY_BOTTOM
-        moveTo(center.x, top)
-        quadraticTo(
-            center.x + radius * HOOD_SIDE, center.y - radius * HOOD_SHOULDER,
-            center.x + radius * CLOAK_WAIST, bottom,
+    val exited = model.hostages.filter { it.exited }
+    if (exited.isEmpty()) return
+    val center = streetCenter(model).toPixels(cellWidth, cellHeight)
+    val spread = cellWidth * STREET_CROWD_GAP
+    val startX = center.x - spread * (exited.size - 1) / 2f
+    exited.forEachIndexed { index, hostage ->
+        val headRadius = radius * HEAD_RADIUS_FACTOR * STREET_CROWD_SCALE
+        drawCircle(
+            color = if (hostage.id == 0) DungeonColors.HostageElder else DungeonColors.Hostage,
+            radius = headRadius,
+            center = Offset(startX + index * spread, center.y),
         )
-        lineTo(center.x - radius * CLOAK_WAIST, bottom)
-        quadraticTo(
-            center.x - radius * HOOD_SIDE, center.y - radius * HOOD_SHOULDER,
-            center.x, top,
-        )
-        close()
     }
-    drawPath(path = cloak, color = DungeonColors.PlayerCloak)
-    drawCircle(
-        color = DungeonColors.PlayerHood,
-        radius = radius * HOOD_RADIUS,
-        center = center.copy(y = center.y - radius * HOOD_OFFSET),
-    )
+}
+
+/** Золотое кольцо вокруг активного персонажа. */
+private fun DrawScope.drawActiveRing(center: Offset, cellSize: Float) {
     drawCircle(
         color = DungeonColors.GoldBright,
-        radius = radius * LANTERN_RADIUS,
-        center = center + Offset(radius * LANTERN_OFFSET_X, radius * LANTERN_OFFSET_Y),
-    )
-}
-
-/** Враг: тёмный силуэт с красными глазами и аурой тьмы. */
-private fun DrawScope.drawEnemy(
-    center: Offset,
-    radius: Float,
-    cellSize: Float,
-    trapped: Boolean,
-    textMeasurer: TextMeasurer,
-    enemyLabel: String,
-) {
-    // аура тьмы
-    drawCircle(
-        color = DungeonColors.EnemyAura,
-        radius = cellSize * ENEMY_AURA_RADIUS,
+        radius = cellSize * ACTIVE_RING_RADIUS,
         center = center,
+        style = Stroke(width = ACTIVE_RING_STROKE),
     )
-    val silhouette = Path().apply {
-        val top = center.y - radius * ENEMY_TOP
-        val bottom = center.y + radius * ENEMY_BOTTOM
-        moveTo(center.x, top)
-        quadraticTo(
-            center.x + radius * ENEMY_SIDE, center.y - radius * ENEMY_SHOULDER,
-            center.x + radius * ENEMY_WAIST, bottom,
-        )
-        lineTo(center.x - radius * ENEMY_WAIST, bottom)
-        quadraticTo(
-            center.x - radius * ENEMY_SIDE, center.y - radius * ENEMY_SHOULDER,
-            center.x, top,
-        )
-        close()
-    }
-    drawPath(path = silhouette, color = DungeonColors.EnemyBody)
-    val eyesY = center.y - radius * EYES_OFFSET
-    drawCircle(
-        color = DungeonColors.RedBright,
-        radius = radius * EYE_RADIUS,
-        center = Offset(center.x - radius * EYES_GAP, eyesY),
-    )
-    drawCircle(
-        color = DungeonColors.RedBright,
-        radius = radius * EYE_RADIUS,
-        center = Offset(center.x + radius * EYES_GAP, eyesY),
-    )
-    if (trapped) {
-        val layout = textMeasurer.measure(
-            text = enemyLabel,
-            style = TextStyle(
-                color = DungeonColors.EnemyTrapped,
-                fontSize = TRAPPED_LABEL_SP,
-                fontWeight = FontWeight.Bold,
-            ),
-        )
-        drawText(
-            textLayoutResult = layout,
-            topLeft = center - Offset(layout.size.width / 2f, radius * TRAPPED_LABEL_OFFSET),
-        )
-    }
 }
 
-private fun Offset.toPixels(cellWidth: Float, cellHeight: Float): Offset =
-    Offset(x * cellWidth, y * cellHeight)
+private const val STREET_CROWD_GAP = 0.3f
+private const val STREET_CROWD_SCALE = 0.6f
+private const val STREET_LIGHT_TOP = 0.55f
+private const val STREET_LIGHT_HEIGHT = 0.45f

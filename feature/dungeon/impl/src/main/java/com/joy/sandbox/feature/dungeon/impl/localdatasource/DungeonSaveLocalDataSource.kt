@@ -11,12 +11,14 @@ import kotlinx.coroutines.flow.first
 
 private val Context.dungeonDataStore by preferencesDataStore(name = PREFERENCES_NAME)
 
-private const val PREFERENCES_NAME = "podzemelie-save-v1"
+private const val PREFERENCES_NAME = "podzemelie-save-v2"
 
 /**
  * Сохранения «Подземелья» в DataStore Preferences — аналог localStorage
- * с ключом SAVE_KEY = 'podzemelie-save-v1' из js/game.js: разблокированные
- * уровни, рекорды ходов по уровням, настройки звука и вибрации.
+ * с ключом SAVE_KEY из js/game.js: разблокированные уровни, рекорды ходов
+ * по уровням, настройки звука и вибрации. Имя хранилища bumped v1 → v2:
+ * старые рекорды и разблокировки несопоставимы с новой механикой (улица,
+ * ручное управление пленниками), поэтому прогресс начинается с чистого листа.
  */
 @Singleton
 class DungeonSaveLocalDataSource @Inject constructor(
