@@ -28,6 +28,8 @@ import com.joy.sandbox.feature.dungeon.api.DungeonIntroJoyScreen
 import com.joy.sandbox.feature.dungeon.impl.R
 import com.joy.sandbox.feature.dungeon.impl.presentation.model.DungeonTitleUiModel
 import com.joy.sandbox.feature.dungeon.impl.presentation.model.LevelItemUiModel
+import com.joy.sandbox.feature.dungeon.impl.presentation.theme.DungeonColors
+import com.joy.sandbox.feature.dungeon.impl.presentation.theme.DungeonTheme
 import com.joy.sandbox.feature.dungeon.impl.presentation.title.DungeonTitleViewModel.Commands
 import com.joy.sandbox.utils.observe
 
@@ -40,43 +42,48 @@ fun DungeonTitleScreen(
     val viewModel: DungeonTitleViewModel = viewModel(factory = viewModelFactory)
     val model by viewModel.stateFlow.collectAsStateWithLifecycle()
 
-    Scaffold(
-        topBar = {
-            SandBoxToolbar(
-                title = stringResource(R.string.dungeon_title),
-                onBackClick = viewModel::onBackClick,
-            )
-        },
-    ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .verticalScroll(rememberScrollState()),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-        ) {
-            Text(
-                text = stringResource(R.string.dungeon_title),
-                style = MaterialTheme.typography.headlineLarge,
-            )
-            Text(
-                text = stringResource(R.string.dungeon_title_subtitle),
-                style = MaterialTheme.typography.bodyMedium,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(top = 8.dp, bottom = 24.dp),
-            )
-            Button(onClick = viewModel::onStartClick) {
-                Text(stringResource(R.string.dungeon_start))
-            }
-            TextButton(onClick = viewModel::onLevelsToggle) {
-                Text(stringResource(R.string.dungeon_levels))
-            }
-            if (model.showLevels) {
-                LevelList(
-                    model = model,
-                    onLevelClick = viewModel::onLevelClick,
+    DungeonTheme {
+        Scaffold(
+            containerColor = MaterialTheme.colorScheme.background,
+            topBar = {
+                SandBoxToolbar(
+                    title = stringResource(R.string.dungeon_title),
+                    onBackClick = viewModel::onBackClick,
                 )
+            },
+        ) { padding ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .verticalScroll(rememberScrollState()),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+            ) {
+                Text(
+                    text = stringResource(R.string.dungeon_title),
+                    style = MaterialTheme.typography.headlineLarge,
+                    color = DungeonColors.GoldBright,
+                )
+                Text(
+                    text = stringResource(R.string.dungeon_title_subtitle),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = DungeonColors.TextDim,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(top = 8.dp, bottom = 24.dp),
+                )
+                Button(onClick = viewModel::onStartClick) {
+                    Text(stringResource(R.string.dungeon_start))
+                }
+                TextButton(onClick = viewModel::onLevelsToggle) {
+                    Text(stringResource(R.string.dungeon_levels))
+                }
+                if (model.showLevels) {
+                    LevelList(
+                        model = model,
+                        onLevelClick = viewModel::onLevelClick,
+                    )
+                }
             }
         }
     }

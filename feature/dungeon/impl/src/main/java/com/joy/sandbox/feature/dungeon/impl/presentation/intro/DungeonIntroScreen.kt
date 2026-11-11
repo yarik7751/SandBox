@@ -29,6 +29,8 @@ import com.joy.sandbox.feature.dungeon.api.DungeonGameJoyScreen
 import com.joy.sandbox.feature.dungeon.api.DungeonIntroJoyScreen
 import com.joy.sandbox.feature.dungeon.impl.R
 import com.joy.sandbox.feature.dungeon.impl.presentation.intro.DungeonIntroViewModel.Commands
+import com.joy.sandbox.feature.dungeon.impl.presentation.theme.DungeonColors
+import com.joy.sandbox.feature.dungeon.impl.presentation.theme.DungeonTheme
 import com.joy.sandbox.utils.observe
 
 /** Интро уровня: история, цель и пар — перед входом в подземелье. */
@@ -43,46 +45,53 @@ fun DungeonIntroScreen(
 
     LaunchedEffect(levelId) { levelId?.let(viewModel::init) }
 
-    Scaffold(
-        topBar = {
-            SandBoxToolbar(
-                title = stringResource(R.string.dungeon_title),
-                onBackClick = { router.exit() },
-            )
-        },
-    ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(horizontal = 24.dp)
-                .verticalScroll(rememberScrollState()),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-        ) {
-            model?.let { state ->
-                Text(
-                    text = "${state.levelId}. ${state.levelName}",
-                    style = MaterialTheme.typography.headlineMedium,
-                    textAlign = TextAlign.Center,
+    DungeonTheme {
+        Scaffold(
+            containerColor = MaterialTheme.colorScheme.background,
+            topBar = {
+                SandBoxToolbar(
+                    title = stringResource(R.string.dungeon_title),
+                    onBackClick = { router.exit() },
                 )
-                Text(
-                    text = state.intro,
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.padding(top = 16.dp),
-                )
-                Text(
-                    text = stringResource(R.string.dungeon_intro_goal),
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(top = 16.dp),
-                )
-                Text(
-                    text = stringResource(R.string.dungeon_level_par, state.par),
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.padding(top = 8.dp, bottom = 24.dp),
-                )
-                Button(onClick = viewModel::onEnterClick) {
-                    Text(stringResource(R.string.dungeon_enter))
+            },
+        ) { padding ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .padding(horizontal = 24.dp)
+                    .verticalScroll(rememberScrollState()),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+            ) {
+                model?.let { state ->
+                    Text(
+                        text = "${state.levelId}. ${state.levelName}",
+                        style = MaterialTheme.typography.headlineMedium,
+                        color = DungeonColors.GoldBright,
+                        textAlign = TextAlign.Center,
+                    )
+                    Text(
+                        text = state.intro,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = DungeonColors.Text,
+                        modifier = Modifier.padding(top = 16.dp),
+                    )
+                    Text(
+                        text = stringResource(R.string.dungeon_intro_goal),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = DungeonColors.Gold,
+                        modifier = Modifier.padding(top = 16.dp),
+                    )
+                    Text(
+                        text = stringResource(R.string.dungeon_level_par, state.par),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = DungeonColors.TextDim,
+                        modifier = Modifier.padding(top = 8.dp, bottom = 24.dp),
+                    )
+                    Button(onClick = viewModel::onEnterClick) {
+                        Text(stringResource(R.string.dungeon_enter))
+                    }
                 }
             }
         }

@@ -37,6 +37,8 @@ import com.joy.sandbox.feature.dungeon.api.DungeonJoyScreen
 import com.joy.sandbox.feature.dungeon.impl.R
 import com.joy.sandbox.feature.dungeon.impl.presentation.game.DungeonGameViewModel.Commands
 import com.joy.sandbox.feature.dungeon.impl.presentation.model.DungeonGameUiModel
+import com.joy.sandbox.feature.dungeon.impl.presentation.theme.DungeonColors
+import com.joy.sandbox.feature.dungeon.impl.presentation.theme.DungeonTheme
 import com.joy.sandbox.utils.observe
 
 /**
@@ -57,39 +59,42 @@ fun DungeonGameScreen(
 
     BackHandler(enabled = model?.over == null) { showPause = true }
 
-    Scaffold(
-        topBar = {
-            SandBoxToolbar(
-                title = model?.levelName ?: stringResource(R.string.dungeon_title),
-                onBackClick = { router.exit() },
-            )
-        },
-    ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding),
-        ) {
-            model?.let { state ->
-                StatsRow(state)
-                DungeonBoard(
-                    model = state,
-                    exitLabel = stringResource(R.string.dungeon_exit_label),
-                    enemyLabel = stringResource(R.string.dungeon_enemy_label),
-                    onRoomClick = viewModel::onRoomClick,
-                    onDoorClick = viewModel::onDoorClick,
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(horizontal = BOARD_PADDING)
-                        .padding(bottom = BOARD_PADDING),
+    DungeonTheme {
+        Scaffold(
+            containerColor = MaterialTheme.colorScheme.background,
+            topBar = {
+                SandBoxToolbar(
+                    title = model?.levelName ?: stringResource(R.string.dungeon_title),
+                    onBackClick = { router.exit() },
                 )
-                ControlsRow(
-                    state = state,
-                    onUndo = viewModel::onUndoClick,
-                    onRestart = viewModel::onRestartClick,
-                    onPause = { showPause = true },
-                    onSoundToggle = { viewModel.onFeedbackToggle(sound = true) },
-                )
+            },
+        ) { padding ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding),
+            ) {
+                model?.let { state ->
+                    StatsRow(state)
+                    DungeonBoard(
+                        model = state,
+                        exitLabel = stringResource(R.string.dungeon_exit_label),
+                        enemyLabel = stringResource(R.string.dungeon_enemy_label),
+                        onRoomClick = viewModel::onRoomClick,
+                        onDoorClick = viewModel::onDoorClick,
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(horizontal = BOARD_PADDING)
+                            .padding(bottom = BOARD_PADDING),
+                    )
+                    ControlsRow(
+                        state = state,
+                        onUndo = viewModel::onUndoClick,
+                        onRestart = viewModel::onRestartClick,
+                        onPause = { showPause = true },
+                        onSoundToggle = { viewModel.onFeedbackToggle(sound = true) },
+                    )
+                }
             }
         }
     }
@@ -114,6 +119,7 @@ private fun StatsRow(model: DungeonGameUiModel) {
             model.par,
         ) + "  ·  " + stringResource(R.string.dungeon_hostages_left, hostagesLeft),
         style = MaterialTheme.typography.titleSmall,
+        color = DungeonColors.TextDim,
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 8.dp),
