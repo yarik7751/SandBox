@@ -9,6 +9,8 @@
     <string name="dungeon_intro_goal">Цель: выведите всех пленников через выход в правом верхнем углу, заперев Повелителя Тьмы.</string>
     <string name="dungeon_enter">Войти в подземелье</string>
     <string name="dungeon_stats">Уровень %1$d · Ходы %2$d · Пар %3$d</string>
+    <string name="dungeon_level_number">Уровень %1$d</string>
+    <string name="dungeon_turns_count">Ходы: %1$d</string>
     <string name="dungeon_hostages_left">Пленники: %1$d</string>
     <string name="dungeon_undo">Отмена</string>
     <string name="dungeon_restart">Заново</string>

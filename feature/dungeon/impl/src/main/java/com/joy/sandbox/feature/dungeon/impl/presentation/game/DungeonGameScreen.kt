@@ -7,8 +7,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -22,7 +20,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -35,6 +32,9 @@ import com.joy.sandbox.feature.dungeon.api.DungeonGameJoyScreen
 import com.joy.sandbox.feature.dungeon.api.DungeonIntroJoyScreen
 import com.joy.sandbox.feature.dungeon.api.DungeonJoyScreen
 import com.joy.sandbox.feature.dungeon.impl.R
+import com.joy.sandbox.feature.dungeon.impl.presentation.components.DungeonDialog
+import com.joy.sandbox.feature.dungeon.impl.presentation.components.DungeonDialogNote
+import com.joy.sandbox.feature.dungeon.impl.presentation.components.DungeonMenuButton
 import com.joy.sandbox.feature.dungeon.impl.presentation.game.DungeonGameViewModel.Commands
 import com.joy.sandbox.feature.dungeon.impl.presentation.model.DungeonGameUiModel
 import com.joy.sandbox.feature.dungeon.impl.presentation.theme.DungeonColors
@@ -111,20 +111,29 @@ fun DungeonGameScreen(
 @Composable
 private fun StatsRow(model: DungeonGameUiModel) {
     val hostagesLeft = model.hostages.count { !it.exited }
-    Text(
-        text = stringResource(
-            R.string.dungeon_stats,
-            model.levelId,
-            model.turns,
-            model.par,
-        ) + "  ·  " + stringResource(R.string.dungeon_hostages_left, hostagesLeft),
-        style = MaterialTheme.typography.titleSmall,
-        color = DungeonColors.TextDim,
+    Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 8.dp),
-        textAlign = TextAlign.Center,
-    )
+        horizontalArrangement = Arrangement.spacedBy(14.dp, Alignment.CenterHorizontally),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = stringResource(R.string.dungeon_level_number, model.levelId),
+            style = MaterialTheme.typography.headlineSmall,
+            color = DungeonColors.GoldBright,
+        )
+        Text(
+            text = stringResource(R.string.dungeon_turns_count, model.turns),
+            style = MaterialTheme.typography.titleSmall,
+            color = DungeonColors.TextDim,
+        )
+        Text(
+            text = stringResource(R.string.dungeon_hostages_left, hostagesLeft),
+            style = MaterialTheme.typography.titleSmall,
+            color = DungeonColors.TextDim,
+        )
+    }
 }
 
 @Composable
@@ -203,44 +212,40 @@ private fun PauseDialog(
     onContinue: () -> Unit,
     viewModel: DungeonGameViewModel,
 ) {
-    AlertDialog(
-        onDismissRequest = onContinue,
-        title = { Text(stringResource(R.string.dungeon_pause)) },
-        text = {
-            Column {
-                TextButton(onClick = { viewModel.onFeedbackToggle(sound = true) }) {
-                    Text(
-                        stringResource(
-                            if (model?.soundEnabled == true) {
-                                R.string.dungeon_sound_on
-                            } else {
-                                R.string.dungeon_sound_off
-                            },
-                        ),
-                    )
-                }
-                TextButton(onClick = { viewModel.onFeedbackToggle(sound = false) }) {
-                    Text(
-                        stringResource(
-                            if (model?.vibrationEnabled == true) {
-                                R.string.dungeon_vibration_on
-                            } else {
-                                R.string.dungeon_vibration_off
-                            },
-                        ),
-                    )
-                }
-            }
-        },
-        confirmButton = {
-            Button(onClick = onContinue) { Text(stringResource(R.string.dungeon_continue)) }
-        },
-        dismissButton = {
-            TextButton(onClick = viewModel::onExitToTitle) {
-                Text(stringResource(R.string.dungeon_to_title))
-            }
-        },
-    )
+    DungeonDialog(
+        title = stringResource(R.string.dungeon_pause),
+        onDismiss = onContinue,
+    ) {
+        DungeonMenuButton(
+            text = stringResource(R.string.dungeon_continue),
+            primary = true,
+            onClick = onContinue,
+        )
+        DungeonMenuButton(
+            text = stringResource(
+                if (model?.soundEnabled == true) R.string.dungeon_sound_on else R.string.dungeon_sound_off,
+            ),
+            onClick = { viewModel.onFeedbackToggle(sound = true) },
+        )
+        DungeonMenuButton(
+            text = stringResource(
+                if (model?.vibrationEnabled == true) {
+                    R.string.dungeon_vibration_on
+                } else {
+                    R.string.dungeon_vibration_off
+                },
+            ),
+            onClick = { viewModel.onFeedbackToggle(sound = false) },
+        )
+        DungeonMenuButton(
+            text = stringResource(R.string.dungeon_restart),
+            onClick = viewModel::onRestartClick,
+        )
+        DungeonMenuButton(
+            text = stringResource(R.string.dungeon_to_title),
+            onClick = viewModel::onExitToTitle,
+        )
+    }
 }
 
 @Composable
@@ -248,35 +253,32 @@ private fun WinDialog(
     model: DungeonGameUiModel,
     viewModel: DungeonGameViewModel,
 ) {
-    AlertDialog(
-        onDismissRequest = {},
-        title = { Text(stringResource(R.string.dungeon_win_title)) },
-        text = {
-            Column {
-                Text(stringResource(R.string.dungeon_win_stats, model.turns, model.par))
-                if (model.over?.newRecord == true) {
-                    Text(
-                        text = stringResource(R.string.dungeon_new_record),
-                        style = MaterialTheme.typography.titleSmall,
-                        modifier = Modifier.padding(top = 8.dp),
-                    )
-                }
-            }
-        },
-        confirmButton = {
-            Button(onClick = viewModel::onNextClick) { Text(stringResource(R.string.dungeon_next)) }
-        },
-        dismissButton = {
-            Row {
-                TextButton(onClick = viewModel::onRestartClick) {
-                    Text(stringResource(R.string.dungeon_again))
-                }
-                TextButton(onClick = viewModel::onExitToTitle) {
-                    Text(stringResource(R.string.dungeon_to_title))
-                }
-            }
-        },
-    )
+    DungeonDialog(
+        title = stringResource(R.string.dungeon_win_title),
+        onDismiss = null,
+    ) {
+        DungeonDialogNote(text = stringResource(R.string.dungeon_win_stats, model.turns, model.par))
+        if (model.over?.newRecord == true) {
+            Text(
+                text = stringResource(R.string.dungeon_new_record),
+                style = MaterialTheme.typography.titleSmall,
+                color = DungeonColors.Gold,
+            )
+        }
+        DungeonMenuButton(
+            text = stringResource(R.string.dungeon_next),
+            primary = true,
+            onClick = viewModel::onNextClick,
+        )
+        DungeonMenuButton(
+            text = stringResource(R.string.dungeon_again),
+            onClick = viewModel::onRestartClick,
+        )
+        DungeonMenuButton(
+            text = stringResource(R.string.dungeon_to_title),
+            onClick = viewModel::onExitToTitle,
+        )
+    }
 }
 
 @Composable
@@ -284,31 +286,42 @@ private fun LoseDialog(
     model: DungeonGameUiModel,
     viewModel: DungeonGameViewModel,
 ) {
-    AlertDialog(
-        onDismissRequest = {},
-        title = { Text(stringResource(R.string.dungeon_lose_title)) },
-        text = { Text(model.over?.reason.orEmpty()) },
-        confirmButton = {
-            Button(onClick = viewModel::onRestartClick) { Text(stringResource(R.string.dungeon_again)) }
-        },
-        dismissButton = {
-            TextButton(onClick = viewModel::onExitToTitle) {
-                Text(stringResource(R.string.dungeon_to_title))
-            }
-        },
-    )
+    DungeonDialog(
+        title = stringResource(R.string.dungeon_lose_title),
+        onDismiss = null,
+    ) {
+        Text(
+            text = model.over?.reason.orEmpty(),
+            style = MaterialTheme.typography.bodyLarge,
+        )
+        DungeonMenuButton(
+            text = stringResource(R.string.dungeon_again),
+            primary = true,
+            onClick = viewModel::onRestartClick,
+        )
+        DungeonMenuButton(
+            text = stringResource(R.string.dungeon_to_title),
+            onClick = viewModel::onExitToTitle,
+        )
+    }
 }
 
 @Composable
 private fun FinalDialog(onToTitle: () -> Unit) {
-    AlertDialog(
-        onDismissRequest = {},
-        title = { Text(stringResource(R.string.dungeon_final_title)) },
-        text = { Text(stringResource(R.string.dungeon_final_text)) },
-        confirmButton = {
-            Button(onClick = onToTitle) { Text(stringResource(R.string.dungeon_to_title)) }
-        },
-    )
+    DungeonDialog(
+        title = stringResource(R.string.dungeon_final_title),
+        onDismiss = null,
+    ) {
+        Text(
+            text = stringResource(R.string.dungeon_final_text),
+            style = MaterialTheme.typography.bodyLarge,
+        )
+        DungeonMenuButton(
+            text = stringResource(R.string.dungeon_to_title),
+            primary = true,
+            onClick = onToTitle,
+        )
+    }
 }
 
 @Composable
