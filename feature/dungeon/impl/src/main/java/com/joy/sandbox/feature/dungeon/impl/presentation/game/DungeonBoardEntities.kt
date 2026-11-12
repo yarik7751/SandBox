@@ -79,14 +79,7 @@ internal fun DrawScope.drawHostage(
 internal fun DrawScope.drawPlayer(
     center: Offset,
     radius: Float,
-    cellSize: Float,
 ) {
-    // свет фонаря
-    drawCircle(
-        color = DungeonColors.LanternLight,
-        radius = cellSize * LANTERN_LIGHT_RADIUS,
-        center = center,
-    )
     val cloak = Path().apply {
         val top = center.y - radius * HOOD_TOP
         val bottom = center.y + radius * BODY_BOTTOM
@@ -119,17 +112,10 @@ internal fun DrawScope.drawPlayer(
 internal fun DrawScope.drawEnemy(
     center: Offset,
     radius: Float,
-    cellSize: Float,
     trapped: Boolean,
     textMeasurer: TextMeasurer,
     enemyLabel: String,
 ) {
-    // аура тьмы
-    drawCircle(
-        color = DungeonColors.EnemyAura,
-        radius = cellSize * ENEMY_AURA_RADIUS,
-        center = center,
-    )
     val silhouette = Path().apply {
         val top = center.y - radius * ENEMY_TOP
         val bottom = center.y + radius * ENEMY_BOTTOM

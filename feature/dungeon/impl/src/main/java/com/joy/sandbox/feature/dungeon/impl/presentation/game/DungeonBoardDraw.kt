@@ -285,12 +285,10 @@ internal fun DrawScope.drawEntities(
     drawPlayer(
         center = playerCenter,
         radius = radius,
-        cellSize = cellSize,
     )
     drawEnemy(
         center = (positions[KEY_ENEMY]?.value ?: model.enemy.toCenter()).toPixels(cellWidth, cellHeight),
         radius = radius,
-        cellSize = cellSize,
         trapped = model.enemyTrapped,
         textMeasurer = textMeasurer,
         enemyLabel = enemyLabel,
