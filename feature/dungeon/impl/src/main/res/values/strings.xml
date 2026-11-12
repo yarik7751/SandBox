@@ -25,6 +25,7 @@
     <string name="dungeon_enemy_label">ПТ</string>
     <string name="dungeon_continue">Продолжить</string>
     <string name="dungeon_to_title">В меню</string>
+    <string name="dungeon_exit_level">Выйти из уровня</string>
     <string name="dungeon_vibration_on">Вибрация: вкл</string>
     <string name="dungeon_vibration_off">Вибрация: выкл</string>
     <string name="dungeon_win_title">Победа!</string>

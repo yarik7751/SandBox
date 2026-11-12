@@ -23,7 +23,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.joy.sandbox.core.navigation.currentNavLongArgument
 import com.joy.sandbox.core.navigation.router.JoyRouter
-import com.joy.sandbox.core.ui.SandBoxToolbar
 import com.joy.sandbox.core.ui.ViewModelFactory
 import com.joy.sandbox.feature.dungeon.api.DungeonGameJoyScreen
 import com.joy.sandbox.feature.dungeon.api.DungeonIntroJoyScreen
@@ -48,12 +47,6 @@ fun DungeonIntroScreen(
     DungeonTheme {
         Scaffold(
             containerColor = MaterialTheme.colorScheme.background,
-            topBar = {
-                SandBoxToolbar(
-                    title = stringResource(R.string.dungeon_title),
-                    onBackClick = { router.exit() },
-                )
-            },
         ) { padding ->
             Column(
                 modifier = Modifier

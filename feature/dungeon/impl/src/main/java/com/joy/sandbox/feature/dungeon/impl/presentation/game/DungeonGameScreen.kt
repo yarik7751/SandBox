@@ -26,7 +26,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.joy.sandbox.core.dungeon.model.DungeonLevels
 import com.joy.sandbox.core.navigation.currentNavLongArgument
 import com.joy.sandbox.core.navigation.router.JoyRouter
-import com.joy.sandbox.core.ui.SandBoxToolbar
 import com.joy.sandbox.core.ui.ViewModelFactory
 import com.joy.sandbox.feature.dungeon.api.DungeonGameJoyScreen
 import com.joy.sandbox.feature.dungeon.api.DungeonIntroJoyScreen
@@ -63,12 +62,6 @@ fun DungeonGameScreen(
     DungeonTheme {
         Scaffold(
             containerColor = MaterialTheme.colorScheme.background,
-            topBar = {
-                SandBoxToolbar(
-                    title = model?.levelName ?: stringResource(R.string.dungeon_title),
-                    onBackClick = { router.exit() },
-                )
-            },
         ) { padding ->
             Column(
                 modifier = Modifier
@@ -110,6 +103,10 @@ fun DungeonGameScreen(
         model = model,
         showPause = showPause,
         onDismissPause = { showPause = false },
+        onExitLevel = {
+            showPause = false
+            router.exit()
+        },
         viewModel = viewModel,
         router = router,
     )
@@ -181,6 +178,7 @@ private fun GameDialogs(
     model: DungeonGameUiModel?,
     showPause: Boolean,
     onDismissPause: () -> Unit,
+    onExitLevel: () -> Unit,
     viewModel: DungeonGameViewModel,
     router: JoyRouter,
 ) {
@@ -190,6 +188,7 @@ private fun GameDialogs(
         showPause && over == null -> PauseDialog(
             model = model,
             onContinue = onDismissPause,
+            onExitLevel = onExitLevel,
             viewModel = viewModel,
         )
 
@@ -217,6 +216,7 @@ private fun GameDialogs(
 private fun PauseDialog(
     model: DungeonGameUiModel?,
     onContinue: () -> Unit,
+    onExitLevel: () -> Unit,
     viewModel: DungeonGameViewModel,
 ) {
     DungeonDialog(
@@ -247,6 +247,10 @@ private fun PauseDialog(
         DungeonMenuButton(
             text = stringResource(R.string.dungeon_restart),
             onClick = viewModel::onRestartClick,
+        )
+        DungeonMenuButton(
+            text = stringResource(R.string.dungeon_exit_level),
+            onClick = onExitLevel,
         )
         DungeonMenuButton(
             text = stringResource(R.string.dungeon_to_title),

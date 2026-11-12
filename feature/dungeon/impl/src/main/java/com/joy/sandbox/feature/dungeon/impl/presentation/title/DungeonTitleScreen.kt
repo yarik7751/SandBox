@@ -22,7 +22,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.joy.sandbox.core.navigation.router.JoyRouter
-import com.joy.sandbox.core.ui.SandBoxToolbar
 import com.joy.sandbox.core.ui.ViewModelFactory
 import com.joy.sandbox.feature.dungeon.api.DungeonIntroJoyScreen
 import com.joy.sandbox.feature.dungeon.impl.R
@@ -45,12 +44,6 @@ fun DungeonTitleScreen(
     DungeonTheme {
         Scaffold(
             containerColor = MaterialTheme.colorScheme.background,
-            topBar = {
-                SandBoxToolbar(
-                    title = stringResource(R.string.dungeon_title),
-                    onBackClick = viewModel::onBackClick,
-                )
-            },
         ) { padding ->
             Column(
                 modifier = Modifier
@@ -142,7 +135,6 @@ private fun HandleCommands(
             is Commands.OpenIntro -> router.navigateTo(
                 DungeonIntroJoyScreen.create(command.levelId.toLong()),
             )
-            Commands.Exit -> router.exit()
         }
     }
 }

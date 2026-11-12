@@ -23,8 +23,6 @@ class DungeonTitleViewModel @Inject constructor(
     sealed interface Commands {
 
         data class OpenIntro(val levelId: Int) : Commands
-
-        data object Exit : Commands
     }
 
     init {
@@ -46,10 +44,6 @@ class DungeonTitleViewModel @Inject constructor(
     fun onLevelClick(levelId: Int) {
         val level = stateFlow.value.levels.firstOrNull { it.id == levelId } ?: return
         if (!level.locked) commandsFlow.tryEmit(Commands.OpenIntro(levelId))
-    }
-
-    fun onBackClick() {
-        commandsFlow.tryEmit(Commands.Exit)
     }
 
     private fun loadProgress() {
