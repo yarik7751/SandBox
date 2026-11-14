@@ -1,5 +1,6 @@
 package com.joy.sandbox.core.navigation.router
 
+import android.annotation.SuppressLint
 import android.os.Parcelable
 import androidx.navigation.NavController
 import com.joy.sandbox.core.navigation.JoyScreen
@@ -34,6 +35,8 @@ class JoyRouter : ScreensFlow, CurrentArgs {
 
     override val screensFlow = MutableStateFlow<List<JoyScreen<*>>>(emptyList())
 
+    /** currentBackStack — RestrictedApi в navigation-compose; использование здесь осознанное. */
+    @SuppressLint("RestrictedApi")
     fun attach(navController: NavController, screensByRoute: Map<String, JoyScreen<*>>) {
         this.navController = navController
         this.screensByRoute = screensByRoute

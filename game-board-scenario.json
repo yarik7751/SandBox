@@ -1,0 +1,272 @@
+{
+  "meta": {
+    "title": "Игровое поле: ход игрока",
+    "description": "Как свайп по игровому полю превращается в новое состояние сетки"
+  },
+  "entities": [
+    {
+      "id": "gameBoard",
+      "parentId": null,
+      "type": "ui",
+      "title": "GameBoard",
+      "subtitle": "Compose-экран, сетка 4×4",
+      "fields": {
+        "score": 1280,
+        "status": "playing"
+      }
+    },
+    {
+      "id": "gameVm",
+      "parentId": null,
+      "type": "state_holder",
+      "title": "GameViewModel"
+    },
+    {
+      "id": "gameState",
+      "parentId": "gameVm",
+      "type": "nested_state",
+      "title": "gameState",
+      "subtitle": "StateFlow<UiState>",
+      "fields": {
+        "score": 1280,
+        "moves": 12,
+        "status": "playing"
+      }
+    },
+    {
+      "id": "moveEngine",
+      "parentId": null,
+      "type": "data",
+      "title": "MoveEngine",
+      "subtitle": "логика слияний и новых плиток",
+      "fields": {
+        "processing": false,
+        "lastMove": null
+      }
+    },
+    {
+      "id": "moveCmd",
+      "parentId": null,
+      "type": "payload",
+      "title": "MoveCommand",
+      "subtitle": "направление хода",
+      "initialVisible": false,
+      "fields": {
+        "direction": "left"
+      }
+    },
+    {
+      "id": "newTile",
+      "parentId": null,
+      "type": "payload",
+      "title": "MoveResult",
+      "subtitle": "новая сетка + новая плитка",
+      "initialVisible": false,
+      "fields": {
+        "spawnedAt": "2,3",
+        "value": 2,
+        "scoreDelta": 40
+      }
+    }
+  ],
+  "connections": [
+    {
+      "id": "c-board-vm",
+      "from": "gameBoard",
+      "to": "gameVm",
+      "style": "solid",
+      "description": "событие свайпа (ход игрока)"
+    },
+    {
+      "id": "c-vm-engine",
+      "from": "gameVm",
+      "to": "moveEngine",
+      "style": "solid",
+      "description": "запрос на расчёт хода"
+    },
+    {
+      "id": "c-engine-vm",
+      "from": "moveEngine",
+      "to": "gameVm",
+      "style": "dashed",
+      "description": "результат хода обратно в ViewModel"
+    },
+    {
+      "id": "c-vm-board",
+      "from": "gameVm",
+      "to": "gameBoard",
+      "style": "dashed",
+      "description": "обновлённое состояние рендерится на экране"
+    }
+  ],
+  "timeline": [
+    {
+      "step": 1,
+      "caption": "Пользователь свайпает влево по игровому полю",
+      "actions": [
+        {
+          "type": "highlight",
+          "targetId": "gameBoard",
+          "color": "#5EA2F2"
+        }
+      ]
+    },
+    {
+      "step": 2,
+      "caption": "Поле создаёт пакет с командой хода",
+      "actions": [
+        {
+          "type": "spawn",
+          "targetId": "moveCmd",
+          "atEntityId": "gameBoard"
+        }
+      ]
+    },
+    {
+      "step": 3,
+      "caption": "Команда улетает во ViewModel",
+      "actions": [
+        {
+          "type": "move",
+          "targetId": "moveCmd",
+          "alongConnectionId": "c-board-vm",
+          "from": "gameBoard",
+          "to": "gameVm"
+        },
+        {
+          "type": "highlight",
+          "targetId": "gameVm",
+          "color": "#5EA2F2"
+        }
+      ]
+    },
+    {
+      "step": 4,
+      "caption": "ViewModel передаёт ход в движок игры",
+      "actions": [
+        {
+          "type": "move",
+          "targetId": "moveCmd",
+          "alongConnectionId": "c-vm-engine",
+          "from": "gameVm",
+          "to": "moveEngine"
+        }
+      ]
+    },
+    {
+      "step": 5,
+      "caption": "Движок начинает обработку хода",
+      "actions": [
+        {
+          "type": "mutate",
+          "targetId": "moveEngine",
+          "path": "processing",
+          "oldValue": false,
+          "newValue": true
+        }
+      ]
+    },
+    {
+      "step": 6,
+      "caption": "Движок посчитал слияния и новую плитку, команда больше не нужна",
+      "actions": [
+        {
+          "type": "mutate",
+          "targetId": "moveEngine",
+          "path": "processing",
+          "oldValue": true,
+          "newValue": false
+        },
+        {
+          "type": "mutate",
+          "targetId": "moveEngine",
+          "path": "lastMove",
+          "oldValue": null,
+          "newValue": "left"
+        },
+        {
+          "type": "destroy",
+          "targetId": "moveCmd"
+        },
+        {
+          "type": "spawn",
+          "targetId": "newTile",
+          "atEntityId": "moveEngine"
+        }
+      ]
+    },
+    {
+      "step": 7,
+      "caption": "Результат хода возвращается в ViewModel",
+      "actions": [
+        {
+          "type": "move",
+          "targetId": "newTile",
+          "alongConnectionId": "c-engine-vm",
+          "from": "moveEngine",
+          "to": "gameVm"
+        }
+      ]
+    },
+    {
+      "step": 8,
+      "caption": "ViewModel обновляет состояние игры",
+      "actions": [
+        {
+          "type": "mutate",
+          "targetId": "gameState",
+          "path": "score",
+          "oldValue": 1280,
+          "newValue": 1320
+        },
+        {
+          "type": "mutate",
+          "targetId": "gameState",
+          "path": "moves",
+          "oldValue": 12,
+          "newValue": 13
+        },
+        {
+          "type": "highlight",
+          "targetId": "gameState",
+          "color": "#7BD88F"
+        }
+      ]
+    },
+    {
+      "step": 9,
+      "caption": "Новое состояние улетает на экран",
+      "actions": [
+        {
+          "type": "move",
+          "targetId": "newTile",
+          "alongConnectionId": "c-vm-board",
+          "from": "gameVm",
+          "to": "gameBoard"
+        }
+      ]
+    },
+    {
+      "step": 10,
+      "caption": "Поле перерисовывается: новая сетка и счёт",
+      "actions": [
+        {
+          "type": "mutate",
+          "targetId": "gameBoard",
+          "path": "score",
+          "oldValue": 1280,
+          "newValue": 1320
+        },
+        {
+          "type": "highlight",
+          "targetId": "gameBoard",
+          "color": "#7BD88F"
+        },
+        {
+          "type": "destroy",
+          "targetId": "newTile"
+        }
+      ]
+    }
+  ]
+}

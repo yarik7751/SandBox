@@ -1,6 +1,6 @@
 package com.joy.sandbox.feature.letters.impl.presentation.letters
 
-import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
@@ -26,7 +26,6 @@ import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
@@ -286,7 +285,7 @@ private fun NightBrightnessEffect(
     brightness: Float,
     finished: Boolean,
 ) {
-    val activity = LocalContext.current as ComponentActivity
+    val activity = LocalActivity.current ?: return
     val animatedBrightness = remember { Animatable(NightModeConfig.START_BRIGHTNESS) }
 
     DisposableEffect(Unit) {
