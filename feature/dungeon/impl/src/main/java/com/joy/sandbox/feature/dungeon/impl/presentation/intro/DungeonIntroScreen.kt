@@ -32,7 +32,7 @@ import com.joy.sandbox.feature.dungeon.impl.presentation.theme.DungeonColors
 import com.joy.sandbox.feature.dungeon.impl.presentation.theme.DungeonTheme
 import com.joy.sandbox.utils.observe
 
-/** Интро уровня: история, цель и пар — перед входом в подземелье. */
+/** Интро уровня: история и цель — перед входом в подземелье. */
 @Composable
 fun DungeonIntroScreen(
     viewModelFactory: ViewModelFactory,
@@ -76,13 +76,10 @@ fun DungeonIntroScreen(
                         color = DungeonColors.Gold,
                         modifier = Modifier.padding(top = 16.dp),
                     )
-                    Text(
-                        text = stringResource(R.string.dungeon_level_par, state.par),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = DungeonColors.TextDim,
-                        modifier = Modifier.padding(top = 8.dp, bottom = 24.dp),
-                    )
-                    Button(onClick = viewModel::onEnterClick) {
+                    Button(
+                        onClick = viewModel::onEnterClick,
+                        modifier = Modifier.padding(top = 24.dp),
+                    ) {
                         Text(stringResource(R.string.dungeon_enter))
                     }
                 }

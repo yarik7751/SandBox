@@ -42,7 +42,6 @@ class DungeonLevelsViewModel @Inject constructor(
                     LevelItemUiModel(
                         id = level.id,
                         name = level.name,
-                        par = level.par,
                         locked = level.id > progress.unlockedLevel,
                         bestTurns = progress.bestTurns[level.id],
                     )

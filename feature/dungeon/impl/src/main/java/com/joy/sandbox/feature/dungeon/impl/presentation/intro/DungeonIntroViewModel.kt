@@ -8,7 +8,7 @@ import com.joy.sandbox.feature.dungeon.impl.presentation.model.DungeonIntroUiMod
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 
-/** Интро уровня: название, история, цель и пар. */
+/** Интро уровня: название, история и цель. */
 class DungeonIntroViewModel @Inject constructor() : BaseViewModel() {
 
     val stateFlow = MutableStateFlow<DungeonIntroUiModel?>(null)
@@ -27,7 +27,6 @@ class DungeonIntroViewModel @Inject constructor() : BaseViewModel() {
             levelId = level.id,
             levelName = level.name,
             intro = level.intro,
-            par = level.par,
         )
     }
 

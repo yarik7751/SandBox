@@ -30,7 +30,6 @@ class DungeonUiMapper @Inject constructor() {
         width = state.level.w,
         height = state.level.h,
         turns = state.turns,
-        par = state.level.par,
         player = state.player.toUi(),
         enemy = state.enemy.toUi(),
         hostages = state.hostages.map { hostage ->

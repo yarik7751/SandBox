@@ -4,7 +4,6 @@ package com.joy.sandbox.feature.dungeon.impl.presentation.model
 data class LevelItemUiModel(
     val id: Int,
     val name: String,
-    val par: Int,
     val locked: Boolean,
     val bestTurns: Int?,
 )
@@ -19,5 +18,4 @@ data class DungeonIntroUiModel(
     val levelId: Int,
     val levelName: String,
     val intro: String,
-    val par: Int,
 )

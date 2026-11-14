@@ -86,11 +86,9 @@ private fun levelLine(level: LevelItemUiModel): String =
     } else {
         val best = level.bestTurns
         if (best != null) {
-            "${level.id}. ${level.name} · " +
-                stringResource(R.string.dungeon_level_par, level.par) + " · " +
-                stringResource(R.string.dungeon_level_best, best)
+            "${level.id}. ${level.name} · " + stringResource(R.string.dungeon_level_best, best)
         } else {
-            "${level.id}. ${level.name} · " + stringResource(R.string.dungeon_level_par, level.par)
+            "${level.id}. ${level.name}"
         }
     }
 

@@ -37,7 +37,6 @@ data class DungeonGameUiModel(
     val width: Int,
     val height: Int,
     val turns: Int,
-    val par: Int,
     /** Позиция героя; когда он на улице — комната выхода. */
     val player: PosUi,
     val enemy: PosUi,

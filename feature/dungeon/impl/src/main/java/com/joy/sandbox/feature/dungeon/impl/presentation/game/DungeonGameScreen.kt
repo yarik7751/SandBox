@@ -268,7 +268,7 @@ private fun WinDialog(
         title = stringResource(R.string.dungeon_win_title),
         onDismiss = null,
     ) {
-        DungeonDialogNote(text = stringResource(R.string.dungeon_win_stats, model.turns, model.par))
+        DungeonDialogNote(text = stringResource(R.string.dungeon_win_stats, model.turns))
         if (model.over?.newRecord == true) {
             Text(
                 text = stringResource(R.string.dungeon_new_record),
