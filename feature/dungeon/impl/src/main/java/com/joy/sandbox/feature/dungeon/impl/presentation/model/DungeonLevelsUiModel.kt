@@ -1,6 +1,6 @@
 package com.joy.sandbox.feature.dungeon.impl.presentation.model
 
-/** Элемент списка уровней на титульном экране. */
+/** Элемент списка уровней на экране выбора уровня. */
 data class LevelItemUiModel(
     val id: Int,
     val name: String,
@@ -9,10 +9,9 @@ data class LevelItemUiModel(
     val bestTurns: Int?,
 )
 
-/** Состояние титульного экрана. */
-data class DungeonTitleUiModel(
+/** Состояние экрана выбора уровня. */
+data class DungeonLevelsUiModel(
     val levels: List<LevelItemUiModel>,
-    val showLevels: Boolean,
 )
 
 /** Состояние экрана интро уровня. */

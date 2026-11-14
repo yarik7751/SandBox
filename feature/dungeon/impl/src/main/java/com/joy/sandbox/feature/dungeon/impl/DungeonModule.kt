@@ -7,18 +7,13 @@ import com.joy.sandbox.core.ui.ViewModelKey
 import com.joy.sandbox.feature.dungeon.api.DungeonGameJoyScreen
 import com.joy.sandbox.feature.dungeon.api.DungeonIntroJoyScreen
 import com.joy.sandbox.feature.dungeon.api.DungeonJoyScreen
-import com.joy.sandbox.feature.dungeon.impl.data.DungeonProgressRepositoryImpl
-import com.joy.sandbox.feature.dungeon.impl.data.DungeonSoundPlayerImpl
-import com.joy.sandbox.feature.dungeon.impl.data.DungeonVibrationControllerImpl
-import com.joy.sandbox.feature.dungeon.impl.domain.DungeonGameInteractor
-import com.joy.sandbox.feature.dungeon.impl.domain.DungeonGameInteractorImpl
-import com.joy.sandbox.feature.dungeon.impl.domain.DungeonProgressRepository
-import com.joy.sandbox.feature.dungeon.impl.domain.DungeonSoundPlayer
-import com.joy.sandbox.feature.dungeon.impl.domain.DungeonVibrationController
+import com.joy.sandbox.feature.dungeon.api.DungeonLevelsJoyScreen
 import com.joy.sandbox.feature.dungeon.impl.presentation.game.DungeonGameScreenProvider
 import com.joy.sandbox.feature.dungeon.impl.presentation.game.DungeonGameViewModel
 import com.joy.sandbox.feature.dungeon.impl.presentation.intro.DungeonIntroScreenProvider
 import com.joy.sandbox.feature.dungeon.impl.presentation.intro.DungeonIntroViewModel
+import com.joy.sandbox.feature.dungeon.impl.presentation.levels.DungeonLevelsScreenProvider
+import com.joy.sandbox.feature.dungeon.impl.presentation.levels.DungeonLevelsViewModel
 import com.joy.sandbox.feature.dungeon.impl.presentation.title.DungeonTitleScreenProvider
 import com.joy.sandbox.feature.dungeon.impl.presentation.title.DungeonTitleViewModel
 import dagger.Module
@@ -27,18 +22,6 @@ import dagger.multibindings.IntoMap
 
 @Module
 class DungeonModule {
-
-    @Provides
-    fun provideDungeonGameInteractor(impl: DungeonGameInteractorImpl): DungeonGameInteractor = impl
-
-    @Provides
-    fun provideDungeonProgressRepository(impl: DungeonProgressRepositoryImpl): DungeonProgressRepository = impl
-
-    @Provides
-    fun provideDungeonSoundPlayer(impl: DungeonSoundPlayerImpl): DungeonSoundPlayer = impl
-
-    @Provides
-    fun provideDungeonVibrationController(impl: DungeonVibrationControllerImpl): DungeonVibrationController = impl
 
     @Provides
     @IntoMap
@@ -57,8 +40,18 @@ class DungeonModule {
 
     @Provides
     @IntoMap
+    @ViewModelKey(DungeonLevelsViewModel::class)
+    fun provideDungeonLevelsViewModel(viewModel: DungeonLevelsViewModel): ViewModel = viewModel
+
+    @Provides
+    @IntoMap
     @ScreenKey(DungeonJoyScreen.ROUTE)
     fun provideDungeonTitleContent(): ScreenContentProvider = DungeonTitleScreenProvider()
+
+    @Provides
+    @IntoMap
+    @ScreenKey(DungeonLevelsJoyScreen.ROUTE)
+    fun provideDungeonLevelsContent(): ScreenContentProvider = DungeonLevelsScreenProvider()
 
     @Provides
     @IntoMap

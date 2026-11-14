@@ -7,6 +7,7 @@ import com.joy.sandbox.di.module.CommonModule
 import com.joy.sandbox.di.module.DateTimeModule
 import com.joy.sandbox.di.module.SnackBarModule
 import com.joy.sandbox.di.module.navigation.NavigationModule
+import com.joy.sandbox.feature.dungeon.impl.DungeonDomainModule
 import com.joy.sandbox.feature.dungeon.impl.DungeonModule
 import com.joy.sandbox.feature.home.impl.HomeModule
 import com.joy.sandbox.feature.letters.impl.LettersModule
@@ -28,6 +29,7 @@ import javax.inject.Singleton
         StartModule::class,
         HomeModule::class,
         DungeonModule::class,
+        DungeonDomainModule::class,
         WebSocketModule::class,
         LettersModule::class,
         ProductsDatabaseModule::class,

@@ -3,6 +3,7 @@
     <string name="dungeon_title_subtitle">Головоломка по мотивам «Башни знаний» (1996)</string>
     <string name="dungeon_start">Начать</string>
     <string name="dungeon_levels">Уровни</string>
+    <string name="dungeon_levels_title">Выбор уровня</string>
     <string name="dungeon_level_locked">Заблокирован — пройдите предыдущий уровень</string>
     <string name="dungeon_level_best">Рекорд: %1$d ходов</string>
     <string name="dungeon_level_par">Пар: %1$d</string>
