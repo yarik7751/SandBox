@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.joy.sandbox.core.navigation.router.JoyRouter
@@ -51,7 +52,13 @@ fun DungeonTitleScreen(
                     text = stringResource(R.string.dungeon_title),
                     style = MaterialTheme.typography.headlineLarge,
                     color = DungeonColors.GoldBright,
-                    modifier = Modifier.padding(bottom = 24.dp),
+                )
+                Text(
+                    text = stringResource(R.string.dungeon_title_subtitle),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = DungeonColors.TextDim,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(top = 8.dp, bottom = 24.dp),
                 )
                 Button(onClick = viewModel::onStartClick) {
                     Text(stringResource(R.string.dungeon_start))
