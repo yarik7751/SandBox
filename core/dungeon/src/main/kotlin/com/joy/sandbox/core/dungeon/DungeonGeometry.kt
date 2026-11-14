@@ -29,7 +29,10 @@ object DungeonGeometry {
         else -> null
     }
 
-    /** Все двери сетки: горизонтальные 'h:x,y', затем вертикальные 'v:x,y'. */
+    /**
+     * Все двери сетки: горизонтальные 'h:x,y', затем вертикальные 'v:x,y'.
+     * Заклинившие двери уровня ([DungeonLevel.jammed]) на доске отсутствуют.
+     */
     fun allDoors(level: DungeonLevel): Set<DoorId> {
         val doors = mutableSetOf<DoorId>()
         for (y in 0 until level.h) {
@@ -38,7 +41,7 @@ object DungeonGeometry {
         for (y in 0 until level.h - 1) {
             for (x in 0 until level.w) doors += DoorId.vertical(x, y)
         }
-        return doors
+        return doors - level.jammed
     }
 
     /**
@@ -52,12 +55,27 @@ object DungeonGeometry {
     fun isInside(pos: Pos, level: DungeonLevel): Boolean =
         pos.x in 0 until level.w && pos.y in 0 until level.h
 
-    /** Соседние комнаты, reachable через открытые двери. */
-    fun neighbors(room: Pos, level: DungeonLevel, openDoors: Set<DoorId>): List<Pair<Pos, DoorId>> {
+    /**
+     * Соседние комнаты, reachable через открытые двери.
+     * Завалы ([DungeonLevel.blocked]) непроходимы никому; укрытия
+     * ([DungeonLevel.concealed]) проходимы герою и пленникам, но враг
+     * туда не входит ([forEnemy]).
+     */
+    fun neighbors(
+        room: Pos,
+        level: DungeonLevel,
+        openDoors: Set<DoorId>,
+        forEnemy: Boolean = false,
+    ): List<Pair<Pos, DoorId>> {
         val result = mutableListOf<Pair<Pos, DoorId>>()
         for (dir in DIRS) {
             val door = openDoorTowards(room, dir, level, openDoors)
-            if (door != null) result += door
+            if (door != null) {
+                val next = door.first
+                if (next !in level.blocked && (!forEnemy || next !in level.concealed)) {
+                    result += door
+                }
+            }
         }
         return result
     }
@@ -82,6 +100,7 @@ object DungeonGeometry {
         targets: List<Pos>,
         level: DungeonLevel,
         openDoors: Set<DoorId>,
+        forEnemy: Boolean = false,
     ): Pos? {
         val targetSet = targets.toSet()
         if (targetSet.isEmpty() || start in targetSet) return null
@@ -95,13 +114,18 @@ object DungeonGeometry {
         var found: Pos? = null
         while (queue.isNotEmpty() && found == null) {
             val current = queue.removeFirst()
-            found = scanNeighbors(current, targetSet, level, openDoors, seen, previous, queue)
+            found = scanNeighbors(current, targetSet, level, openDoors, forEnemy, seen, previous, queue)
         }
         return found?.let { firstStep(previous, start, it) }
     }
 
     /** BFS-расстояния (в шагах) от [start] до всех достижимых комнат. */
-    fun bfsDistances(start: Pos, level: DungeonLevel, openDoors: Set<DoorId>): Map<Pos, Int> {
+    fun bfsDistances(
+        start: Pos,
+        level: DungeonLevel,
+        openDoors: Set<DoorId>,
+        forEnemy: Boolean = false,
+    ): Map<Pos, Int> {
         val distances = HashMap<Pos, Int>()
         val queue = ArrayDeque<Pos>()
         distances[start] = 0
@@ -109,7 +133,7 @@ object DungeonGeometry {
         while (queue.isNotEmpty()) {
             val current = queue.removeFirst()
             val nextDistance = distances.getValue(current) + 1
-            for ((next, _) in neighbors(current, level, openDoors)) {
+            for ((next, _) in neighbors(current, level, openDoors, forEnemy)) {
                 if (next !in distances) {
                     distances[next] = nextDistance
                     queue.add(next)
@@ -124,11 +148,12 @@ object DungeonGeometry {
         targetSet: Set<Pos>,
         level: DungeonLevel,
         openDoors: Set<DoorId>,
+        forEnemy: Boolean,
         seen: MutableSet<Pos>,
         previous: MutableMap<Pos, Pair<Pos, Pos>>,
         queue: ArrayDeque<Pos>,
     ): Pos? {
-        for ((next, _) in neighbors(current, level, openDoors)) {
+        for ((next, _) in neighbors(current, level, openDoors, forEnemy)) {
             if (seen.add(next)) {
                 previous[next] = current to next
                 if (next in targetSet) return next

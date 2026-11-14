@@ -8,8 +8,10 @@ import com.joy.sandbox.core.dungeon.model.Pos
  *
  * Цель — ближайший достижимый живой персонаж: герой (если он в подземелье)
  * плюс освобождённые не вышедшие пленники. Прикованные пленники неуязвимы
- * и не цели; улица вне сетки — враг туда не выходит. Tie-break при равных
- * расстояниях детерминирован: сначала герой, затем пленник с меньшим id.
+ * и не цели; улица вне сетки — враг туда не выходит. Персонажи на тёмных
+ * клетках-укрытиях невидимы: не цели, и сам враг в укрытия не входит.
+ * Tie-break при равных расстояниях детерминирован: сначала герой, затем
+ * пленник с меньшим id.
  */
 internal object DungeonEnemy {
 
@@ -25,19 +27,25 @@ internal object DungeonEnemy {
     }
 
     private fun nextRoom(state: DungeonState): Pos? {
-        val distances = DungeonGeometry.bfsDistances(state.enemy, state.level, state.openDoors)
+        val distances = DungeonGeometry.bfsDistances(state.enemy, state.level, state.openDoors, forEnemy = true)
         val target = state.targets()
             .filter { it.room != state.enemy && it.room in distances }
             .minWithOrNull(compareBy<Target> { distances.getValue(it.room) }.thenBy { it.rank })
             ?: return null
-        return DungeonGeometry.bfsNext(state.enemy, listOf(target.room), state.level, state.openDoors)
+        return DungeonGeometry.bfsNext(
+            state.enemy,
+            listOf(target.room),
+            state.level,
+            state.openDoors,
+            forEnemy = true,
+        )
     }
 
     /** Герой вне улицы (ранг 0), затем освобождённые пленники по возрастанию id. */
     private fun DungeonState.targets(): List<Target> = buildList {
-        if (player != street) add(Target(player, rank = 0))
+        if (player != street && player !in level.concealed) add(Target(player, rank = 0))
         hostages
-            .filter { it.freed && !it.exited }
+            .filter { it.freed && !it.exited && it.room !in level.concealed }
             .forEach { add(Target(it.room, rank = it.id + 1)) }
     }
 

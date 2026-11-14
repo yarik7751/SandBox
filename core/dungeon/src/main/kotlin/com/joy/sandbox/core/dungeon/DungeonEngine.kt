@@ -34,15 +34,28 @@ data class ActResult(
  */
 object DungeonEngine {
 
-    fun create(level: DungeonLevel): DungeonState = DungeonState(
-        level = level,
-        openDoors = DungeonGeometry.allDoors(level) - level.closed,
-        player = Pos(level.w - 1, -1),
-        enemy = level.enemy,
-        hostages = level.hostages.mapIndexed { index, room ->
-            HostageState(id = index, room = room)
-        },
-    )
+    fun create(level: DungeonLevel): DungeonState {
+        // Валидация раскладки: выход и стартовые позиции не должны оказаться в завале.
+        val starts = buildList {
+            add(Pos(level.w - 1, 0)) // комната выхода
+            add(level.player)
+            add(level.enemy)
+            addAll(level.hostages)
+        }
+        require(starts.none { it in level.blocked }) {
+            "выход и стартовые позиции не должны быть в завале: " +
+                starts.filter { it in level.blocked }
+        }
+        return DungeonState(
+            level = level,
+            openDoors = DungeonGeometry.allDoors(level) - level.closed,
+            player = Pos(level.w - 1, -1),
+            enemy = level.enemy,
+            hostages = level.hostages.mapIndexed { index, room ->
+                HostageState(id = index, room = room)
+            },
+        )
+    }
 
     fun act(state: DungeonState, action: DungeonAction): ActResult {
         if (state.over != null) return ActResult(ok = false, state = state, events = emptyList())
@@ -55,7 +68,7 @@ object DungeonEngine {
 
     /** Комнаты, в которые Повелитель может шагнуть на следующем ходу (подсветка угрозы). */
     fun threatRooms(state: DungeonState): Set<Pos> =
-        DungeonGeometry.neighbors(state.enemy, state.level, state.openDoors)
+        DungeonGeometry.neighbors(state.enemy, state.level, state.openDoors, forEnemy = true)
             .map { it.first }
             .toSet()
 
@@ -87,7 +100,8 @@ object DungeonEngine {
         }
 
         val door = DungeonGeometry.doorId(from, to)
-        return if (door != null && door in state.openDoors) {
+        // Завалённые клетки непроходимы для всех персонажей.
+        return if (door != null && door in state.openDoors && to !in state.level.blocked) {
             val events = mutableListOf<DungeonEvent>(
                 DungeonEvent.Move(
                     who = moverOf(actor),
@@ -182,10 +196,12 @@ object DungeonEngine {
     }
 
     private fun toggle(state: DungeonState, door: DoorId): ActResult {
-        // Двери открывает и закрывает только герой — и только внутри подземелья.
+        // Двери открывает и закрывает только герой — и только внутри подземелья;
+        // заклинившие двери на доске отсутствуют и переключению не подлежат.
         val allowed = state.active == CharacterRef.Hero &&
             DungeonGeometry.isInside(state.player, state.level) &&
-            door in DungeonGeometry.adjacentDoors(state.player)
+            door in DungeonGeometry.adjacentDoors(state.player) &&
+            door !in state.level.jammed
         if (!allowed) return reject(state)
 
         val nowOpen = door !in state.openDoors
