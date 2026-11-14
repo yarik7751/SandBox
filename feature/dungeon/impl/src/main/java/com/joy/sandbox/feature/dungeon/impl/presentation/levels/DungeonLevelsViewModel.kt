@@ -22,7 +22,7 @@ class DungeonLevelsViewModel @Inject constructor(
 
     sealed interface Commands {
 
-        data class OpenIntro(val levelId: Int) : Commands
+        data class OpenGame(val levelId: Int) : Commands
     }
 
     init {
@@ -31,7 +31,7 @@ class DungeonLevelsViewModel @Inject constructor(
 
     fun onLevelClick(levelId: Int) {
         val level = stateFlow.value.levels.firstOrNull { it.id == levelId } ?: return
-        if (!level.locked) commandsFlow.tryEmit(Commands.OpenIntro(levelId))
+        if (!level.locked) commandsFlow.tryEmit(Commands.OpenGame(levelId))
     }
 
     private fun loadProgress() {

@@ -2,7 +2,10 @@ package com.joy.sandbox.feature.dungeon.api
 
 import com.joy.sandbox.core.navigation.JoyScreenWithArgs
 
-/** Интро уровня: название, история и цель. */
+/**
+ * Интро уровня: название, история и цель.
+ * TODO: temporarily excluded from navigation — will be needed when the number of levels increases.
+ */
 class DungeonIntroJoyScreen private constructor(val levelId: Long) : JoyScreenWithArgs() {
 
     override val route: String get() = "$BASE?$ARG_LEVEL_ID=$levelId"

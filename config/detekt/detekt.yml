@@ -12,6 +12,10 @@ complexity:
     allowedLines: 80
 
 style:
+  ForbiddenComment:
+    # Осознанный TODO: экран интро временно отключён от навигации,
+    # код сохранён — вернём его, когда уровней станет больше.
+    allowedPatterns: 'temporarily excluded from navigation'
   MagicNumber:
     # Compose dimensions/colors are full of "magic" numbers.
     ignoreAnnotated:

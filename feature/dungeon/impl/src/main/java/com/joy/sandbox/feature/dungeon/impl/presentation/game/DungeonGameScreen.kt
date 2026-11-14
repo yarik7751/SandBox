@@ -28,7 +28,6 @@ import com.joy.sandbox.core.navigation.currentNavLongArgument
 import com.joy.sandbox.core.navigation.router.JoyRouter
 import com.joy.sandbox.core.ui.ViewModelFactory
 import com.joy.sandbox.feature.dungeon.api.DungeonGameJoyScreen
-import com.joy.sandbox.feature.dungeon.api.DungeonIntroJoyScreen
 import com.joy.sandbox.feature.dungeon.api.DungeonJoyScreen
 import com.joy.sandbox.feature.dungeon.impl.R
 import com.joy.sandbox.feature.dungeon.impl.presentation.components.CharacterPanel
@@ -342,7 +341,7 @@ private fun HandleCommands(
 ) {
     viewModel.commandsFlow.observe { command ->
         when (command) {
-            is Commands.OpenNext -> router.navigateTo(DungeonIntroJoyScreen.create(command.levelId.toLong()))
+            is Commands.OpenNext -> router.navigateTo(DungeonGameJoyScreen.create(command.levelId.toLong()))
             Commands.ExitToTitle -> router.backTo(DungeonJoyScreen)
         }
     }

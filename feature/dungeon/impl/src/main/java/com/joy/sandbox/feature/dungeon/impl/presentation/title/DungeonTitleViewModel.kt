@@ -16,7 +16,7 @@ class DungeonTitleViewModel @Inject constructor(
 
     sealed interface Commands {
 
-        data class OpenIntro(val levelId: Int) : Commands
+        data class OpenGame(val levelId: Int) : Commands
 
         data object OpenLevels : Commands
     }
@@ -24,7 +24,7 @@ class DungeonTitleViewModel @Inject constructor(
     fun onStartClick() {
         viewModelScope.launch {
             val progress = progressRepository.load()
-            commandsFlow.tryEmit(Commands.OpenIntro(progress.unlockedLevel))
+            commandsFlow.tryEmit(Commands.OpenGame(progress.unlockedLevel))
         }
     }
 

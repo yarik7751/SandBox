@@ -30,7 +30,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.joy.sandbox.core.navigation.router.JoyRouter
 import com.joy.sandbox.core.ui.ViewModelFactory
-import com.joy.sandbox.feature.dungeon.api.DungeonIntroJoyScreen
+import com.joy.sandbox.feature.dungeon.api.DungeonGameJoyScreen
 import com.joy.sandbox.feature.dungeon.impl.R
 import com.joy.sandbox.feature.dungeon.impl.presentation.levels.DungeonLevelsViewModel.Commands
 import com.joy.sandbox.feature.dungeon.impl.presentation.model.LevelItemUiModel
@@ -119,8 +119,8 @@ private fun HandleCommands(
 ) {
     viewModel.commandsFlow.observe { command ->
         when (command) {
-            is Commands.OpenIntro -> router.navigateTo(
-                DungeonIntroJoyScreen.create(command.levelId.toLong()),
+            is Commands.OpenGame -> router.navigateTo(
+                DungeonGameJoyScreen.create(command.levelId.toLong()),
             )
         }
     }
