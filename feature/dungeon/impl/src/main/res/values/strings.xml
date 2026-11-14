@@ -4,8 +4,6 @@
     <string name="dungeon_title_subtitle">Спаси всех. Оставь Тьму внутри.</string>
     <string name="dungeon_levels">Уровни</string>
     <string name="dungeon_levels_title">Выбор уровня</string>
-    <string name="dungeon_level_locked">Заблокирован — пройдите предыдущий уровень</string>
-    <string name="dungeon_level_best">Рекорд: %1$d ходов</string>
     <string name="dungeon_intro_goal">Цель: освободите всех пленников, выведите их через выход в правом верхнем углу на улицу, а затем выйдите сами, заперев Повелителя Тьмы внутри.</string>
     <string name="dungeon_enter">Войти в подземелье</string>
     <string name="dungeon_level_number">Уровень %1$d</string>

@@ -1,19 +1,28 @@
 package com.joy.sandbox.feature.dungeon.impl.presentation.levels
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -29,7 +38,7 @@ import com.joy.sandbox.feature.dungeon.impl.presentation.theme.DungeonColors
 import com.joy.sandbox.feature.dungeon.impl.presentation.theme.DungeonTheme
 import com.joy.sandbox.utils.observe
 
-/** Экран выбора уровня подземелья: LazyColumn, готов к большому числу уровней. */
+/** Экран выбора уровня подземелья: сетка кругов, 5 в ряд. */
 @Composable
 fun DungeonLevelsScreen(
     viewModelFactory: ViewModelFactory,
@@ -42,14 +51,16 @@ fun DungeonLevelsScreen(
         Scaffold(
             containerColor = MaterialTheme.colorScheme.background,
         ) { padding ->
-            LazyColumn(
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(5),
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding),
                 contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                item {
+                item(span = { GridItemSpan(maxLineSpan) }) {
                     Text(
                         text = stringResource(R.string.dungeon_levels_title),
                         style = MaterialTheme.typography.headlineSmall,
@@ -61,16 +72,10 @@ fun DungeonLevelsScreen(
                     )
                 }
                 items(model.levels, key = { it.id }) { level ->
-                    TextButton(
+                    LevelCircle(
+                        level = level,
                         onClick = { viewModel.onLevelClick(level.id) },
-                        enabled = !level.locked,
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        Text(
-                            text = levelLine(level),
-                            textAlign = TextAlign.Center,
-                        )
-                    }
+                    )
                 }
             }
         }
@@ -80,17 +85,32 @@ fun DungeonLevelsScreen(
 }
 
 @Composable
-private fun levelLine(level: LevelItemUiModel): String =
-    if (level.locked) {
-        "${level.id}. ${level.name} — " + stringResource(R.string.dungeon_level_locked)
-    } else {
-        val best = level.bestTurns
-        if (best != null) {
-            "${level.id}. ${level.name} · " + stringResource(R.string.dungeon_level_best, best)
-        } else {
-            "${level.id}. ${level.name}"
-        }
+private fun LevelCircle(
+    level: LevelItemUiModel,
+    onClick: () -> Unit,
+) {
+    val passed = !level.locked && level.bestTurns != null
+    Box(
+        modifier = Modifier
+            .aspectRatio(1f)
+            .clip(CircleShape)
+            .then(
+                if (passed) {
+                    Modifier.background(DungeonColors.Gold)
+                } else {
+                    Modifier.border(width = 2.dp, color = DungeonColors.Gold, shape = CircleShape)
+                }
+            )
+            .clickable(enabled = !level.locked, onClick = onClick),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = level.id.toString(),
+            style = MaterialTheme.typography.titleLarge,
+            color = if (passed) DungeonColors.OnGold else DungeonColors.Gold,
+        )
     }
+}
 
 @Composable
 private fun HandleCommands(
