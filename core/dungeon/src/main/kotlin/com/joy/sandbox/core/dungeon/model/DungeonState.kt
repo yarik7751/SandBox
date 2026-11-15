@@ -33,4 +33,8 @@ data class DungeonState(
     val active: CharacterRef = CharacterRef.Hero,
     /** Улица — клетка над выходом: безопасная зона вне сетки подземелья. */
     val street: Pos = Pos(level.w - 1, -1),
+    /** Остаток лимита переключений дверей ([Int.MAX_VALUE] — без лимита). */
+    val togglesLeft: Int = level.togglesBudget,
+    /** Остаток зарядов врага на вылом двери ([DungeonLevel.enemyDoorCharge]). */
+    val enemyChargesLeft: Int = level.enemyDoorCharge,
 )

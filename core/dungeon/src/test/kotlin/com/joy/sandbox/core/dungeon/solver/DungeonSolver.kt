@@ -186,13 +186,19 @@ object DungeonSolver {
      *  перемещения, BFS врага, угрозы — определяется достижимостью, а она
      *  совпадает при разных наборах дверей с одним разбиением. Переключение
      *  двери-моста между областями даёт новое разбиение, переключение двери
-     *  внутри области — тот же ключ (холостые переключения отсекаются сами). */
+     *  внутри области — тот же ключ (холостые переключения отсекаются сами).
+     *
+     *  Динамическое состояние — остаток бюджета переключений и зарядов
+     *  врага — входит в ключ явно: от него зависит множество допустимых
+     *  действий, а значит и поведение. */
     private data class Key(
         val player: Pos,
         val enemy: Pos,
         val hostages: List<HostageState>,
         val regions: List<Int>,
         val active: CharacterRef,
+        val togglesLeft: Int,
+        val enemyChargesLeft: Int,
     )
 
     private data class Entry(
@@ -208,6 +214,8 @@ object DungeonSolver {
         hostages = hostages,
         regions = connectivityRegions(),
         active = active,
+        togglesLeft = togglesLeft,
+        enemyChargesLeft = enemyChargesLeft,
     )
 
     /** Разбиение комнат сетки на области связности по открытым дверям. */

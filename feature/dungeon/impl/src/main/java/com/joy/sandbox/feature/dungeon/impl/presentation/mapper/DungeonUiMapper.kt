@@ -30,6 +30,9 @@ class DungeonUiMapper @Inject constructor() {
         width = state.level.w,
         height = state.level.h,
         turns = state.turns,
+        /** null — лимит переключений не ограничен. */
+        togglesLeft = if (state.level.togglesBudget == Int.MAX_VALUE) null else state.togglesLeft,
+        enemyChargesLeft = state.enemyChargesLeft,
         player = state.player.toUi(),
         enemy = state.enemy.toUi(),
         hostages = state.hostages.map { hostage ->

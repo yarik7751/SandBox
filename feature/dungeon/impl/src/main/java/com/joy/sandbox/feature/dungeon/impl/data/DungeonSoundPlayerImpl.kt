@@ -48,6 +48,8 @@ class DungeonSoundPlayerImpl @Inject constructor() : DungeonSoundPlayer {
             is DungeonEvent.Free -> playTone(ToneGenerator.TONE_PROP_ACK, FREE_DURATION_MS)
             is DungeonEvent.Exit -> playTone(ToneGenerator.TONE_CDMA_ALERT_NETWORK_LITE, EXIT_DURATION_MS)
             is DungeonEvent.Death -> playTone(ToneGenerator.TONE_SUP_CONGESTION, LOSE_DURATION_MS)
+            is DungeonEvent.EnemyDoorOpen ->
+                playTone(ToneGenerator.TONE_SUP_RADIO_ACK, ENEMY_DOOR_DURATION_MS)
             is DungeonEvent.Switch -> Unit // переключение бесшумное
             is DungeonEvent.Win -> playWinMelody()
         }
@@ -82,6 +84,7 @@ class DungeonSoundPlayerImpl @Inject constructor() : DungeonSoundPlayer {
         const val EXIT_DURATION_MS = 220
         const val LOSE_DURATION_MS = 500
         const val DENY_DURATION_MS = 80
+        const val ENEMY_DOOR_DURATION_MS = 260
         const val MELODY_NOTE_MS = 140
     }
 }

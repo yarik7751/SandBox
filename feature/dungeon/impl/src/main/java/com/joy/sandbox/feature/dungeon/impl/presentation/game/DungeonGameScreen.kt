@@ -137,6 +137,31 @@ private fun StatsRow(model: DungeonGameUiModel) {
             color = DungeonColors.TextDim,
         )
     }
+    // Дверная ось: лимит переключений и заряды врага — только когда механика действует.
+    if (model.togglesLeft != null || model.enemyChargesLeft > 0) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 2.dp),
+            horizontalArrangement = Arrangement.spacedBy(14.dp, Alignment.CenterHorizontally),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            model.togglesLeft?.let { togglesLeft ->
+                Text(
+                    text = stringResource(R.string.dungeon_toggles_left, togglesLeft),
+                    style = MaterialTheme.typography.titleSmall,
+                    color = DungeonColors.TextDim,
+                )
+            }
+            if (model.enemyChargesLeft > 0) {
+                Text(
+                    text = stringResource(R.string.dungeon_enemy_charge, model.enemyChargesLeft),
+                    style = MaterialTheme.typography.titleSmall,
+                    color = DungeonColors.Gold,
+                )
+            }
+        }
+    }
 }
 
 @Composable

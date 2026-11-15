@@ -10,7 +10,11 @@ package com.joy.sandbox.core.dungeon.model
  * - [concealed] — укрытия: тёмные клетки, проходимы для героя и пленников,
  *   но враг не видит там персонажей (не целится) и не входит туда;
  * - [jammed] — заклинившие двери: отсутствуют на доске, переключение
- *   отклоняется.
+ *   отклоняется;
+ * - [togglesBudget] — лимит переключений дверей героем ([Int.MAX_VALUE] —
+ *   без лимита); при 0 переключение отклоняется без траты хода;
+ * - [enemyDoorCharge] — сколько раз враг, оказавшись в ловушке, может
+ *   открыть соседнюю закрытую дверь, дающую путь к цели.
  */
 data class DungeonLevel(
     val id: Int,
@@ -26,4 +30,6 @@ data class DungeonLevel(
     val blocked: Set<Pos> = emptySet(),
     val concealed: Set<Pos> = emptySet(),
     val jammed: Set<DoorId> = emptySet(),
+    val togglesBudget: Int = Int.MAX_VALUE,
+    val enemyDoorCharge: Int = 0,
 )

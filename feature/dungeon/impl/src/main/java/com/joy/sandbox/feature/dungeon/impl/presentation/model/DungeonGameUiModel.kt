@@ -37,6 +37,10 @@ data class DungeonGameUiModel(
     val width: Int,
     val height: Int,
     val turns: Int,
+    /** Остаток лимита переключений дверей; null — бюджет не ограничен. */
+    val togglesLeft: Int?,
+    /** Заряды врага на вылом двери; 0 — строку не показываем. */
+    val enemyChargesLeft: Int,
     /** Позиция героя; когда он на улице — комната выхода. */
     val player: PosUi,
     val enemy: PosUi,

@@ -71,6 +71,7 @@ object LevelGenerator {
             blocked = blocked,
             concealed = concealed,
             jammed = jammed,
+            enemyDoorCharge = enemyDoorChargeCount(n),
         )
     }
 
@@ -95,6 +96,13 @@ object LevelGenerator {
 
     /** Изначально закрытые двери: лёгкий наклон поверх базовой механики. */
     private fun closedCount(n: Int): Int = minOf(n / CLOSED_EVERY, CLOSED_MAX)
+
+    /** Заряд врага на вылом двери: с ~40-го уровня, второй заряд с ~60-го. */
+    private fun enemyDoorChargeCount(n: Int): Int = when {
+        n < CHARGE_FROM -> 0
+        n < CHARGE_TWO_FROM -> 1
+        else -> 2
+    }
 
     private fun withJitter(random: Random, base: Int): Int =
         (base + random.nextInt(from = JITTER_MIN, until = JITTER_MAX_EXCLUSIVE)).coerceAtLeast(0)
@@ -134,6 +142,8 @@ object LevelGenerator {
     private const val CONCEALED_MAX = 3
     private const val CLOSED_EVERY = 8
     private const val CLOSED_MAX = 3
+    private const val CHARGE_FROM = 40
+    private const val CHARGE_TWO_FROM = 60
     private const val SECOND_HOSTAGE_FROM = 30
     private const val JITTER_MIN = -1
     private const val JITTER_MAX_EXCLUSIVE = 2

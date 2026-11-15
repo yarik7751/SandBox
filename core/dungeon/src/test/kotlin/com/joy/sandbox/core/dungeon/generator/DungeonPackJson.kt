@@ -11,7 +11,9 @@ import com.joy.sandbox.core.dungeon.model.Pos
  * Читающая сторона (приложение): id — Int; name, intro — строки; par, w, h —
  * Int; player, enemy, hostages, blocked, concealed — позиции {x, y};
  * closed, jammed — двери в строковом виде DoorId ("h:1,2" / "v:1,2",
- * парсится DoorId.parse).
+ * парсится DoorId.parse); togglesBudget, enemyDoorCharge — Int (позднее
+ * добавление: читатель обязан брать дефолты без лимита и 0, пак v1 без
+ * этих полей валиден).
  */
 object DungeonPackJson {
 
@@ -31,6 +33,8 @@ object DungeonPackJson {
             |    "blocked": [${level.blocked.joinToString(", ") { it.json() }}],
             |    "concealed": [${level.concealed.joinToString(", ") { it.json() }}],
             |    "jammed": [${level.jammed.joinToString(", ") { "\"$it\"" }}],
+            |    "togglesBudget": ${level.togglesBudget},
+            |    "enemyDoorCharge": ${level.enemyDoorCharge},
             |    "intro": "${level.intro.jsonEscape()}"
             |  }
             """.trimMargin()

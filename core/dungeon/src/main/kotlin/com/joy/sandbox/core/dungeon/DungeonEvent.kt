@@ -24,6 +24,9 @@ sealed interface DungeonEvent {
 
     data class Toggle(val door: DoorId, val open: Boolean) : DungeonEvent
 
+    /** Враг потратил заряд и выломал закрытую дверь, выходя из ловушки. */
+    data class EnemyDoorOpen(val door: DoorId) : DungeonEvent
+
     data class Death(val who: Mover, val hostageId: Int? = null) : DungeonEvent
 
     /** Смена активного персонажа — бесплатное действие, звук не обязателен. */

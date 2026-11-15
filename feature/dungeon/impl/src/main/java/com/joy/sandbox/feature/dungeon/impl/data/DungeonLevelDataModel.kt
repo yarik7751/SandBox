@@ -18,4 +18,6 @@ data class DungeonLevelDataModel(
     val concealed: Set<Pos>,
     val jammed: Set<DoorId>,
     val intro: String,
+    val togglesBudget: Int,
+    val enemyDoorCharge: Int,
 )

@@ -21,4 +21,8 @@ data class DungeonLevelEntryDto(
     val concealed: List<Pair<Int, Int>>,
     val jammed: List<String>,
     val intro: String,
+    /** Лимит переключений; [Int.MAX_VALUE] — без лимита (поле позднего добавления). */
+    val togglesBudget: Int = Int.MAX_VALUE,
+    /** Заряды врага на вылом двери; 0 — механика не действует (поле позднего добавления). */
+    val enemyDoorCharge: Int = 0,
 )

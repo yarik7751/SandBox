@@ -23,6 +23,8 @@ class DungeonLevelsDataMapper @Inject constructor() {
         concealed = entry.concealed.map { it.toPos() }.toSet(),
         jammed = entry.jammed.mapNotNull { DoorId.parse(it) }.toSet(),
         intro = entry.intro,
+        togglesBudget = entry.togglesBudget,
+        enemyDoorCharge = entry.enemyDoorCharge,
     )
 
     fun toDataModel(level: DungeonLevel): DungeonLevelDataModel = DungeonLevelDataModel(
@@ -39,6 +41,8 @@ class DungeonLevelsDataMapper @Inject constructor() {
         concealed = level.concealed,
         jammed = level.jammed,
         intro = level.intro,
+        togglesBudget = level.togglesBudget,
+        enemyDoorCharge = level.enemyDoorCharge,
     )
 
     /** Доменная модель — ядровая [DungeonLevel]: приложение играет тем, что в ядре. */
@@ -56,6 +60,8 @@ class DungeonLevelsDataMapper @Inject constructor() {
         blocked = model.blocked,
         concealed = model.concealed,
         jammed = model.jammed,
+        togglesBudget = model.togglesBudget,
+        enemyDoorCharge = model.enemyDoorCharge,
     )
 
     private fun Pair<Int, Int>.toPos(): Pos = Pos(first, second)

@@ -197,18 +197,24 @@ object DungeonEngine {
 
     private fun toggle(state: DungeonState, door: DoorId): ActResult {
         // Двери открывает и закрывает только герой — и только внутри подземелья;
-        // заклинившие двери на доске отсутствуют и переключению не подлежат.
+        // заклинившие двери на доске отсутствуют и переключению не подлежат;
+        // при исчерпанном бюджете переключение отклоняется без траты хода.
         val allowed = state.active == CharacterRef.Hero &&
             DungeonGeometry.isInside(state.player, state.level) &&
             door in DungeonGeometry.adjacentDoors(state.player) &&
-            door !in state.level.jammed
+            door !in state.level.jammed &&
+            state.togglesLeft > 0
         if (!allowed) return reject(state)
 
         val nowOpen = door !in state.openDoors
         val openDoors = if (nowOpen) state.openDoors + door else state.openDoors - door
         val events = mutableListOf<DungeonEvent>(DungeonEvent.Toggle(door = door, open = nowOpen))
+        val togglesLeft = if (state.togglesLeft == Int.MAX_VALUE) Int.MAX_VALUE else state.togglesLeft - 1
 
-        val next = DungeonEnemy.turn(state.copy(openDoors = openDoors, turns = state.turns + 1), events)
+        val next = DungeonEnemy.turn(
+            state.copy(openDoors = openDoors, turns = state.turns + 1, togglesLeft = togglesLeft),
+            events,
+        )
         return ActResult(ok = true, state = DungeonOutcome.checkWin(next, events), events = events)
     }
 }

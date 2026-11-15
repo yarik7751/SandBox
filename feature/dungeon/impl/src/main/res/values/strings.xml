@@ -9,6 +9,8 @@
     <string name="dungeon_level_number">Уровень %1$d</string>
     <string name="dungeon_turns_count">Ходы: %1$d</string>
     <string name="dungeon_hostages_left">Пленники: %1$d</string>
+    <string name="dungeon_toggles_left">Переключения: %1$d</string>
+    <string name="dungeon_enemy_charge">Тьма выломает дверь: %1$d</string>
     <string name="dungeon_undo">Отмена</string>
     <string name="dungeon_restart">Заново</string>
     <string name="dungeon_pause">Пауза</string>
