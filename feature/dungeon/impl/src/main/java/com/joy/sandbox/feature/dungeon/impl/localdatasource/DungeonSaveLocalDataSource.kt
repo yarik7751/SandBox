@@ -31,9 +31,12 @@ class DungeonSaveLocalDataSource @Inject constructor(
         val preferences = dataStore.data.first()
         return DungeonSaveDto(
             unlockedLevel = preferences[keyUnlocked] ?: DEFAULT_UNLOCKED,
-            bestTurns = BEST_LEVEL_IDS.associateWith { levelId ->
-                preferences[intPreferencesKey(bestKey(levelId))] ?: NO_BEST
-            }.filterValues { it != NO_BEST },
+            // Рекорды хранятся по ключам best_<id> для любых id —
+            // лента уровней не ограничена рукотворной пятёркой.
+            bestTurns = preferences.asMap().entries.mapNotNull { (key, value) ->
+                val levelId = key.name.removePrefix(BEST_PREFIX).toIntOrNull()
+                if (levelId != null && value is Int) levelId to value else null
+            }.toMap(),
             soundEnabled = preferences[keySound] ?: DEFAULT_ENABLED,
             vibrationEnabled = preferences[keyVibration] ?: DEFAULT_ENABLED,
         )
@@ -55,15 +58,13 @@ class DungeonSaveLocalDataSource @Inject constructor(
         dataStore.edit { it[keyVibration] = enabled }
     }
 
-    private fun bestKey(levelId: Int): String = "best_$levelId"
+    private fun bestKey(levelId: Int): String = "$BEST_PREFIX$levelId"
 
     private companion object {
 
         const val DEFAULT_UNLOCKED = 1
         const val DEFAULT_ENABLED = true
-        const val NO_BEST = -1
-
-        val BEST_LEVEL_IDS = 1..5
+        const val BEST_PREFIX = "best_"
 
         val keyUnlocked = intPreferencesKey("unlocked")
         val keySound = booleanPreferencesKey("sound")

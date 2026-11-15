@@ -38,7 +38,7 @@ import com.joy.sandbox.feature.dungeon.impl.presentation.theme.DungeonColors
 import com.joy.sandbox.feature.dungeon.impl.presentation.theme.DungeonTheme
 import com.joy.sandbox.utils.observe
 
-/** Экран выбора уровня подземелья: сетка кругов, 5 в ряд. */
+/** Экран выбора уровня подземелья: лента кругов, 5 в ряд; растёт с прогрессом. */
 @Composable
 fun DungeonLevelsScreen(
     viewModelFactory: ViewModelFactory,

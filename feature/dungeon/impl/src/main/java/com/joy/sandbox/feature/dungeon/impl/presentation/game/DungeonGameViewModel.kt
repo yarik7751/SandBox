@@ -5,12 +5,12 @@ import com.joy.sandbox.core.dungeon.DungeonAction
 import com.joy.sandbox.core.dungeon.DungeonEvent
 import com.joy.sandbox.core.dungeon.model.CharacterRef
 import com.joy.sandbox.core.dungeon.model.DoorId
-import com.joy.sandbox.core.dungeon.model.DungeonLevels
 import com.joy.sandbox.core.dungeon.model.DungeonState
 import com.joy.sandbox.core.dungeon.model.Pos
 import com.joy.sandbox.core.ui.BaseViewModel
 import com.joy.sandbox.core.ui.CommandFlow
 import com.joy.sandbox.feature.dungeon.impl.domain.DungeonGameInteractor
+import com.joy.sandbox.feature.dungeon.impl.domain.DungeonLevelsInteractor
 import com.joy.sandbox.feature.dungeon.impl.domain.DungeonProgressRepository
 import com.joy.sandbox.feature.dungeon.impl.domain.DungeonSoundPlayer
 import com.joy.sandbox.feature.dungeon.impl.domain.DungeonVibrationController
@@ -30,6 +30,7 @@ import kotlinx.coroutines.launch
  */
 class DungeonGameViewModel @Inject constructor(
     private val gameInteractor: DungeonGameInteractor,
+    private val levelsInteractor: DungeonLevelsInteractor,
     private val progressRepository: DungeonProgressRepository,
     private val soundPlayer: DungeonSoundPlayer,
     private val vibrationController: DungeonVibrationController,
@@ -62,7 +63,13 @@ class DungeonGameViewModel @Inject constructor(
             vibrationEnabled = progress.vibrationEnabled
             soundPlayer.setEnabled(soundEnabled)
             vibrationController.setEnabled(vibrationEnabled)
-            gameState = gameInteractor.createState(DungeonLevels.byId(levelId))
+            val level = levelsInteractor.byId(levelId)
+            if (level == null) {
+                // Уровня нет (например, «следующий» за последним в паке).
+                commandsFlow.tryEmit(Commands.ExitToTitle)
+                return@launch
+            }
+            gameState = gameInteractor.createState(level)
             emit()
         }
     }
