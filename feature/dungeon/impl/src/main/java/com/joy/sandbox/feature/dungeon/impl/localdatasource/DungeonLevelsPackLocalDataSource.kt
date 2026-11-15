@@ -53,6 +53,7 @@ class DungeonLevelsPackLocalDataSource @Inject constructor(
         intro = json.optString(KEY_INTRO),
         togglesBudget = json.optInt(KEY_TOGGLES_BUDGET, DEFAULT_TOGGLES_BUDGET),
         enemyDoorCharge = json.optInt(KEY_ENEMY_DOOR_CHARGE, DEFAULT_ENEMY_DOOR_CHARGE),
+        extraMoves = json.optInt(KEY_EXTRA_MOVES, DEFAULT_EXTRA_MOVES),
     )
 
     private fun JSONObject.getPosition(key: String): Pair<Int, Int> =
@@ -94,11 +95,13 @@ class DungeonLevelsPackLocalDataSource @Inject constructor(
         const val KEY_INTRO = "intro"
         const val KEY_TOGGLES_BUDGET = "togglesBudget"
         const val KEY_ENEMY_DOOR_CHARGE = "enemyDoorCharge"
+        const val KEY_EXTRA_MOVES = "extraMoves"
         const val KEY_X = "x"
         const val KEY_Y = "y"
 
         const val DEFAULT_TOGGLES_BUDGET = Int.MAX_VALUE
         const val DEFAULT_ENEMY_DOOR_CHARGE = 0
+        const val DEFAULT_EXTRA_MOVES = 0
 
         val EMPTY_PACK = DungeonLevelsPackDto(version = SUPPORTED_VERSION, levels = emptyList())
     }

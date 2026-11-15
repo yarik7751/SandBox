@@ -25,4 +25,6 @@ data class DungeonLevelEntryDto(
     val togglesBudget: Int = Int.MAX_VALUE,
     /** Заряды врага на вылом двери; 0 — механика не действует (поле позднего добавления). */
     val enemyDoorCharge: Int = 0,
+    /** Запас дополнительных ходов без ответа врага (поле позднего добавления). */
+    val extraMoves: Int = 0,
 )

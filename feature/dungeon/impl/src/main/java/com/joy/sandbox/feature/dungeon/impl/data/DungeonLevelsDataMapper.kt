@@ -25,6 +25,7 @@ class DungeonLevelsDataMapper @Inject constructor() {
         intro = entry.intro,
         togglesBudget = entry.togglesBudget,
         enemyDoorCharge = entry.enemyDoorCharge,
+        extraMoves = entry.extraMoves,
     )
 
     fun toDataModel(level: DungeonLevel): DungeonLevelDataModel = DungeonLevelDataModel(
@@ -43,6 +44,7 @@ class DungeonLevelsDataMapper @Inject constructor() {
         intro = level.intro,
         togglesBudget = level.togglesBudget,
         enemyDoorCharge = level.enemyDoorCharge,
+        extraMoves = level.extraMoves,
     )
 
     /** Доменная модель — ядровая [DungeonLevel]: приложение играет тем, что в ядре. */
@@ -62,6 +64,7 @@ class DungeonLevelsDataMapper @Inject constructor() {
         jammed = model.jammed,
         togglesBudget = model.togglesBudget,
         enemyDoorCharge = model.enemyDoorCharge,
+        extraMoves = model.extraMoves,
     )
 
     private fun Pair<Int, Int>.toPos(): Pos = Pos(first, second)

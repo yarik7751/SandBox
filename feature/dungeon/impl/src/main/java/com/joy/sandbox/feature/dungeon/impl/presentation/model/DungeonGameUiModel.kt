@@ -41,6 +41,12 @@ data class DungeonGameUiModel(
     val togglesLeft: Int?,
     /** Заряды врага на вылом двери; 0 — строку не показываем. */
     val enemyChargesLeft: Int,
+    /** Остаток дополнительных ходов без ответа врага; 0 — строку не показываем. */
+    val extrasLeft: Int,
+    /** Режим дополнительного хода: следующий тап по клетке — тихий ход. */
+    val extraArmed: Boolean,
+    /** Есть ли уровень следующим id (для финального диалога). */
+    val hasNext: Boolean,
     /** Позиция героя; когда он на улице — комната выхода. */
     val player: PosUi,
     val enemy: PosUi,

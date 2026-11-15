@@ -54,6 +54,10 @@ class DungeonGameViewModel @Inject constructor(
     private var moveSeq = 0L
     private var soundEnabled = true
     private var vibrationEnabled = true
+    /** Режим дополнительного хода: следующий тап по клетке — тихий ход. */
+    private var extraArmed = false
+    private var hasNext = true
+    private val actor = Actor()
 
     fun init(levelId: Int) {
         if (gameState != null) return
@@ -69,18 +73,35 @@ class DungeonGameViewModel @Inject constructor(
                 commandsFlow.tryEmit(Commands.ExitToTitle)
                 return@launch
             }
+            hasNext = levelsInteractor.byId(levelId + 1) != null
             gameState = gameInteractor.createState(level)
-            emit()
+            actor.emit()
         }
     }
 
     fun onRoomClick(room: PosUi) {
-        attempt(DungeonAction.Move(Pos(room.x, room.y)))
+        if (extraArmed && gameState?.extrasLeft != null && gameState?.extrasLeft != 0) {
+            // Тихий ход: тратит запас, враг не отвечает; разоружаемся после успеха.
+            if (actor.attempt(DungeonAction.ExtraMove(Pos(room.x, room.y)))) {
+                extraArmed = false
+            }
+            return
+        }
+        actor.attempt(DungeonAction.Move(Pos(room.x, room.y)))
+    }
+
+    /** Переключение режима дополнительного хода (кнопка «Тихий ход»). */
+    fun onExtraToggle() {
+        val current = gameState ?: return
+        if (current.over != null || current.extrasLeft <= 0) return
+        extraArmed = !extraArmed
+        moveSeq++
+        actor.emit()
     }
 
     fun onDoorClick(doorId: String) {
         val door = DoorId.parse(doorId) ?: return
-        attempt(DungeonAction.Toggle(door))
+        actor.attempt(DungeonAction.Toggle(door))
     }
 
     /**
@@ -99,14 +120,14 @@ class DungeonGameViewModel @Inject constructor(
         gameState = result.state
         moveSeq++
         soundPlayer.play(result.events)
-        emit()
+        actor.emit()
     }
 
     fun onUndoClick() {
         val previous = history.pollLast() ?: return
         gameState = previous
         moveSeq++
-        emit()
+        actor.emit()
     }
 
     fun onRestartClick() {
@@ -115,7 +136,7 @@ class DungeonGameViewModel @Inject constructor(
         history.clear()
         winTracker.reset()
         moveSeq++
-        emit()
+        actor.emit()
     }
 
     fun onFeedbackToggle(sound: Boolean) {
@@ -128,7 +149,7 @@ class DungeonGameViewModel @Inject constructor(
             vibrationController.setEnabled(vibrationEnabled)
             viewModelScope.launch { progressRepository.setVibrationEnabled(vibrationEnabled) }
         }
-        emit()
+        actor.emit()
     }
 
     fun onNextClick() {
@@ -140,35 +161,43 @@ class DungeonGameViewModel @Inject constructor(
         commandsFlow.tryEmit(Commands.ExitToTitle)
     }
 
-    private fun attempt(action: DungeonAction) {
-        val current = gameState ?: return
-        val result = gameInteractor.act(current, action)
-        if (!result.ok) {
-            soundPlayer.playDeny()
-            return
-        }
-        history.addLast(current)
-        gameState = result.state
-        moveSeq++
-        soundPlayer.play(result.events)
-        if (result.events.any { it is DungeonEvent.Death }) {
-            vibrationController.pulseOnDeath()
-        }
-        winTracker.recordWinIfNeeded(viewModelScope, result.state) { emit() }
-        emit()
-    }
+    /** Применение действий к состоянию ядра и вывод состояния на экран. */
+    private inner class Actor {
 
-    private fun emit() {
-        val state = gameState ?: return
-        stateFlow.value = uiMapper.mapGame(
-            state,
-            GameUiParams(
-                canUndo = history.isNotEmpty(),
-                soundEnabled = soundEnabled,
-                vibrationEnabled = vibrationEnabled,
-                moveSeq = moveSeq,
-                newRecord = winTracker.newRecord,
-            ),
-        )
+        fun emit() {
+            val state = gameState ?: return
+            stateFlow.value = uiMapper.mapGame(
+                state,
+                GameUiParams(
+                    canUndo = history.isNotEmpty(),
+                    soundEnabled = soundEnabled,
+                    vibrationEnabled = vibrationEnabled,
+                    moveSeq = moveSeq,
+                    newRecord = winTracker.newRecord,
+                    extraArmed = extraArmed,
+                    hasNext = hasNext,
+                ),
+            )
+        }
+
+        fun attempt(action: DungeonAction): Boolean {
+            val current = gameState ?: return false
+            val result = gameInteractor.act(current, action)
+            return if (result.ok) {
+                history.addLast(current)
+                gameState = result.state
+                moveSeq++
+                soundPlayer.play(result.events)
+                if (result.events.any { it is DungeonEvent.Death }) {
+                    vibrationController.pulseOnDeath()
+                }
+                winTracker.recordWinIfNeeded(viewModelScope, result.state) { emit() }
+                emit()
+                true
+            } else {
+                soundPlayer.playDeny()
+                false
+            }
+        }
     }
 }

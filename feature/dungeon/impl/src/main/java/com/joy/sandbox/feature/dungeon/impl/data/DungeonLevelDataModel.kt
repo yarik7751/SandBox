@@ -20,4 +20,5 @@ data class DungeonLevelDataModel(
     val intro: String,
     val togglesBudget: Int,
     val enemyDoorCharge: Int,
+    val extraMoves: Int,
 )

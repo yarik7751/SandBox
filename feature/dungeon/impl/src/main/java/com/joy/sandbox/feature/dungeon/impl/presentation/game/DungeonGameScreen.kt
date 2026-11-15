@@ -23,7 +23,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.joy.sandbox.core.dungeon.model.DungeonLevels
 import com.joy.sandbox.core.navigation.currentNavLongArgument
 import com.joy.sandbox.core.navigation.router.JoyRouter
 import com.joy.sandbox.core.ui.ViewModelFactory
@@ -92,6 +91,7 @@ fun DungeonGameScreen(
                         onRestart = viewModel::onRestartClick,
                         onPause = { showPause = true },
                         onSoundToggle = { viewModel.onFeedbackToggle(sound = true) },
+                        onExtraToggle = viewModel::onExtraToggle,
                     )
                 }
             }
@@ -138,7 +138,7 @@ private fun StatsRow(model: DungeonGameUiModel) {
         )
     }
     // Дверная ось: лимит переключений и заряды врага — только когда механика действует.
-    if (model.togglesLeft != null || model.enemyChargesLeft > 0) {
+    if (model.togglesLeft != null || model.enemyChargesLeft > 0 || model.extrasLeft > 0) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -160,6 +160,13 @@ private fun StatsRow(model: DungeonGameUiModel) {
                     color = DungeonColors.Gold,
                 )
             }
+            if (model.extrasLeft > 0) {
+                Text(
+                    text = stringResource(R.string.dungeon_extras_left, model.extrasLeft),
+                    style = MaterialTheme.typography.titleSmall,
+                    color = if (model.extraArmed) DungeonColors.Gold else DungeonColors.TextDim,
+                )
+            }
         }
     }
 }
@@ -171,6 +178,7 @@ private fun ControlsRow(
     onRestart: () -> Unit,
     onPause: () -> Unit,
     onSoundToggle: () -> Unit,
+    onExtraToggle: () -> Unit,
 ) {
     Row(
         modifier = Modifier
@@ -183,6 +191,14 @@ private fun ControlsRow(
         }
         TextButton(onClick = onRestart, enabled = state.over == null) {
             Text(stringResource(R.string.dungeon_restart))
+        }
+        if (state.extrasLeft > 0) {
+            TextButton(onClick = onExtraToggle, enabled = state.over == null) {
+                Text(
+                    text = stringResource(R.string.dungeon_extra_move),
+                    color = if (state.extraArmed) DungeonColors.Gold else MaterialTheme.colorScheme.primary,
+                )
+            }
         }
         TextButton(onClick = onPause, enabled = state.over == null) {
             Text(stringResource(R.string.dungeon_pause))
@@ -207,7 +223,7 @@ private fun GameDialogs(
     router: JoyRouter,
 ) {
     val over = model?.over
-    val isLastLevel = model?.levelId == DungeonLevels.ALL.size
+    val isLastLevel = model?.hasNext == false
     when {
         showPause && over == null -> PauseDialog(
             model = model,

@@ -117,15 +117,16 @@ object DungeonSolver {
 
     /** Все допустимые действия из состояния: ходы активного, двери героя, переключения. */
     private fun actions(state: DungeonState): List<DungeonAction> = buildList {
+        // Варианты дополнительного хода (без ответа врага) — пока есть запас.
+        val extras = state.extrasLeft > 0
         when (val active = state.active) {
             CharacterRef.Hero -> {
                 val from = state.player
                 if (from == state.street) {
-                    add(DungeonAction.Move(state.exitRoom))
+                    addCrossing(state.exitRoom, extras)
                 } else {
-                    if (from == state.exitRoom) add(DungeonAction.Move(state.street))
-                    DungeonGeometry.neighbors(from, state.level, state.openDoors)
-                        .forEach { add(DungeonAction.Move(it.first)) }
+                    if (from == state.exitRoom) addCrossing(state.street, extras)
+                    addWalks(from, state, extras)
                     // только реальные двери сетки: «фантомные» за краем (пережиток
                     // js/rules.js) нельзя переключить тапом по доске
                     val realDoors = DungeonGeometry.allDoors(state.level)
@@ -136,14 +137,27 @@ object DungeonSolver {
             }
             is CharacterRef.Hostage -> {
                 val from = state.hostages.first { it.id == active.id }.room
-                DungeonGeometry.neighbors(from, state.level, state.openDoors)
-                    .forEach { add(DungeonAction.Move(it.first)) }
+                addWalks(from, state, extras)
             }
         }
         if (state.active != CharacterRef.Hero) add(DungeonAction.Switch(CharacterRef.Hero))
         state.hostages
             .filter { it.freed && !it.exited && CharacterRef.Hostage(it.id) != state.active }
             .forEach { add(DungeonAction.Switch(CharacterRef.Hostage(it.id))) }
+    }
+
+    /** Обычный и (при [extras]) дополнительный переход в соседнюю комнату. */
+    private fun MutableList<DungeonAction>.addWalks(from: Pos, state: DungeonState, extras: Boolean) {
+        DungeonGeometry.neighbors(from, state.level, state.openDoors).forEach { (to, _) ->
+            add(DungeonAction.Move(to))
+            if (extras) add(DungeonAction.ExtraMove(to))
+        }
+    }
+
+    /** Обычный и (при [extras]) переход по единственной паре улица ↔ выход. */
+    private fun MutableList<DungeonAction>.addCrossing(to: Pos, extras: Boolean) {
+        add(DungeonAction.Move(to))
+        if (extras) add(DungeonAction.ExtraMove(to))
     }
 
     /** Расстояния по сетке со всеми открытыми дверями — нижняя граница путей
@@ -188,9 +202,9 @@ object DungeonSolver {
      *  двери-моста между областями даёт новое разбиение, переключение двери
      *  внутри области — тот же ключ (холостые переключения отсекаются сами).
      *
-     *  Динамическое состояние — остаток бюджета переключений и зарядов
-     *  врага — входит в ключ явно: от него зависит множество допустимых
-     *  действий, а значит и поведение. */
+     *  Динамическое состояние — остаток бюджета переключений, зарядов врага
+     *  и дополнительных ходов — входит в ключ явно: от него зависит множество
+     *  допустимых действий, а значит и поведение. */
     private data class Key(
         val player: Pos,
         val enemy: Pos,
@@ -199,6 +213,7 @@ object DungeonSolver {
         val active: CharacterRef,
         val togglesLeft: Int,
         val enemyChargesLeft: Int,
+        val extrasLeft: Int,
     )
 
     private data class Entry(
@@ -216,6 +231,7 @@ object DungeonSolver {
         active = active,
         togglesLeft = togglesLeft,
         enemyChargesLeft = enemyChargesLeft,
+        extrasLeft = extrasLeft,
     )
 
     /** Разбиение комнат сетки на области связности по открытым дверям. */

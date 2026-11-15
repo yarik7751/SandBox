@@ -19,6 +19,8 @@ data class GameUiParams(
     val vibrationEnabled: Boolean,
     val moveSeq: Long,
     val newRecord: Boolean,
+    val extraArmed: Boolean,
+    val hasNext: Boolean,
 )
 
 /** Маппинг доменного состояния игры в [DungeonGameUiModel]. */
@@ -33,6 +35,9 @@ class DungeonUiMapper @Inject constructor() {
         /** null — лимит переключений не ограничен. */
         togglesLeft = if (state.level.togglesBudget == Int.MAX_VALUE) null else state.togglesLeft,
         enemyChargesLeft = state.enemyChargesLeft,
+        extrasLeft = state.extrasLeft,
+        extraArmed = params.extraArmed,
+        hasNext = params.hasNext,
         player = state.player.toUi(),
         enemy = state.enemy.toUi(),
         hostages = state.hostages.map { hostage ->

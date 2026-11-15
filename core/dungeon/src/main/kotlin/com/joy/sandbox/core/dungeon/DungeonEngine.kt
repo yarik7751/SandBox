@@ -31,6 +31,8 @@ data class ActResult(
  * Правила управления: ход делает активный персонаж (герой или освобождённый
  * пленник); переключение активного — бесплатное действие, не ход; двери
  * переключает только герой; прикованный пленник неуязвим для тьмы.
+ * Дополнительный ход — перемещение активного персонажа без ответа врага,
+ * тратит запас [com.joy.sandbox.core.dungeon.model.DungeonLevel.extraMoves].
  */
 object DungeonEngine {
 
@@ -60,7 +62,12 @@ object DungeonEngine {
     fun act(state: DungeonState, action: DungeonAction): ActResult {
         if (state.over != null) return ActResult(ok = false, state = state, events = emptyList())
         return when (action) {
-            is DungeonAction.Move -> move(state, action.to)
+            is DungeonAction.Move -> step(state, action.to, extra = false)
+            is DungeonAction.ExtraMove -> if (state.extrasLeft > 0) {
+                step(state, action.to, extra = true)
+            } else {
+                reject(state)
+            }
             is DungeonAction.Toggle -> toggle(state, action.door)
             is DungeonAction.Switch -> switch(state, action.to)
         }
@@ -90,13 +97,13 @@ object DungeonEngine {
         }
     }
 
-    private fun move(state: DungeonState, to: Pos): ActResult {
+    private fun step(state: DungeonState, to: Pos, extra: Boolean): ActResult {
         val actor = state.active
         val from = positionOf(state, actor)
 
         // Улица: клетка над выходом, соединена только с комнатой выхода.
         if (from == state.street || to == state.street) {
-            return moveThroughExit(state, actor, from, to)
+            return moveThroughExit(state, actor, from, to, extra)
         }
 
         val door = DungeonGeometry.doorId(from, to)
@@ -110,14 +117,21 @@ object DungeonEngine {
                     to = to,
                 ),
             )
-            ActResult(ok = true, state = resolveTurn(moveActor(state, actor, to), actor, events), events = events)
+            val next = resolveTurn(moveActor(state, actor, to, extra), actor, events, !extra)
+            ActResult(ok = true, state = next, events = events)
         } else {
             reject(state)
         }
     }
 
     /** Переход улица ↔ выход — только герой; первый вход в партию бесплатный. */
-    private fun moveThroughExit(state: DungeonState, actor: CharacterRef, from: Pos, to: Pos): ActResult {
+    private fun moveThroughExit(
+        state: DungeonState,
+        actor: CharacterRef,
+        from: Pos,
+        to: Pos,
+        extra: Boolean,
+    ): ActResult {
         val crossing = (from == state.street && to == state.exitRoom) ||
             (from == state.exitRoom && to == state.street)
         // Герой выходит на улицу, только когда хотя бы один пленник уже вышел.
@@ -132,31 +146,45 @@ object DungeonEngine {
             // Первый спуск с улицы — начало игры: не ход, враг не отвечает.
             ActResult(ok = true, state = state.copy(player = to), events = events)
         } else {
-            val moved = state.copy(player = to, turns = state.turns + 1)
-            ActResult(ok = true, state = resolveTurn(moved, actor, events), events = events)
+            val moved = state.copy(
+                player = to,
+                turns = state.turns + 1,
+                extrasLeft = if (extra) state.extrasLeft - 1 else state.extrasLeft,
+            )
+            ActResult(ok = true, state = resolveTurn(moved, actor, events, enemyResponds = !extra), events = events)
         }
     }
 
-    private fun moveActor(state: DungeonState, actor: CharacterRef, to: Pos): DungeonState = when (actor) {
-        CharacterRef.Hero -> state.copy(player = to, turns = state.turns + 1)
-        is CharacterRef.Hostage -> state.copy(
-            turns = state.turns + 1,
-            hostages = state.hostages.map {
-                if (it.id == actor.id) it.copy(room = to) else it
-            },
-        )
+    private fun moveActor(state: DungeonState, actor: CharacterRef, to: Pos, extra: Boolean): DungeonState {
+        val extrasLeft = if (extra) state.extrasLeft - 1 else state.extrasLeft
+        return when (actor) {
+            CharacterRef.Hero -> state.copy(player = to, turns = state.turns + 1, extrasLeft = extrasLeft)
+            is CharacterRef.Hostage -> state.copy(
+                turns = state.turns + 1,
+                extrasLeft = extrasLeft,
+                hostages = state.hostages.map {
+                    if (it.id == actor.id) it.copy(room = to) else it
+                },
+            )
+        }
     }
 
-    /** Освобождение, выход на улицу, смерти, ход врага и победа — после хода за 1 очко. */
+    /** Освобождение, выход на улицу, смерти и (если [enemyResponds]) ход врага
+     *  и победа — после хода за 1 очко. */
     private fun resolveTurn(
         state: DungeonState,
         actor: CharacterRef,
         events: MutableList<DungeonEvent>,
+        enemyResponds: Boolean = true,
     ): DungeonState {
         val freed = freeHostages(state, at = positionOf(state, actor), events)
         val exited = exitHostages(freed, events)
-        val dead = DungeonOutcome.checkDeaths(exited, events)
-        return dead ?: DungeonOutcome.checkWin(DungeonEnemy.turn(exited, events), events)
+        val dead = DungeonOutcome.checkDeaths(exited, events) ?: return if (enemyResponds) {
+            DungeonOutcome.checkWin(DungeonEnemy.turn(exited, events), events)
+        } else {
+            DungeonOutcome.checkWin(exited, events)
+        }
+        return dead
     }
 
     /** Пленники в комнате [at] освобождаются — прикованный неуязвим, риск начинается здесь. */

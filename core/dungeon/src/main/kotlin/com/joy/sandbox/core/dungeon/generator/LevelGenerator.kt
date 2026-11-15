@@ -27,14 +27,15 @@ object LevelGenerator {
         val w = size
         val h = size
         val exitRoom = Pos(w - 1, 0)
+        val allRooms = (0 until h).flatMap { y -> (0 until w).map { x -> Pos(x, y) } }.toSet()
 
         // Завалы не пересекаются с выходом (валидация в DungeonEngine.create).
-        val blocked = (rooms(w, h) - exitRoom)
+        val blocked = (allRooms - exitRoom)
             .shuffled(random)
             .take(withJitter(random, blockedCount(n)))
             .toSet()
 
-        val freeRooms = rooms(w, h) - blocked - exitRoom
+        val freeRooms = allRooms - blocked - exitRoom
         val concealed = freeRooms
             .shuffled(random)
             .take(withJitter(random, concealedCount(n)))
@@ -72,6 +73,7 @@ object LevelGenerator {
             concealed = concealed,
             jammed = jammed,
             enemyDoorCharge = enemyDoorChargeCount(n),
+            extraMoves = extraMovesCount(n),
         )
     }
 
@@ -104,14 +106,18 @@ object LevelGenerator {
         else -> 2
     }
 
+    /** Дополнительные ходы (без ответа врага): после дверной оси, с ~50-го. */
+    private fun extraMovesCount(n: Int): Int = when {
+        n < EXTRAS_FROM -> 0
+        n < EXTRAS_TWO_FROM -> 1
+        else -> 2
+    }
+
     private fun withJitter(random: Random, base: Int): Int =
         (base + random.nextInt(from = JITTER_MIN, until = JITTER_MAX_EXCLUSIVE)).coerceAtLeast(0)
 
     private fun seed(n: Int, attempt: Int): Long =
         n.toLong() * SEED_N_MULTIPLIER + attempt.toLong() * SEED_ATTEMPT_MULTIPLIER + SEED_SALT
-
-    private fun rooms(w: Int, h: Int): Set<Pos> =
-        (0 until h).flatMap { y -> (0 until w).map { x -> Pos(x, y) } }.toSet()
 
     private fun allGridDoors(w: Int, h: Int): Set<DoorId> {
         val doors = mutableSetOf<DoorId>()
@@ -144,6 +150,8 @@ object LevelGenerator {
     private const val CLOSED_MAX = 3
     private const val CHARGE_FROM = 40
     private const val CHARGE_TWO_FROM = 60
+    private const val EXTRAS_FROM = 50
+    private const val EXTRAS_TWO_FROM = 70
     private const val SECOND_HOSTAGE_FROM = 30
     private const val JITTER_MIN = -1
     private const val JITTER_MAX_EXCLUSIVE = 2

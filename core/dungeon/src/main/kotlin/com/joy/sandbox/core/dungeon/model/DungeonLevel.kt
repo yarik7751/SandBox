@@ -14,7 +14,9 @@ package com.joy.sandbox.core.dungeon.model
  * - [togglesBudget] — лимит переключений дверей героем ([Int.MAX_VALUE] —
  *   без лимита); при 0 переключение отклоняется без траты хода;
  * - [enemyDoorCharge] — сколько раз враг, оказавшись в ловушке, может
- *   открыть соседнюю закрытую дверь, дающую путь к цели.
+ *   открыть соседнюю закрытую дверь, дающую путь к цели;
+ * - [extraMoves] — запас дополнительных ходов: перемещение активного
+ *   персонажа без ответа врага.
  */
 data class DungeonLevel(
     val id: Int,
@@ -32,4 +34,5 @@ data class DungeonLevel(
     val jammed: Set<DoorId> = emptySet(),
     val togglesBudget: Int = Int.MAX_VALUE,
     val enemyDoorCharge: Int = 0,
+    val extraMoves: Int = 0,
 )

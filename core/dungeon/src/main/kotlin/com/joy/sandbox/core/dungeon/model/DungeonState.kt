@@ -37,4 +37,6 @@ data class DungeonState(
     val togglesLeft: Int = level.togglesBudget,
     /** Остаток зарядов врага на вылом двери ([DungeonLevel.enemyDoorCharge]). */
     val enemyChargesLeft: Int = level.enemyDoorCharge,
+    /** Остаток дополнительных ходов без ответа врага ([DungeonLevel.extraMoves]). */
+    val extrasLeft: Int = level.extraMoves,
 )
