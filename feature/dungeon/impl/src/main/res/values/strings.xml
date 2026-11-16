@@ -7,8 +7,8 @@
     <string name="dungeon_levels_close">Закрыть</string>
     <string name="dungeon_intro_goal">Цель: освободите всех пленников, выведите их через выход в правом верхнем углу на улицу, а затем выйдите сами, заперев Повелителя Тьмы внутри.</string>
     <string name="dungeon_enter">Войти в подземелье</string>
-    <string name="dungeon_mechanic_base_title">Осада замка</string>
-    <string name="dungeon_mechanic_base_desc">Вы — последняя надежда замка. Переключайте двери, чтобы запереть Повелителя Тьмы, освобождайте пленников и выводите всех через выход в правом верхнем углу — прежде чем Тьма доберётся до вас.</string>
+    <string name="dungeon_mechanic_base_title">Подземелье Лорда Тьмы</string>
+    <string name="dungeon_mechanic_base_desc">Ремесло ваше — отыскивать тех, кого забрала Тьма. Вы спускаетесь в её подземелья и вырываете пленников из цепей Лорда Тьмы. Ключи и замки повинуются вашим рукам: любая дверь подземелья подчинится вам. Освободите пленников — и выберитесь сами.</string>
     <string name="dungeon_mechanic_jammed_title">Заклинившие двери</string>
     <string name="dungeon_mechanic_jammed_desc">Удар грозы заклинил часть дверей: их нельзя ни открыть, ни закрыть. Стройте ловушку вокруг них.</string>
     <string name="dungeon_mechanic_concealed_title">Тени и укрытия</string>
