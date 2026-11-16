@@ -8,6 +8,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import com.joy.sandbox.core.ui.SystemBarColors
 
 /**
  * Локальная тема фичи «Подземелье» — красит Material-компоненты
@@ -88,6 +89,14 @@ internal fun DungeonTheme(content: @Composable () -> Unit) {
     MaterialTheme(
         colorScheme = DungeonColorScheme,
         typography = DungeonTypography,
-        content = content,
-    )
+    ) {
+        // Status и navigation bar — в цвет фона подземелья; фон тёмный,
+        // поэтому иконки системных баров светлые.
+        SystemBarColors(
+            statusBarColor = DungeonColors.Bg,
+            navigationBarColor = DungeonColors.Bg,
+            lightIcons = true,
+        )
+        content()
+    }
 }
