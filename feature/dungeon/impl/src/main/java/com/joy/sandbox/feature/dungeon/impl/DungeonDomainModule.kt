@@ -1,0 +1,44 @@
+package com.joy.sandbox.feature.dungeon.impl
+
+import com.joy.sandbox.feature.dungeon.impl.data.DungeonLevelsRepositoryImpl
+import com.joy.sandbox.feature.dungeon.impl.data.DungeonProgressRepositoryImpl
+import com.joy.sandbox.feature.dungeon.impl.data.DungeonSoundPlayerImpl
+import com.joy.sandbox.feature.dungeon.impl.data.DungeonVibrationControllerImpl
+import com.joy.sandbox.feature.dungeon.impl.domain.DungeonGameInteractor
+import com.joy.sandbox.feature.dungeon.impl.domain.DungeonGameInteractorImpl
+import com.joy.sandbox.feature.dungeon.impl.domain.DungeonIntroInteractor
+import com.joy.sandbox.feature.dungeon.impl.domain.DungeonIntroInteractorImpl
+import com.joy.sandbox.feature.dungeon.impl.domain.DungeonLevelsInteractor
+import com.joy.sandbox.feature.dungeon.impl.domain.DungeonLevelsInteractorImpl
+import com.joy.sandbox.feature.dungeon.impl.domain.DungeonLevelsRepository
+import com.joy.sandbox.feature.dungeon.impl.domain.DungeonProgressRepository
+import com.joy.sandbox.feature.dungeon.impl.domain.DungeonSoundPlayer
+import com.joy.sandbox.feature.dungeon.impl.domain.DungeonVibrationController
+import dagger.Module
+import dagger.Provides
+
+/** Доменные зависимости фичи «Подземелье»: репозиторий прогресса, звук, вибрация, игровой интерактор. */
+@Module
+class DungeonDomainModule {
+
+    @Provides
+    fun provideDungeonGameInteractor(impl: DungeonGameInteractorImpl): DungeonGameInteractor = impl
+
+    @Provides
+    fun provideDungeonProgressRepository(impl: DungeonProgressRepositoryImpl): DungeonProgressRepository = impl
+
+    @Provides
+    fun provideDungeonLevelsRepository(impl: DungeonLevelsRepositoryImpl): DungeonLevelsRepository = impl
+
+    @Provides
+    fun provideDungeonLevelsInteractor(impl: DungeonLevelsInteractorImpl): DungeonLevelsInteractor = impl
+
+    @Provides
+    fun provideDungeonIntroInteractor(impl: DungeonIntroInteractorImpl): DungeonIntroInteractor = impl
+
+    @Provides
+    fun provideDungeonSoundPlayer(impl: DungeonSoundPlayerImpl): DungeonSoundPlayer = impl
+
+    @Provides
+    fun provideDungeonVibrationController(impl: DungeonVibrationControllerImpl): DungeonVibrationController = impl
+}

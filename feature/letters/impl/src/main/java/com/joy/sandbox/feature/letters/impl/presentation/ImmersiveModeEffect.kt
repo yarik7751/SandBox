@@ -1,10 +1,9 @@
 package com.joy.sandbox.feature.letters.impl.presentation
 
-import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalContext
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 
@@ -15,7 +14,7 @@ import androidx.core.view.WindowInsetsControllerCompat
  */
 @Composable
 internal fun ImmersiveModeEffect() {
-    val activity = LocalContext.current as ComponentActivity
+    val activity = LocalActivity.current ?: return
     val insetsController = remember { WindowInsetsControllerCompat(activity.window, activity.window.decorView) }
     DisposableEffect(Unit) {
         insetsController.systemBarsBehavior =

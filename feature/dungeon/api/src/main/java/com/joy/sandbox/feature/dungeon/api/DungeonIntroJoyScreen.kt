@@ -1,0 +1,26 @@
+package com.joy.sandbox.feature.dungeon.api
+
+import com.joy.sandbox.core.navigation.JoyScreenWithArgs
+
+/**
+ * Интро уровня: история уровня и карточки новых механик — перед игрой.
+ * Показывается, только если у уровня есть механики, которые игрок ещё не читал.
+ */
+class DungeonIntroJoyScreen private constructor(val levelId: Long) : JoyScreenWithArgs() {
+
+    override val route: String get() = "$BASE?$ARG_LEVEL_ID=$levelId"
+    override val routePattern: String get() = ROUTE_PATTERN
+
+    companion object {
+        const val BASE = "dungeon_intro"
+        const val ROUTE_PATTERN = "dungeon_intro?levelId={levelId}"
+        const val ARG_LEVEL_ID = "levelId"
+
+        /** Значение для регистрации провайдера в Dagger-мапе (аргументы не важны). */
+        val DEFAULT: DungeonIntroJoyScreen = create(INITIAL_LEVEL_ID)
+
+        private const val INITIAL_LEVEL_ID = 1L
+
+        fun create(levelId: Long) = DungeonIntroJoyScreen(levelId)
+    }
+}

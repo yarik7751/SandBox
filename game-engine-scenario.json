@@ -1,0 +1,300 @@
+{
+  "meta": {
+    "title": "Движок игры: расчёт хода",
+    "description": "Что происходит внутри MoveEngine: слияния, новая плитка, результат"
+  },
+  "entities": [
+    {
+      "id": "gameVm",
+      "parentId": null,
+      "type": "state_holder",
+      "title": "GameViewModel",
+      "subtitle": "потребитель результата"
+    },
+    {
+      "id": "moveEngine",
+      "parentId": null,
+      "type": "data",
+      "title": "MoveEngine",
+      "subtitle": "чистая логика хода",
+      "fields": {
+        "processing": false,
+        "direction": null
+      }
+    },
+    {
+      "id": "gridState",
+      "parentId": "moveEngine",
+      "type": "nested_state",
+      "title": "gridState",
+      "subtitle": "текущая сетка 4×4",
+      "fields": {
+        "size": "4x4",
+        "merges": 0,
+        "merging": false,
+        "lastSpawned": null
+      }
+    },
+    {
+      "id": "moveCmd",
+      "parentId": null,
+      "type": "payload",
+      "title": "MoveCommand",
+      "subtitle": "направление хода",
+      "initialVisible": false,
+      "fields": {
+        "direction": "left"
+      }
+    },
+    {
+      "id": "rng",
+      "parentId": null,
+      "type": "data",
+      "title": "RandomSource",
+      "subtitle": "источник случайных чисел",
+      "fields": {
+        "seed": 42
+      }
+    },
+    {
+      "id": "rngValue",
+      "parentId": null,
+      "type": "payload",
+      "title": "SpawnRequest",
+      "subtitle": "запрос позиции новой плитки",
+      "initialVisible": false,
+      "fields": {
+        "position": "2,3",
+        "value": 2
+      }
+    },
+    {
+      "id": "moveResult",
+      "parentId": null,
+      "type": "payload",
+      "title": "MoveResult",
+      "subtitle": "итог хода для ViewModel",
+      "initialVisible": false,
+      "fields": {
+        "scoreDelta": 40,
+        "merges": 2
+      }
+    }
+  ],
+  "connections": [
+    {
+      "id": "c-vm-engine",
+      "from": "gameVm",
+      "to": "moveEngine",
+      "style": "solid",
+      "description": "команда хода поступает в движок"
+    },
+    {
+      "id": "c-engine-rng",
+      "from": "moveEngine",
+      "to": "rng",
+      "style": "solid",
+      "description": "запрос случайной позиции и значения"
+    },
+    {
+      "id": "c-rng-engine",
+      "from": "rng",
+      "to": "moveEngine",
+      "style": "dashed",
+      "description": "случайная позиция и значение плитки"
+    },
+    {
+      "id": "c-engine-vm",
+      "from": "moveEngine",
+      "to": "gameVm",
+      "style": "dashed",
+      "description": "итог хода возвращается во ViewModel"
+    }
+  ],
+  "timeline": [
+    {
+      "step": 1,
+      "caption": "ViewModel передаёт движку команду хода",
+      "actions": [
+        {
+          "type": "spawn",
+          "targetId": "moveCmd",
+          "atEntityId": "gameVm"
+        },
+        {
+          "type": "highlight",
+          "targetId": "moveEngine",
+          "color": "#5EA2F2"
+        }
+      ]
+    },
+    {
+      "step": 2,
+      "caption": "Команда улетает в движок, он начинает обработку",
+      "actions": [
+        {
+          "type": "move",
+          "targetId": "moveCmd",
+          "alongConnectionId": "c-vm-engine",
+          "from": "gameVm",
+          "to": "moveEngine"
+        },
+        {
+          "type": "mutate",
+          "targetId": "moveEngine",
+          "path": "processing",
+          "oldValue": false,
+          "newValue": true
+        }
+      ]
+    },
+    {
+      "step": 3,
+      "caption": "Движок читает текущую сетку и обходит строки слева направо",
+      "actions": [
+        {
+          "type": "highlight",
+          "targetId": "gridState",
+          "color": "#5EA2F2"
+        },
+        {
+          "type": "mutate",
+          "targetId": "gridState",
+          "path": "merging",
+          "oldValue": false,
+          "newValue": true
+        },
+        {
+          "type": "mutate",
+          "targetId": "moveEngine",
+          "path": "direction",
+          "oldValue": null,
+          "newValue": "left"
+        }
+      ]
+    },
+    {
+      "step": 4,
+      "caption": "Сдвиг и слияние плиток: два слияния за ход",
+      "actions": [
+        {
+          "type": "mutate",
+          "targetId": "gridState",
+          "path": "merges",
+          "oldValue": 0,
+          "newValue": 2
+        }
+      ]
+    },
+    {
+      "step": 5,
+      "caption": "Команда обработана и уничтожается",
+      "actions": [
+        {
+          "type": "destroy",
+          "targetId": "moveCmd"
+        },
+        {
+          "type": "mutate",
+          "targetId": "gridState",
+          "path": "merging",
+          "oldValue": true,
+          "newValue": false
+        }
+      ]
+    },
+    {
+      "step": 6,
+      "caption": "Движок просит случайную позицию для новой плитки",
+      "actions": [
+        {
+          "type": "spawn",
+          "targetId": "rngValue",
+          "atEntityId": "moveEngine"
+        },
+        {
+          "type": "move",
+          "targetId": "rngValue",
+          "alongConnectionId": "c-engine-rng",
+          "from": "moveEngine",
+          "to": "rng"
+        }
+      ]
+    },
+    {
+      "step": 7,
+      "caption": "Источник возвращает позицию (2,3) и значение 2",
+      "actions": [
+        {
+          "type": "move",
+          "targetId": "rngValue",
+          "alongConnectionId": "c-rng-engine",
+          "from": "rng",
+          "to": "moveEngine"
+        },
+        {
+          "type": "highlight",
+          "targetId": "rng",
+          "color": "#5EA2F2"
+        }
+      ]
+    },
+    {
+      "step": 8,
+      "caption": "Новая плитка записывается в сетку, запрос больше не нужен",
+      "actions": [
+        {
+          "type": "mutate",
+          "targetId": "gridState",
+          "path": "lastSpawned",
+          "oldValue": null,
+          "newValue": "2,3"
+        },
+        {
+          "type": "destroy",
+          "targetId": "rngValue"
+        }
+      ]
+    },
+    {
+      "step": 9,
+      "caption": "Движок формирует итог хода и завершает обработку",
+      "actions": [
+        {
+          "type": "spawn",
+          "targetId": "moveResult",
+          "atEntityId": "moveEngine"
+        },
+        {
+          "type": "mutate",
+          "targetId": "moveEngine",
+          "path": "processing",
+          "oldValue": true,
+          "newValue": false
+        },
+        {
+          "type": "highlight",
+          "targetId": "moveResult",
+          "color": "#7BD88F"
+        }
+      ]
+    },
+    {
+      "step": 10,
+      "caption": "Результат улетает во ViewModel, движок свободен",
+      "actions": [
+        {
+          "type": "move",
+          "targetId": "moveResult",
+          "alongConnectionId": "c-engine-vm",
+          "from": "moveEngine",
+          "to": "gameVm"
+        },
+        {
+          "type": "destroy",
+          "targetId": "moveResult"
+        }
+      ]
+    }
+  ]
+}

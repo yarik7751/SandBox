@@ -26,7 +26,9 @@ import androidx.core.view.WindowInsetsControllerCompat
  *
  * Цвета применяются на каждой рекомпозиции, поэтому подаются анимированные
  * цвета — бары едут вместе с фоном экрана. Прежние значения (фон декора,
- * цвета окон и флаги иконок) восстанавливаются при выходе с экрана.
+ * цвета окон и флаги иконок) восстанавливает только последний живой
+ * владелец: экраны одной фичи сменяют друг друга, но цвета барами должны
+ * переживать переходы внутри фичи и сбрасываться лишь при выходе из неё.
  *
  * На Android 15+ цвета окон барами игнорируются: там фон декора красится
  * в две полосы — верхняя (высота status bar) в [statusBarColor],
@@ -43,6 +45,8 @@ fun SystemBarColors(
 ) {
     val view = LocalView.current
     val splitDrawable = remember { SplitSystemBarsDrawable() }
+    // Владелец цветов барами. Всё происходит на main thread.
+    val token = remember { ++nextToken }
 
     DisposableEffect(view) {
         val window = view.context.findActivity().window
@@ -54,18 +58,29 @@ fun SystemBarColors(
         val prevLightNavIcons = controller.isAppearanceLightNavigationBars
 
         onDispose {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-                window.decorView.background = prevDecorBackground
-            } else {
-                window.statusBarColor = prevStatusBarColor
-                window.navigationBarColor = prevNavBarColor
+            activeTokens.remove(token)
+            if (activeTokens.isEmpty()) {
+                // Последний владелец фичи вышел — возвращаем прежние значения.
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+                    window.decorView.background = prevDecorBackground
+                } else {
+                    window.statusBarColor = prevStatusBarColor
+                    window.navigationBarColor = prevNavBarColor
+                }
+                controller.isAppearanceLightStatusBars = prevLightStatusIcons
+                controller.isAppearanceLightNavigationBars = prevLightNavIcons
             }
-            controller.isAppearanceLightStatusBars = prevLightStatusIcons
-            controller.isAppearanceLightNavigationBars = prevLightNavIcons
+            // Иначе барами уже владеет другой экран этой фичи — снимки его,
+            // восстанавливать прежние нельзя: это сотрёт его цвета.
         }
     }
 
     SideEffect {
+        // Выход в голову очереди (рекомпозиция не должна уступать владение
+        // экранам ниже в back stack, если они вдруг ещё живы).
+        activeTokens.remove(token)
+        activeTokens.addLast(token)
+
         val window = view.context.findActivity().window
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
             splitDrawable.topHeightPx = view.rootWindowInsets
@@ -128,3 +143,6 @@ private tailrec fun Context.findActivity(): Activity {
     if (this is ContextWrapper) return baseContext.findActivity()
     error("Activity not found from context $this")
 }
+
+private val activeTokens = ArrayDeque<Int>()
+private var nextToken = 0

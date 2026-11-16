@@ -48,6 +48,7 @@ dependencies {
     implementation(project(":feature:start:api"))
     implementation(project(":feature:start:impl"))
     implementation(project(":feature:home:impl"))
+    implementation(project(":feature:dungeon:impl"))
     implementation(project(":feature:websocket:impl"))
     implementation(project(":feature:letters:impl"))
 

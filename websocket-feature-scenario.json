@@ -1,0 +1,131 @@
+{
+  "meta": {
+    "title": "Чат поверх WebSocket",
+    "description": "Сценарий фичи реального времени: подключение по WebSocket, отправка и приём сообщений, обрыв соединения и автоматический реконнект"
+  },
+  "entities": [
+    { "id": "chatScreen", "parentId": null, "type": "ui", "title": "ChatScreen",
+      "fields": { "open": true } },
+    { "id": "messageList", "parentId": null, "type": "ui", "title": "MessageList",
+      "fields": { "scrollToBottom": false } },
+    { "id": "connectionBadge", "parentId": null, "type": "ui", "title": "ConnectionBadge",
+      "fields": { "label": "offline", "dot": "gray" } },
+    { "id": "chatVm", "parentId": null, "type": "state_holder", "title": "ChatViewModel" },
+    { "id": "connectionState", "parentId": "chatVm", "type": "nested_state", "title": "connectionState",
+      "fields": { "status": "disconnected", "retries": 0 } },
+    { "id": "messagesState", "parentId": "chatVm", "type": "nested_state", "title": "messagesState",
+      "fields": { "status": "idle", "items": [] } },
+    { "id": "wsClient", "parentId": null, "type": "data", "title": "WebSocketClient",
+      "fields": { "socket": "closed", "endpoint": "wss://api.example.com/chat" } },
+    { "id": "wsServer", "parentId": null, "type": "data", "title": "WebSocketServer",
+      "fields": { "room": "general", "online": 3 } },
+    { "id": "messageCache", "parentId": null, "type": "data", "title": "MessageCache",
+      "fields": { "persisted": 0 } },
+    { "id": "handshake", "parentId": null, "type": "payload", "title": "Handshake", "initialVisible": false },
+    { "id": "outgoingMessage", "parentId": null, "type": "payload", "title": "OutgoingMessage", "initialVisible": false },
+    { "id": "incomingEvent", "parentId": null, "type": "payload", "title": "IncomingEvent", "initialVisible": false },
+    { "id": "reconnectAttempt", "parentId": null, "type": "payload", "title": "ReconnectAttempt", "initialVisible": false }
+  ],
+  "connections": [
+    { "id": "c-screen-vm", "from": "chatScreen", "to": "chatVm", "style": "solid" },
+    { "id": "c-list-vm", "from": "messageList", "to": "chatVm", "style": "solid" },
+    { "id": "c-vm-client", "from": "chatVm", "to": "wsClient", "style": "solid" },
+    { "id": "c-client-vm", "from": "wsClient", "to": "chatVm", "style": "dashed" },
+    { "id": "c-client-server", "from": "wsClient", "to": "wsServer", "style": "solid" },
+    { "id": "c-server-client", "from": "wsServer", "to": "wsClient", "style": "dashed" },
+    { "id": "c-vm-cache", "from": "chatVm", "to": "messageCache", "style": "solid" },
+    { "id": "c-cache-vm", "from": "messageCache", "to": "chatVm", "style": "dashed" }
+  ],
+  "timeline": [
+    { "step": 1, "caption": "Пользователь открывает экран чата",
+      "actions": [
+        { "type": "highlight", "targetId": "chatScreen", "color": "#5EA2F2" },
+        { "type": "mutate", "targetId": "messagesState", "path": "status", "oldValue": "idle", "newValue": "loading" }
+      ] },
+    { "step": 2, "caption": "ViewModel запускает подключение по WebSocket",
+      "actions": [
+        { "type": "spawn", "targetId": "handshake", "atEntityId": "chatVm" },
+        { "type": "move", "targetId": "handshake", "alongConnectionId": "c-vm-client", "from": "chatVm", "to": "wsClient" },
+        { "type": "mutate", "targetId": "connectionState", "path": "status", "oldValue": "disconnected", "newValue": "connecting" },
+        { "type": "mutate", "targetId": "connectionBadge", "path": "label", "oldValue": "offline", "newValue": "connecting…" }
+      ] },
+    { "step": 3, "caption": "Handshake улетает на сервер, сокет открывается",
+      "actions": [
+        { "type": "move", "targetId": "handshake", "alongConnectionId": "c-client-server", "from": "wsClient", "to": "wsServer" },
+        { "type": "mutate", "targetId": "wsClient", "path": "socket", "oldValue": "closed", "newValue": "open" }
+      ] },
+    { "step": 4, "caption": "Сервер подтверждает соединение",
+      "actions": [
+        { "type": "move", "targetId": "handshake", "alongConnectionId": "c-server-client", "from": "wsServer", "to": "wsClient" }
+      ] },
+    { "step": 5, "caption": "Подтверждение доезжает до ViewModel — статус «онлайн»",
+      "actions": [
+        { "type": "move", "targetId": "handshake", "alongConnectionId": "c-client-vm", "from": "wsClient", "to": "chatVm" },
+        { "type": "mutate", "targetId": "connectionState", "path": "status", "oldValue": "connecting", "newValue": "connected" },
+        { "type": "mutate", "targetId": "connectionBadge", "path": "label", "oldValue": "connecting…", "newValue": "online" },
+        { "type": "mutate", "targetId": "connectionBadge", "path": "dot", "oldValue": "gray", "newValue": "green" },
+        { "type": "destroy", "targetId": "handshake" }
+      ] },
+    { "step": 6, "caption": "Пользователь отправляет сообщение",
+      "actions": [
+        { "type": "highlight", "targetId": "messageList", "color": "#5EA2F2" },
+        { "type": "spawn", "targetId": "outgoingMessage", "atEntityId": "messageList" },
+        { "type": "move", "targetId": "outgoingMessage", "alongConnectionId": "c-list-vm", "from": "messageList", "to": "chatVm" }
+      ] },
+    { "step": 7, "caption": "Сообщение добавляется в список со статусом «отправляется»",
+      "actions": [
+        { "type": "mutate", "targetId": "messagesState", "path": "items", "oldValue": [], "newValue": [{ "id": 1, "text": "Привет!", "status": "pending" }] },
+        { "type": "move", "targetId": "outgoingMessage", "alongConnectionId": "c-vm-client", "from": "chatVm", "to": "wsClient" }
+      ] },
+    { "step": 8, "caption": "Сообщение улетает на сервер по открытому сокету",
+      "actions": [
+        { "type": "move", "targetId": "outgoingMessage", "alongConnectionId": "c-client-server", "from": "wsClient", "to": "wsServer" }
+      ] },
+    { "step": 9, "caption": "Сервер подтверждает доставку, сообщение сохраняется в кэш",
+      "actions": [
+        { "type": "move", "targetId": "outgoingMessage", "alongConnectionId": "c-server-client", "from": "wsServer", "to": "wsClient" },
+        { "type": "move", "targetId": "outgoingMessage", "alongConnectionId": "c-client-vm", "from": "wsClient", "to": "chatVm" },
+        { "type": "mutate", "targetId": "messagesState", "path": "items", "oldValue": [{ "id": 1, "text": "Привет!", "status": "pending" }], "newValue": [{ "id": 1, "text": "Привет!", "status": "sent" }] },
+        { "type": "move", "targetId": "outgoingMessage", "alongConnectionId": "c-vm-cache", "from": "chatVm", "to": "messageCache" },
+        { "type": "mutate", "targetId": "messageCache", "path": "persisted", "oldValue": 0, "newValue": 1 },
+        { "type": "destroy", "targetId": "outgoingMessage" }
+      ] },
+    { "step": 10, "caption": "Ветка: от сервера приходит сообщение другого участника",
+      "actions": [
+        { "type": "spawn", "targetId": "incomingEvent", "atEntityId": "wsServer" },
+        { "type": "move", "targetId": "incomingEvent", "alongConnectionId": "c-server-client", "from": "wsServer", "to": "wsClient" },
+        { "type": "move", "targetId": "incomingEvent", "alongConnectionId": "c-client-vm", "from": "wsClient", "to": "chatVm" }
+      ] },
+    { "step": 11, "caption": "Новое сообщение появляется в списке и дописывается в кэш",
+      "actions": [
+        { "type": "mutate", "targetId": "messagesState", "path": "items", "oldValue": [{ "id": 1, "text": "Привет!", "status": "sent" }], "newValue": [{ "id": 1, "text": "Привет!", "status": "sent" }, { "id": 2, "text": "Как дела?", "status": "received" }] },
+        { "type": "mutate", "targetId": "messageList", "path": "scrollToBottom", "oldValue": false, "newValue": true },
+        { "type": "move", "targetId": "incomingEvent", "alongConnectionId": "c-vm-cache", "from": "chatVm", "to": "messageCache" },
+        { "type": "mutate", "targetId": "messageCache", "path": "persisted", "oldValue": 1, "newValue": 2 },
+        { "type": "destroy", "targetId": "incomingEvent" }
+      ] },
+    { "step": 12, "caption": "Ветка ошибки: соединение обрывается",
+      "actions": [
+        { "type": "mutate", "targetId": "connectionState", "path": "status", "oldValue": "connected", "newValue": "reconnecting" },
+        { "type": "mutate", "targetId": "connectionState", "path": "retries", "oldValue": 0, "newValue": 1 },
+        { "type": "mutate", "targetId": "wsClient", "path": "socket", "oldValue": "open", "newValue": "closed" },
+        { "type": "mutate", "targetId": "connectionBadge", "path": "label", "oldValue": "online", "newValue": "reconnecting…" },
+        { "type": "mutate", "targetId": "connectionBadge", "path": "dot", "oldValue": "green", "newValue": "yellow" }
+      ] },
+    { "step": 13, "caption": "Клиент автоматически пробует переподключиться",
+      "actions": [
+        { "type": "spawn", "targetId": "reconnectAttempt", "atEntityId": "wsClient" },
+        { "type": "move", "targetId": "reconnectAttempt", "alongConnectionId": "c-client-server", "from": "wsClient", "to": "wsServer" },
+        { "type": "move", "targetId": "reconnectAttempt", "alongConnectionId": "c-server-client", "from": "wsServer", "to": "wsClient" },
+        { "type": "mutate", "targetId": "wsClient", "path": "socket", "oldValue": "closed", "newValue": "open" }
+      ] },
+    { "step": 14, "caption": "Реконнект удался — сокет снова онлайн, пакеты удаляются",
+      "actions": [
+        { "type": "move", "targetId": "reconnectAttempt", "alongConnectionId": "c-client-vm", "from": "wsClient", "to": "chatVm" },
+        { "type": "mutate", "targetId": "connectionState", "path": "status", "oldValue": "reconnecting", "newValue": "connected" },
+        { "type": "mutate", "targetId": "connectionBadge", "path": "label", "oldValue": "reconnecting…", "newValue": "online" },
+        { "type": "mutate", "targetId": "connectionBadge", "path": "dot", "oldValue": "yellow", "newValue": "green" },
+        { "type": "destroy", "targetId": "reconnectAttempt" }
+      ] }
+  ]
+}

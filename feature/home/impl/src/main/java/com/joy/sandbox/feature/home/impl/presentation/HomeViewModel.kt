@@ -21,6 +21,8 @@ class HomeViewModel @Inject constructor() : BaseViewModel() {
         data object OpenWebSocket : Commands
 
         data object OpenLetters : Commands
+
+        data object OpenDungeon : Commands
     }
 
     fun onWebSocketClick() {
@@ -29,5 +31,9 @@ class HomeViewModel @Inject constructor() : BaseViewModel() {
 
     fun onLettersClick() {
         commandsFlow.tryEmit(Commands.OpenLetters)
+    }
+
+    fun onDungeonClick() {
+        commandsFlow.tryEmit(Commands.OpenDungeon)
     }
 }
