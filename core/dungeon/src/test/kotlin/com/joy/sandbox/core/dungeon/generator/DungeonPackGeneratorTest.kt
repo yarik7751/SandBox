@@ -6,7 +6,7 @@ import org.junit.Test
 
 /**
  * Сборка JSON-пака уровней, вариант А из docs/dungeon-generation.md:
- * рукотворные уровни 1..5 + детерминированные сгенерированные 6..105.
+ * рукотворные уровни 1..5 + детерминированные сгенерированные 6..505.
  * Ручной запуск (чанками, т.к. solver гоняет каждый уровень):
  * ./gradlew :core:dungeon:test --tests '*DungeonPackGeneratorTest*' \
  *     -Dgenpack=true -Dpack.from=6 -Dpack.to=25
@@ -37,7 +37,7 @@ class DungeonPackGeneratorTest {
     private companion object {
 
         const val PACK_FROM = 6
-        const val PACK_TO = 105
+        const val PACK_TO = 505
         const val ASSETS_DIR = "../../feature/dungeon/impl/src/main/assets"
         val PAR_RANGE = 5..150
     }

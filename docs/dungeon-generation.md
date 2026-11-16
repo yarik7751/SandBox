@@ -6,7 +6,7 @@
 ход). Открытые вопросы: коэффициенты наклона — черновые, по данным solver'а.
 
 Пак: `feature/dungeon/impl/src/main/assets/dungeon_levels_pack.json` (формат 1,
-уровни 6..55; рукотворные 1..5 в пак не входят — приложение объединяет их
+уровни 6..505; рукотворные 1..5 в пак не входят — приложение объединяет их
 с паком само). Пересборка: `./gradlew :core:dungeon:test
 --tests '*DungeonPackGeneratorTest*' -Dgenpack=true -Dpack.from=A -Dpack.to=B`
 (чанками: solver гоняет каждый уровень), затем объединение чанков.
