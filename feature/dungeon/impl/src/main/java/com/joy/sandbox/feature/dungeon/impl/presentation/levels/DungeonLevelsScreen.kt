@@ -95,10 +95,10 @@ private fun LevelCircle(
             .aspectRatio(1f)
             .clip(CircleShape)
             .then(
-                if (passed) {
-                    Modifier.background(DungeonColors.Gold)
-                } else {
-                    Modifier.border(width = 2.dp, color = DungeonColors.Gold, shape = CircleShape)
+                when {
+                    level.current -> Modifier.background(DungeonColors.Red)
+                    passed -> Modifier.background(DungeonColors.Gold)
+                    else -> Modifier.border(width = 2.dp, color = DungeonColors.Gold, shape = CircleShape)
                 }
             )
             .clickable(enabled = !level.locked, onClick = onClick),
@@ -107,7 +107,7 @@ private fun LevelCircle(
         Text(
             text = level.id.toString(),
             style = MaterialTheme.typography.titleLarge,
-            color = if (passed) DungeonColors.OnGold else DungeonColors.Gold,
+            color = if (passed || level.current) DungeonColors.OnGold else DungeonColors.Gold,
         )
     }
 }
