@@ -15,6 +15,10 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -51,30 +55,44 @@ fun DungeonLevelsScreen(
         Scaffold(
             containerColor = MaterialTheme.colorScheme.background,
         ) { padding ->
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(5),
+            Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding),
-                contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                item(span = { GridItemSpan(maxLineSpan) }) {
-                    Text(
-                        text = stringResource(R.string.dungeon_levels_title),
-                        style = MaterialTheme.typography.headlineSmall,
-                        color = DungeonColors.GoldBright,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 16.dp),
-                    )
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(5),
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    item(span = { GridItemSpan(maxLineSpan) }) {
+                        Text(
+                            text = stringResource(R.string.dungeon_levels_title),
+                            style = MaterialTheme.typography.headlineSmall,
+                            color = DungeonColors.GoldBright,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 16.dp),
+                        )
+                    }
+                    items(model.levels, key = { it.id }) { level ->
+                        LevelCircle(
+                            level = level,
+                            onClick = { viewModel.onLevelClick(level.id) },
+                        )
+                    }
                 }
-                items(model.levels, key = { it.id }) { level ->
-                    LevelCircle(
-                        level = level,
-                        onClick = { viewModel.onLevelClick(level.id) },
+                IconButton(
+                    onClick = { router.exit() },
+                    modifier = Modifier.align(Alignment.TopEnd),
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Close,
+                        contentDescription = stringResource(R.string.dungeon_levels_close),
+                        tint = DungeonColors.Gold,
                     )
                 }
             }
