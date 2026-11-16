@@ -1,8 +1,8 @@
 package com.joy.sandbox.feature.dungeon.impl.presentation.game
 
-import com.joy.sandbox.core.dungeon.model.DungeonLevels
 import com.joy.sandbox.core.dungeon.model.DungeonState
 import com.joy.sandbox.core.dungeon.model.GameOver
+import com.joy.sandbox.feature.dungeon.impl.domain.DungeonLevelsInteractor
 import com.joy.sandbox.feature.dungeon.impl.domain.DungeonProgressRepository
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
@@ -15,6 +15,7 @@ import kotlinx.coroutines.launch
  */
 class WinTracker @Inject constructor(
     private val progressRepository: DungeonProgressRepository,
+    private val levelsInteractor: DungeonLevelsInteractor,
 ) {
 
     private var recorded = false
@@ -39,7 +40,7 @@ class WinTracker @Inject constructor(
             val best = progress.bestTurns[levelId]
             newRecord = best == null || state.turns < best
             if (newRecord) progressRepository.saveBest(levelId, state.turns)
-            if (levelId < DungeonLevels.ALL.size) {
+            if (levelsInteractor.byId(levelId + 1) != null) {
                 progressRepository.saveUnlocked(maxOf(progress.unlockedLevel, levelId + 1))
             }
             onSaved()
