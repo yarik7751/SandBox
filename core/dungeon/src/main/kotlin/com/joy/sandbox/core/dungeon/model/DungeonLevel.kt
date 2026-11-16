@@ -36,3 +36,18 @@ data class DungeonLevel(
     val enemyDoorCharge: Int = 0,
     val extraMoves: Int = 0,
 )
+
+/**
+ * Механики уровня: базовые правила — на первом уровне игры, остальные —
+ * по фактически заданным модификаторам (см. docs/dungeon-generation.md).
+ */
+val DungeonLevel.mechanics: List<DungeonMechanic>
+    get() = buildList {
+        if (id == DungeonLevels.FIRST_LEVEL_ID) add(DungeonMechanic.BASE)
+        if (jammed.isNotEmpty()) add(DungeonMechanic.JAMMED)
+        if (concealed.isNotEmpty()) add(DungeonMechanic.CONCEALED)
+        if (blocked.isNotEmpty()) add(DungeonMechanic.BLOCKED)
+        if (togglesBudget != Int.MAX_VALUE) add(DungeonMechanic.TOGGLES_BUDGET)
+        if (enemyDoorCharge > 0) add(DungeonMechanic.ENEMY_DOOR_CHARGE)
+        if (extraMoves > 0) add(DungeonMechanic.EXTRA_MOVES)
+    }

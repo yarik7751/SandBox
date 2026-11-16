@@ -3,6 +3,9 @@ package com.joy.sandbox.core.dungeon.model
 /** Пять уровней «Подземелья» — порт js/levels.js: те же координаты, двери и пар. */
 object DungeonLevels {
 
+    /** Первый уровень игры — на нём показываются базовые правила (BASE). */
+    const val FIRST_LEVEL_ID: Int = 1
+
     val ALL: List<DungeonLevel> = listOf(
         DungeonLevel(
             id = 1,
