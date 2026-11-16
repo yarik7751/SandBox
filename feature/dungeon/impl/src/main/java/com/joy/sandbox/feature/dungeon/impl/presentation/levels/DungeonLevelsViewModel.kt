@@ -3,6 +3,7 @@ package com.joy.sandbox.feature.dungeon.impl.presentation.levels
 import androidx.lifecycle.viewModelScope
 import com.joy.sandbox.core.ui.BaseViewModel
 import com.joy.sandbox.core.ui.CommandFlow
+import com.joy.sandbox.feature.dungeon.impl.domain.DungeonIntroInteractor
 import com.joy.sandbox.feature.dungeon.impl.domain.DungeonLevelsInteractor
 import com.joy.sandbox.feature.dungeon.impl.domain.DungeonProgressRepository
 import com.joy.sandbox.feature.dungeon.impl.presentation.model.DungeonLevelsUiModel
@@ -19,6 +20,7 @@ import kotlinx.coroutines.launch
 class DungeonLevelsViewModel @Inject constructor(
     private val progressRepository: DungeonProgressRepository,
     private val levelsInteractor: DungeonLevelsInteractor,
+    private val introInteractor: DungeonIntroInteractor,
 ) : BaseViewModel() {
 
     val stateFlow = MutableStateFlow(DungeonLevelsUiModel(levels = emptyList()))
@@ -28,6 +30,8 @@ class DungeonLevelsViewModel @Inject constructor(
     sealed interface Commands {
 
         data class OpenGame(val levelId: Int) : Commands
+
+        data class OpenIntro(val levelId: Int) : Commands
     }
 
     init {
@@ -36,7 +40,15 @@ class DungeonLevelsViewModel @Inject constructor(
 
     fun onLevelClick(levelId: Int) {
         val level = stateFlow.value.levels.firstOrNull { it.id == levelId } ?: return
-        if (!level.locked) commandsFlow.tryEmit(Commands.OpenGame(levelId))
+        if (level.locked) return
+        viewModelScope.launch {
+            val command = if (introInteractor.introForLevel(levelId) != null) {
+                Commands.OpenIntro(levelId)
+            } else {
+                Commands.OpenGame(levelId)
+            }
+            commandsFlow.tryEmit(command)
+        }
     }
 
     private fun loadProgress() {

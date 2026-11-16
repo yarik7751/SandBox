@@ -3,8 +3,8 @@ package com.joy.sandbox.feature.dungeon.api
 import com.joy.sandbox.core.navigation.JoyScreenWithArgs
 
 /**
- * Интро уровня: название, история и цель.
- * TODO: temporarily excluded from navigation — will be needed when the number of levels increases.
+ * Интро уровня: история уровня и карточки новых механик — перед игрой.
+ * Показывается, только если у уровня есть механики, которые игрок ещё не читал.
  */
 class DungeonIntroJoyScreen private constructor(val levelId: Long) : JoyScreenWithArgs() {
 

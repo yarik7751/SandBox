@@ -21,6 +21,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.joy.sandbox.core.navigation.router.JoyRouter
 import com.joy.sandbox.core.ui.ViewModelFactory
 import com.joy.sandbox.feature.dungeon.api.DungeonGameJoyScreen
+import com.joy.sandbox.feature.dungeon.api.DungeonIntroJoyScreen
 import com.joy.sandbox.feature.dungeon.api.DungeonLevelsJoyScreen
 import com.joy.sandbox.feature.dungeon.impl.R
 import com.joy.sandbox.feature.dungeon.impl.presentation.theme.DungeonColors
@@ -82,6 +83,10 @@ private fun HandleCommands(
         when (command) {
             is Commands.OpenGame -> router.navigateTo(
                 DungeonGameJoyScreen.create(command.levelId.toLong()),
+            )
+
+            is Commands.OpenIntro -> router.navigateTo(
+                DungeonIntroJoyScreen.create(command.levelId.toLong()),
             )
 
             Commands.OpenLevels -> router.navigateTo(DungeonLevelsJoyScreen)

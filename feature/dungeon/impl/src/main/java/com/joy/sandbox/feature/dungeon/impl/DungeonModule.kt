@@ -5,10 +5,13 @@ import com.joy.sandbox.core.navigation.ScreenContentProvider
 import com.joy.sandbox.core.ui.ScreenKey
 import com.joy.sandbox.core.ui.ViewModelKey
 import com.joy.sandbox.feature.dungeon.api.DungeonGameJoyScreen
+import com.joy.sandbox.feature.dungeon.api.DungeonIntroJoyScreen
 import com.joy.sandbox.feature.dungeon.api.DungeonJoyScreen
 import com.joy.sandbox.feature.dungeon.api.DungeonLevelsJoyScreen
 import com.joy.sandbox.feature.dungeon.impl.presentation.game.DungeonGameScreenProvider
 import com.joy.sandbox.feature.dungeon.impl.presentation.game.DungeonGameViewModel
+import com.joy.sandbox.feature.dungeon.impl.presentation.intro.DungeonIntroScreenProvider
+import com.joy.sandbox.feature.dungeon.impl.presentation.intro.DungeonIntroViewModel
 import com.joy.sandbox.feature.dungeon.impl.presentation.levels.DungeonLevelsScreenProvider
 import com.joy.sandbox.feature.dungeon.impl.presentation.levels.DungeonLevelsViewModel
 import com.joy.sandbox.feature.dungeon.impl.presentation.title.DungeonTitleScreenProvider
@@ -25,8 +28,10 @@ class DungeonModule {
     @ViewModelKey(DungeonTitleViewModel::class)
     fun provideDungeonTitleViewModel(viewModel: DungeonTitleViewModel): ViewModel = viewModel
 
-    // TODO: intro screen and its ViewModel are temporarily excluded from navigation —
-    //  will be needed when the number of levels increases (see DungeonIntroJoyScreen).
+    @Provides
+    @IntoMap
+    @ViewModelKey(DungeonIntroViewModel::class)
+    fun provideDungeonIntroViewModel(viewModel: DungeonIntroViewModel): ViewModel = viewModel
 
     @Provides
     @IntoMap
@@ -47,6 +52,11 @@ class DungeonModule {
     @IntoMap
     @ScreenKey(DungeonLevelsJoyScreen.ROUTE)
     fun provideDungeonLevelsContent(): ScreenContentProvider = DungeonLevelsScreenProvider()
+
+    @Provides
+    @IntoMap
+    @ScreenKey(DungeonIntroJoyScreen.ROUTE_PATTERN)
+    fun provideDungeonIntroContent(): ScreenContentProvider = DungeonIntroScreenProvider()
 
     @Provides
     @IntoMap
