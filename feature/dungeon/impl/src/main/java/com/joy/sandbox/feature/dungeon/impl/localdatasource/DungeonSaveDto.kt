@@ -6,4 +6,7 @@ data class DungeonSaveDto(
     val bestTurns: Map<Int, Int>,
     val soundEnabled: Boolean,
     val vibrationEnabled: Boolean,
+    /** Тех. ключи ([com.joy.sandbox.core.dungeon.model.DungeonMechanic.id]) механик,
+     *  интро которых игрок уже прочитал. */
+    val seenMechanics: Set<String>,
 )

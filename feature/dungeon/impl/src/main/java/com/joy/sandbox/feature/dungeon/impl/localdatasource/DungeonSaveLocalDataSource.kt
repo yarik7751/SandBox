@@ -5,6 +5,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -46,10 +47,17 @@ class DungeonSaveLocalDataSource @Inject constructor(
         }.toMap(),
         soundEnabled = preferences[keySound] ?: DEFAULT_ENABLED,
         vibrationEnabled = preferences[keyVibration] ?: DEFAULT_ENABLED,
+        seenMechanics = preferences[keySeenMechanics] ?: emptySet(),
     )
 
     suspend fun saveUnlocked(level: Int) {
         dataStore.edit { it[keyUnlocked] = level }
+    }
+
+    suspend fun markMechanicSeen(mechanicId: String) {
+        dataStore.edit { prefs ->
+            prefs[keySeenMechanics] = prefs[keySeenMechanics].orEmpty() + mechanicId
+        }
     }
 
     suspend fun saveBest(levelId: Int, turns: Int) {
@@ -75,5 +83,6 @@ class DungeonSaveLocalDataSource @Inject constructor(
         val keyUnlocked = intPreferencesKey("unlocked")
         val keySound = booleanPreferencesKey("sound")
         val keyVibration = booleanPreferencesKey("vibration")
+        val keySeenMechanics = stringSetPreferencesKey("seen_mechanics")
     }
 }

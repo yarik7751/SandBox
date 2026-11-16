@@ -1,5 +1,6 @@
 package com.joy.sandbox.feature.dungeon.impl.data
 
+import com.joy.sandbox.core.dungeon.model.DungeonMechanic
 import com.joy.sandbox.feature.dungeon.impl.domain.DungeonProgress
 import com.joy.sandbox.feature.dungeon.impl.domain.DungeonProgressRepository
 import com.joy.sandbox.feature.dungeon.impl.localdatasource.DungeonSaveLocalDataSource
@@ -32,5 +33,9 @@ class DungeonProgressRepositoryImpl @Inject constructor(
 
     override suspend fun setVibrationEnabled(enabled: Boolean) {
         localDataSource.setVibrationEnabled(enabled)
+    }
+
+    override suspend fun markMechanicSeen(mechanic: DungeonMechanic) {
+        localDataSource.markMechanicSeen(mechanic.id)
     }
 }

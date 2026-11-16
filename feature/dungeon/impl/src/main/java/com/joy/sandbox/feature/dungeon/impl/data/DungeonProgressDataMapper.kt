@@ -1,5 +1,6 @@
 package com.joy.sandbox.feature.dungeon.impl.data
 
+import com.joy.sandbox.core.dungeon.model.DungeonMechanic
 import com.joy.sandbox.feature.dungeon.impl.domain.DungeonProgress
 import com.joy.sandbox.feature.dungeon.impl.localdatasource.DungeonSaveDto
 import javax.inject.Inject
@@ -12,5 +13,10 @@ class DungeonProgressDataMapper @Inject constructor() {
         bestTurns = dto.bestTurns,
         soundEnabled = dto.soundEnabled,
         vibrationEnabled = dto.vibrationEnabled,
+        // Неизвестные ключи (старые/битые данные) игнорируем, чтобы одна запись
+        // не ломала чтение всего сохранения.
+        seenMechanics = dto.seenMechanics.mapNotNull { id ->
+            DungeonMechanic.entries.firstOrNull { it.id == id }
+        }.toSet(),
     )
 }
