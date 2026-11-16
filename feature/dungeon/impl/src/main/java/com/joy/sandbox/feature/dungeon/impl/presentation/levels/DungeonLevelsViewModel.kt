@@ -12,9 +12,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
 /**
- * Экран выбора уровня: лента с локами и рекордами. Лента растёт с прогрессом:
- * видны пройденные уровни и следующий (залоченный) — подгрузка по факту
- * прохождения, а не вся сгенерированная последовательность сразу.
+ * Экран выбора уровня: лента со всеми локами (рукотворные + пак из assets)
+ * и рекордами. Замки и рекорды подтягиваются из потока прогресса — лента
+ * обновляется сама после победы и возврата с игрового экрана.
  */
 class DungeonLevelsViewModel @Inject constructor(
     private val progressRepository: DungeonProgressRepository,
@@ -41,26 +41,19 @@ class DungeonLevelsViewModel @Inject constructor(
 
     private fun loadProgress() {
         viewModelScope.launch {
-            val progress = progressRepository.load()
-            val maxVisibleId = progress.unlockedLevel + VISIBLE_AHEAD
-            stateFlow.value = DungeonLevelsUiModel(
-                levels = levelsInteractor.levels()
-                    .filter { it.id <= maxVisibleId }
-                    .map { level ->
-                        LevelItemUiModel(
-                            id = level.id,
-                            name = level.name,
-                            locked = level.id > progress.unlockedLevel,
-                            bestTurns = progress.bestTurns[level.id],
-                        )
-                    },
-            )
+            progressRepository.observe().collect { progress ->
+                stateFlow.value = DungeonLevelsUiModel(
+                    levels = levelsInteractor.levels()
+                        .map { level ->
+                            LevelItemUiModel(
+                                id = level.id,
+                                name = level.name,
+                                locked = level.id > progress.unlockedLevel,
+                                bestTurns = progress.bestTurns[level.id],
+                            )
+                        },
+                )
+            }
         }
-    }
-
-    private companion object {
-
-        /** Сколько уровней вперёд видно сверх разблокированного: следующий залоченный. */
-        const val VISIBLE_AHEAD = 1
     }
 }

@@ -1,13 +1,16 @@
 package com.joy.sandbox.feature.dungeon.impl.localdatasource
 
 import android.content.Context
+import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 
 private val Context.dungeonDataStore by preferencesDataStore(name = PREFERENCES_NAME)
 
@@ -27,20 +30,23 @@ class DungeonSaveLocalDataSource @Inject constructor(
 
     private val dataStore get() = context.dungeonDataStore
 
-    suspend fun load(): DungeonSaveDto {
-        val preferences = dataStore.data.first()
-        return DungeonSaveDto(
-            unlockedLevel = preferences[keyUnlocked] ?: DEFAULT_UNLOCKED,
-            // Рекорды хранятся по ключам best_<id> для любых id —
-            // лента уровней не ограничена рукотворной пятёркой.
-            bestTurns = preferences.asMap().entries.mapNotNull { (key, value) ->
-                val levelId = key.name.removePrefix(BEST_PREFIX).toIntOrNull()
-                if (levelId != null && value is Int) levelId to value else null
-            }.toMap(),
-            soundEnabled = preferences[keySound] ?: DEFAULT_ENABLED,
-            vibrationEnabled = preferences[keyVibration] ?: DEFAULT_ENABLED,
-        )
-    }
+    /** Изменения сохранения: подписчики (например, лента уровней) видят
+     *  новое состояние сразу после записи — без пересоздания экрана. */
+    fun observe(): Flow<DungeonSaveDto> = dataStore.data.map(::toDto)
+
+    suspend fun load(): DungeonSaveDto = dataStore.data.first().let(::toDto)
+
+    private fun toDto(preferences: Preferences): DungeonSaveDto = DungeonSaveDto(
+        unlockedLevel = preferences[keyUnlocked] ?: DEFAULT_UNLOCKED,
+        // Рекорды хранятся по ключам best_<id> для любых id —
+        // лента уровней не ограничена рукотворной пятёркой.
+        bestTurns = preferences.asMap().entries.mapNotNull { (key, value) ->
+            val levelId = key.name.removePrefix(BEST_PREFIX).toIntOrNull()
+            if (levelId != null && value is Int) levelId to value else null
+        }.toMap(),
+        soundEnabled = preferences[keySound] ?: DEFAULT_ENABLED,
+        vibrationEnabled = preferences[keyVibration] ?: DEFAULT_ENABLED,
+    )
 
     suspend fun saveUnlocked(level: Int) {
         dataStore.edit { it[keyUnlocked] = level }
