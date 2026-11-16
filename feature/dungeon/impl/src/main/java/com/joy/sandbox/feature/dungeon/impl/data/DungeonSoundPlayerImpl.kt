@@ -33,6 +33,10 @@ class DungeonSoundPlayerImpl @Inject constructor() : DungeonSoundPlayer {
         playTone(ToneGenerator.TONE_PROP_NACK, DENY_DURATION_MS)
     }
 
+    override fun playJammed() {
+        playTone(JAMMED_TONE, JAMMED_DURATION_MS)
+    }
+
     private fun playEvent(event: DungeonEvent) {
         when (event) {
             is DungeonEvent.Toggle -> if (event.open) {
@@ -86,5 +90,7 @@ class DungeonSoundPlayerImpl @Inject constructor() : DungeonSoundPlayer {
         const val DENY_DURATION_MS = 80
         const val ENEMY_DOOR_DURATION_MS = 260
         const val MELODY_NOTE_MS = 140
+        const val JAMMED_TONE = ToneGenerator.TONE_SUP_ERROR
+        const val JAMMED_DURATION_MS = 150
     }
 }

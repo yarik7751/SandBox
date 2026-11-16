@@ -100,8 +100,14 @@ class DungeonGameViewModel @Inject constructor(
     }
 
     fun onDoorClick(doorId: String) {
-        val door = DoorId.parse(doorId) ?: return
-        actor.attempt(DungeonAction.Toggle(door))
+        val door = DoorId.parse(doorId)
+        val state = gameState
+        if (door != null && state != null && door in state.level.jammed) {
+            vibrationController.pulseOnJammed()
+            soundPlayer.playJammed()
+        } else if (door != null) {
+            actor.attempt(DungeonAction.Toggle(door))
+        }
     }
 
     /**

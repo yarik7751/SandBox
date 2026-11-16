@@ -33,6 +33,8 @@ internal object DungeonColors {
     val DoorClosed = Color(0xFF6B4A2F)
     val DoorBar = Color(0xFF8A6238)
     val DoorOpen = Color(0xFF10131A)
+    val DoorJammed = Color(0xFF9AA3AB)
+    val DoorJammedBar = Color(0xFF6E777F)
     val Threat = Color(0x14D05040)
     val ThreatFrame = Color(0x80D05040)
     val ExitLight = Color(0x4DE8C95A)

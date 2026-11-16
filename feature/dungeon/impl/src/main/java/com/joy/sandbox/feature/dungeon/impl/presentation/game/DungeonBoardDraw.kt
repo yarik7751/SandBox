@@ -174,6 +174,7 @@ internal fun DrawScope.drawDoors(
     allDoorIds(model.width, model.height).forEach { id ->
         val door = DoorId.parse(id) ?: return@forEach
         val open = id in model.openDoors
+        val jammed = id in model.jammedDoors
         val center = doorCenter(door, cellWidth, cellHeight)
         val halfPad = minOf(cellWidth, cellHeight) * DOOR_VISUAL_PADDING
         val start: Offset
@@ -200,9 +201,9 @@ internal fun DrawScope.drawDoors(
                 strokeWidth = DOOR_OPEN_STROKE,
             )
         } else {
-            // деревянные створки
+            // створки: деревянные или стальные (заклинившие)
             drawLine(
-                color = DungeonColors.DoorClosed,
+                color = if (jammed) DungeonColors.DoorJammed else DungeonColors.DoorClosed,
                 start = start,
                 end = end,
                 strokeWidth = doorStroke,
@@ -219,7 +220,7 @@ internal fun DrawScope.drawDoors(
                 barEnd = center.copy(x = center.x + barHalf)
             }
             drawLine(
-                color = DungeonColors.DoorBar,
+                color = if (jammed) DungeonColors.DoorJammedBar else DungeonColors.DoorBar,
                 start = barStart,
                 end = barEnd,
                 strokeWidth = barStroke,

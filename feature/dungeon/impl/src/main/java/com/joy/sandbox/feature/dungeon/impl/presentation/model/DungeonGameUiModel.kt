@@ -53,6 +53,8 @@ data class DungeonGameUiModel(
     val hostages: List<HostageUiModel>,
     /** Открытые двери в строковом формате "h:1,2" / "v:1,2". */
     val openDoors: Set<String>,
+    /** Заклиневшие двери (те же строковые id); рисуются стальным цветом. */
+    val jammedDoors: Set<String>,
     val threatRooms: Set<PosUi>,
     val exitRoom: PosUi,
     val enemyTrapped: Boolean,

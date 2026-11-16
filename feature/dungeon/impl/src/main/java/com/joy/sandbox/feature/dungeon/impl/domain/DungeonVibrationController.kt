@@ -6,4 +6,7 @@ interface DungeonVibrationController {
     fun setEnabled(enabled: Boolean)
 
     fun pulseOnDeath()
+
+    /** Тап по заклиневшей двери: короткий импульс. */
+    fun pulseOnJammed()
 }

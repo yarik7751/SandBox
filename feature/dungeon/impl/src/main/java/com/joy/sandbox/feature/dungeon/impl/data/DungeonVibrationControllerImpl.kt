@@ -30,8 +30,19 @@ class DungeonVibrationControllerImpl @Inject constructor(
         )
     }
 
+    override fun pulseOnJammed() {
+        if (!enabled) return
+        vibrator?.vibrate(
+            VibrationEffect.createOneShot(
+                JAMMED_PULSE_MS,
+                VibrationEffect.DEFAULT_AMPLITUDE,
+            )
+        )
+    }
+
     private companion object {
 
         const val DEATH_PULSE_MS = 200L
+        const val JAMMED_PULSE_MS = 80L
     }
 }

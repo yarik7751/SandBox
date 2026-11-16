@@ -49,6 +49,7 @@ class DungeonUiMapper @Inject constructor() {
             )
         },
         openDoors = state.openDoors.map { it.toString() }.toSet(),
+        jammedDoors = state.level.jammed.map { it.toString() }.toSet(),
         threatRooms = DungeonEngine.threatRooms(state).map { it.toUi() }.toSet(),
         exitRoom = state.exitRoom.toUi(),
         enemyTrapped = state.enemyTrapped,
