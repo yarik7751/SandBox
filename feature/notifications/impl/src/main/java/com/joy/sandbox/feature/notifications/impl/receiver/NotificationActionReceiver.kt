@@ -7,6 +7,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.RemoteInput
 import com.joy.sandbox.feature.notifications.impl.R
+import com.joy.sandbox.feature.notifications.impl.data.LiveUpdateDismissState
 import com.joy.sandbox.feature.notifications.impl.data.NotificationIds
 
 /**
@@ -28,6 +29,9 @@ class NotificationActionReceiver : BroadcastReceiver() {
         when (intent.action) {
             ACTION_MARK_READ -> cancelNotification(context, NotificationIds.ACTIONS)
             ACTION_REPLY -> handleReply(context, intent)
+            // Пользователь смахнул/открепил Live Update — сценарий
+            // обязан прекратить обновления (требование системы).
+            ACTION_LIVE_UPDATE_DISMISSED -> LiveUpdateDismissState.markDismissed()
         }
     }
 
@@ -76,6 +80,10 @@ class NotificationActionReceiver : BroadcastReceiver() {
 
         /** Ключ, под которым RemoteInput кладёт введённый текст в Intent. */
         const val KEY_REPLY = "sandbox_notifications_key_reply"
+
+        /** Отмена Live Update пользователем (deleteIntent). */
+        const val ACTION_LIVE_UPDATE_DISMISSED =
+            "com.joy.sandbox.feature.notifications.impl.action.LIVE_UPDATE_DISMISSED"
 
         private const val REPLY_RESULT_TIMEOUT_MS = 5_000L
     }

@@ -54,6 +54,14 @@ class NotificationChannels @Inject constructor(
             description = context.getString(R.string.notifications_channel_low_description),
             importance = NotificationManager.IMPORTANCE_LOW,
         )
+        // Live Updates: продвигаемые ongoing-уведомления требуют канала
+        // с IMPORTANCE_HIGH, иначе hasPromotableCharacteristics() = false.
+        createChannel(
+            id = NotificationIds.CHANNEL_LIVE_UPDATES,
+            name = context.getString(R.string.notifications_channel_live_updates_name),
+            description = context.getString(R.string.notifications_channel_live_updates_description),
+            importance = NotificationManager.IMPORTANCE_HIGH,
+        )
     }
 
     /**

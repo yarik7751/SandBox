@@ -83,4 +83,29 @@
     <string name="notifications_custom_view_expanded">Раскрытый вариант layout — свайп вниз</string>
     <string name="notifications_delayed_title">Отложенное уведомление</string>
     <string name="notifications_delayed_text">Показано через 5 секунд после тапа</string>
+
+    <!-- Live Update (Android 16) -->
+    <string name="notifications_button_live_update">Live Update: доставка</string>
+    <string name="notifications_channel_live_updates_name">Live Updates (HIGH)</string>
+    <string name="notifications_channel_live_updates_description">Продвигаемые ongoing-уведомления Android 16</string>
+    <string name="notifications_live_update_title_accepted">Заказ принят</string>
+    <string name="notifications_live_update_text_accepted">Ресторан подтвердил заказ</string>
+    <string name="notifications_live_update_chip_accepted">Принят</string>
+    <string name="notifications_live_update_title_preparing">Заказ готовится</string>
+    <string name="notifications_live_update_text_preparing">Готовим вашу еду</string>
+    <string name="notifications_live_update_chip_preparing">Готовится</string>
+    <string name="notifications_live_update_title_en_route">Курьер в пути</string>
+    <string name="notifications_live_update_text_en_route">Едем к вам</string>
+    <string name="notifications_live_update_chip_en_route">В пути</string>
+    <string name="notifications_live_update_title_arriving">Курьер у двери</string>
+    <string name="notifications_live_update_text_arriving">Выйдите к подъезду</string>
+    <string name="notifications_live_update_chip_arriving">У двери</string>
+    <string name="notifications_live_update_title_delivered">Доставлено</string>
+    <string name="notifications_live_update_text_delivered">Приятного аппетита!</string>
+    <string name="notifications_live_update_chip_delivered">Готово</string>
+    <string name="notifications_live_update_status_available">Live Update: продвижение доступно (Android 16 QPR1+)</string>
+    <string name="notifications_live_update_status_not_allowed">Live Update: продвижение запрещено (настройка/прошивка) — будет обычное ongoing-уведомление</string>
+    <string name="notifications_live_update_status_unsupported">Live Update: нужен Android 16 — будет обычное ongoing-уведомление с прогрессом</string>
+    <string name="notifications_live_update_status_dismissed">Live Update отменён пользователем, сценарий остановлен</string>
+    <string name="notifications_live_update_hint">Тапни снова, чтобы отменить сценарий</string>
 </resources>

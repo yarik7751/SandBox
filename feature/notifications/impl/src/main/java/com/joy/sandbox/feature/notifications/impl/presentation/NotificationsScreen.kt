@@ -32,6 +32,7 @@ import com.joy.sandbox.core.navigation.router.JoyRouter
 import com.joy.sandbox.core.ui.SandBoxToolbar
 import com.joy.sandbox.core.ui.ViewModelFactory
 import com.joy.sandbox.feature.notifications.impl.R
+import com.joy.sandbox.feature.notifications.impl.domain.PromotionStatus
 import com.joy.sandbox.feature.notifications.impl.presentation.NotificationsViewModel.Commands
 import com.joy.sandbox.utils.observe
 
@@ -85,6 +86,7 @@ fun NotificationsScreen(
                     PermissionBlock(viewModel)
                 }
                 NotificationButtons(viewModel)
+                LiveUpdateStatus(state)
             }
         }
     }
@@ -183,6 +185,41 @@ private fun NotificationButtons(viewModel: NotificationsViewModel) {
         Button(onClick = viewModel::onDelayedClick) {
             Text(text = stringResource(R.string.notifications_button_delayed))
         }
+        Button(onClick = viewModel::onLiveUpdateClick) {
+            Text(text = stringResource(R.string.notifications_button_live_update))
+        }
+    }
+}
+
+/** Статус демо-сценария Live Update: возможность продвижения и подсказка. */
+@Composable
+private fun LiveUpdateStatus(state: NotificationsViewModel.State) {
+    val statusRes = when {
+        state.isLiveUpdateDismissedByUser -> R.string.notifications_live_update_status_dismissed
+        state.liveUpdatePromotion == PromotionStatus.AVAILABLE ->
+            R.string.notifications_live_update_status_available
+        state.liveUpdatePromotion == PromotionStatus.NOT_ALLOWED ->
+            R.string.notifications_live_update_status_not_allowed
+        state.liveUpdatePromotion == PromotionStatus.UNSUPPORTED ->
+            R.string.notifications_live_update_status_unsupported
+        else -> null
+    }
+    if (statusRes != null) {
+        Text(
+            modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp),
+            text = stringResource(statusRes),
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.bodySmall,
+        )
+    }
+    if (state.isLiveUpdateRunning) {
+        Text(
+            modifier = Modifier.padding(horizontal = 24.dp),
+            text = stringResource(R.string.notifications_live_update_hint),
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.primary,
+        )
     }
 }
 

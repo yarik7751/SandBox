@@ -1,6 +1,7 @@
 package com.joy.sandbox.feature.notifications.impl.domain
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
@@ -13,6 +14,7 @@ import android.graphics.Paint
 import android.graphics.Shader
 import android.os.Build
 import android.widget.RemoteViews
+import androidx.annotation.RequiresPermission
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.Person
@@ -114,6 +116,7 @@ class NotificationsInteractorImpl @Inject constructor(
         )
     }
 
+    @SuppressLint("MissingPermission")
     private fun notify(notificationId: Int, builder: NotificationCompat.Builder) {
         if (canNotify()) {
             notificationManager.notify(notificationId, builder.build())
@@ -237,7 +240,7 @@ class NotificationsInteractorImpl @Inject constructor(
         val textRes = if (isDone) {
             R.string.notifications_progress_done
         } else {
-            PROGRESS_TEXT_RES
+            R.string.notifications_progress_text
         }
         val builder = baseBuilder(NotificationIds.CHANNEL_DEFAULT)
             .setContentTitle(context.getString(R.string.notifications_progress_title))
@@ -424,7 +427,6 @@ class NotificationsInteractorImpl @Inject constructor(
         const val MESSAGE_THIRD_AGE_MS = 60_000L
         const val PROGRESS_MAX = 100
         const val PROGRESS_START = 0
-        const val PROGRESS_TEXT_RES = R.string.notifications_progress_text
         const val PROGRESS_DONE_TIMEOUT_MS = 3_000L
 
         const val BITMAP_WIDTH = 1024

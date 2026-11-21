@@ -14,6 +14,8 @@ object NotificationIds {
     const val CHANNEL_DEFAULT = "sandbox_notifications_default"
     const val CHANNEL_HIGH = "sandbox_notifications_high"
     const val CHANNEL_LOW = "sandbox_notifications_low"
+    /** Live Updates: ongoing progress-style, продвигаемое на lock screen (API 36.1). */
+    const val CHANNEL_LIVE_UPDATES = "sandbox_notifications_live_updates"
 
     /** Префикс каналов, создаваемых из кода (динамический id = префикс + счётчик). */
     const val CHANNEL_DYNAMIC_PREFIX = "sandbox_notifications_dynamic_"
@@ -35,6 +37,7 @@ object NotificationIds {
     const val REPLY = 1014
     const val CUSTOM = 1015
     const val DELAYED = 1016
+    const val LIVE_UPDATE = 1017
 
     // Дочерние уведомления группы должны иметь РАЗНЫЕ id.
     const val GROUP_CHILD_FIRST = 1101
@@ -49,4 +52,5 @@ object NotificationIds {
     /** requestCode для PendingIntent'ов receiver'а — должен быть уникален на action. */
     const val REQUEST_CODE_MARK_READ = 1
     const val REQUEST_CODE_REPLY = 2
+    const val REQUEST_CODE_LIVE_UPDATE_DISMISSED = 3
 }

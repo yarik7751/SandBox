@@ -6,6 +6,9 @@
     <uses-permission android:name="android.permission.VIBRATE" />
     <!-- С Android 13 (API 33) показ уведомлений требует runtime-разрешения. -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- Live Updates (Android 16 QPR1): продвижение ongoing-уведомления
+         на экран блокировки и в чип статус-бара. -->
+    <uses-permission android:name="android.permission.POST_PROMOTED_NOTIFICATIONS" />
 
     <application
         android:allowBackup="true"

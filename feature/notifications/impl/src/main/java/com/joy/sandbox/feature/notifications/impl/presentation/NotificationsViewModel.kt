@@ -3,7 +3,10 @@ package com.joy.sandbox.feature.notifications.impl.presentation
 import androidx.lifecycle.viewModelScope
 import com.joy.sandbox.core.ui.BaseViewModel
 import com.joy.sandbox.core.ui.CommandFlow
+import com.joy.sandbox.feature.notifications.impl.domain.LiveUpdateInteractor
+import com.joy.sandbox.feature.notifications.impl.domain.LiveUpdateStage
 import com.joy.sandbox.feature.notifications.impl.domain.NotificationsInteractor
+import com.joy.sandbox.feature.notifications.impl.domain.PromotionStatus
 import javax.inject.Inject
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -23,9 +26,13 @@ import kotlinx.coroutines.launch
 @Suppress("TooManyFunctions")
 class NotificationsViewModel @Inject constructor(
     private val interactor: NotificationsInteractor,
+    private val liveUpdateInteractor: LiveUpdateInteractor,
 ) : BaseViewModel() {
 
     private var progressJob: Job? = null
+
+    /** Job демо-сценария Live Update («доставка» из 5 этапов). */
+    private var liveUpdateJob: Job? = null
 
     /** Показано ли ongoing-уведомление (для демо обновления по повторному тапу). */
     private var isOngoingShown = false
@@ -40,6 +47,10 @@ class NotificationsViewModel @Inject constructor(
 
     data class State(
         val isPermissionGranted: Boolean = false,
+        /** Статус продвижения в Live Update (null — сценарий не запускался). */
+        val liveUpdatePromotion: PromotionStatus? = null,
+        val isLiveUpdateRunning: Boolean = false,
+        val isLiveUpdateDismissedByUser: Boolean = false,
     )
 
     sealed interface Commands {
@@ -126,9 +137,62 @@ class NotificationsViewModel @Inject constructor(
 
     fun onDelayedClick() = interactor.showDelayed(DELAYED_NOTIFICATION_MS)
 
+    // ---- Live Update (Android 16) ----
+
+    /**
+     * Демо-сценарий «доставка еды»: показывает Live Update и тикает
+     * этапы таймером. Повторный тап останавливает сценарий и убирает
+     * уведомление. Если пользователь сам убрал уведомление — тикаем
+     * дальше нельзя (контракт Live Updates), останавливаемся.
+     */
+    fun onLiveUpdateClick() {
+        if (liveUpdateJob != null) {
+            stopLiveUpdateScenario(cancelNotification = true)
+            return
+        }
+        liveUpdateJob = viewModelScope.launch {
+            liveUpdateInteractor.show(LiveUpdateStage.ACCEPTED)
+            state.value = state.value.copy(
+                liveUpdatePromotion = liveUpdateInteractor.promotionStatus(),
+                isLiveUpdateRunning = true,
+                isLiveUpdateDismissedByUser = false,
+            )
+            var stage: LiveUpdateStage? = LiveUpdateStage.ACCEPTED
+            while (stage != null) {
+                delay(LIVE_UPDATE_STAGE_DELAY_MS)
+                // Пользователь убрал уведомление — продолжать обновлять
+                // нельзя (контракт Live Updates), единственный break здесь.
+                if (liveUpdateInteractor.consumeUserDismissal()) {
+                    state.value = state.value.copy(
+                        isLiveUpdateRunning = false,
+                        isLiveUpdateDismissedByUser = true,
+                    )
+                    break
+                }
+                stage = stage.next()
+                stage?.let(liveUpdateInteractor::show)
+            }
+            liveUpdateJob = null
+            state.value = state.value.copy(isLiveUpdateRunning = false)
+        }
+    }
+
     override fun onCleared() {
         // Запущенная «загрузка» не должна тикать для мёртвого экрана.
         progressJob?.cancel()
+        // Live Update живёт своей жизнью в шторке — при уходе просто
+        // прекращаем сценарий, но уведомление НЕ отменяем: пусть доживёт
+        // до конца, как настоящий Live Update из реального приложения.
+        stopLiveUpdateScenario(cancelNotification = false)
+    }
+
+    private fun stopLiveUpdateScenario(cancelNotification: Boolean) {
+        liveUpdateJob?.cancel()
+        liveUpdateJob = null
+        if (cancelNotification) {
+            liveUpdateInteractor.cancel()
+        }
+        state.value = state.value.copy(isLiveUpdateRunning = false)
     }
 
     private fun refreshPermissionState() {
@@ -143,5 +207,8 @@ class NotificationsViewModel @Inject constructor(
         const val PROGRESS_TICK_DELAY_MS = 200L
 
         const val DELAYED_NOTIFICATION_MS = 5_000L
+
+        /** Длительность этапа сценария доставки (совпадает с интерактором). */
+        const val LIVE_UPDATE_STAGE_DELAY_MS = 5_000L
     }
 }

@@ -5,6 +5,8 @@ import com.joy.sandbox.core.navigation.ScreenContentProvider
 import com.joy.sandbox.core.ui.ScreenKey
 import com.joy.sandbox.core.ui.ViewModelKey
 import com.joy.sandbox.feature.notifications.api.NotificationsJoyScreen
+import com.joy.sandbox.feature.notifications.impl.domain.LiveUpdateInteractor
+import com.joy.sandbox.feature.notifications.impl.domain.LiveUpdateInteractorImpl
 import com.joy.sandbox.feature.notifications.impl.domain.NotificationsInteractor
 import com.joy.sandbox.feature.notifications.impl.domain.NotificationsInteractorImpl
 import com.joy.sandbox.feature.notifications.impl.presentation.NotificationsScreenProvider
@@ -31,4 +33,9 @@ class NotificationsModule {
     fun provideNotificationsInteractor(
         impl: NotificationsInteractorImpl,
     ): NotificationsInteractor = impl
+
+    @Provides
+    fun provideLiveUpdateInteractor(
+        impl: LiveUpdateInteractorImpl,
+    ): LiveUpdateInteractor = impl
 }
