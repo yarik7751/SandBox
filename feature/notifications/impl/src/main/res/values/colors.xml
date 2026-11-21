@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Цвета кастомного layout уведомления (RemoteViews) -->
+    <color name="notifications_custom_background">#FF3F51B5</color>
+    <color name="notifications_custom_text">#FFFFFFFF</color>
+    <color name="notifications_custom_accent">#FFFFC107</color>
+</resources>

@@ -43,3 +43,6 @@ include(":feature:websocket:impl")
 
 include(":feature:letters:api")
 include(":feature:letters:impl")
+
+include(":feature:notifications:api")
+include(":feature:notifications:impl")

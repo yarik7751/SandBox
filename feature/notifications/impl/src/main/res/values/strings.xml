@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="notifications_title">Уведомления</string>
+
+    <!-- Разрешение POST_NOTIFICATIONS (нужно с Android 13) -->
+    <string name="notifications_permission_needed">Без разрешения уведомления не будут показаны (Android 13+)</string>
+    <string name="notifications_button_request_permission">Запросить разрешение</string>
+    <string name="notifications_button_app_settings">Настройки приложения</string>
+
+    <!-- Кнопки экрана — по одной на каждый вид уведомления -->
+    <string name="notifications_button_basic">Базовое</string>
+    <string name="notifications_button_heads_up">Heads-up (канал HIGH)</string>
+    <string name="notifications_button_low">Тихое (канал LOW)</string>
+    <string name="notifications_button_dynamic_channel">Новый канал из кода</string>
+    <string name="notifications_button_channel_settings">Настройки канала</string>
+    <string name="notifications_button_big_text">BigTextStyle</string>
+    <string name="notifications_button_big_picture">BigPictureStyle</string>
+    <string name="notifications_button_inbox">InboxStyle</string>
+    <string name="notifications_button_messaging">MessagingStyle</string>
+    <string name="notifications_button_progress">Прогресс (загрузка)</string>
+    <string name="notifications_button_indeterminate">Бесконечный прогресс</string>
+    <string name="notifications_button_ongoing">Ongoing (обновление)</string>
+    <string name="notifications_button_group">Группа из 4-х</string>
+    <string name="notifications_button_actions">Кнопка действия</string>
+    <string name="notifications_button_reply">Быстрый ответ</string>
+    <string name="notifications_button_custom">Кастомный layout</string>
+    <string name="notifications_button_delayed">Через 5 секунд</string>
+
+    <!-- Тексты самих уведомлений -->
+    <string name="notifications_channel_default_name">Основной (DEFAULT)</string>
+    <string name="notifications_channel_default_description">Звук и вибрация по умолчанию</string>
+    <string name="notifications_channel_high_name">Важный (HIGH)</string>
+    <string name="notifications_channel_high_description">Heads-up: выпадает поверх экрана со звуком</string>
+    <string name="notifications_channel_low_name">Тихий (LOW)</string>
+    <string name="notifications_channel_low_description">Без звука — только в шторке</string>
+    <string name="notifications_channel_created_title">Канал создан из кода</string>
+    <string name="notifications_channel_created_text">Новый канал появился в настройках приложения</string>
+    <string name="notifications_basic_title">Базовое уведомление</string>
+    <string name="notifications_basic_text">Тап откроет приложение. Бейдж на иконке — число 7.</string>
+    <string name="notifications_heads_up_title">Важно!</string>
+    <string name="notifications_heads_up_text">Выпало поверх экрана, потому что канал HIGH (API 26+)</string>
+    <string name="notifications_low_title">Тихое уведомление</string>
+    <string name="notifications_low_text">Без звука и вибрации — только в шторке</string>
+    <string name="notifications_big_text_title">Длинный текст</string>
+    <string name="notifications_big_text_summary">Свайп вниз раскрывает весь текст</string>
+    <string name="notifications_big_text_content">Раскрытый текст уведомления. До Android N (API 24) для этого нужен&#10;кастомный layout; теперь достаточно BigTextStyle. Контентная строка в свёрнутом виде всё равно&#10;обрезается, поэтому для «продолжения» используется summaryText — он показывается под заголовком&#10;раскрытой версии. BigTextStyle — самый частый стиль в реальных приложениях.</string>
+    <string name="notifications_big_picture_title">Картинка</string>
+    <string name="notifications_big_picture_summary">Свайп вниз покажет большую картинку</string>
+    <string name="notifications_inbox_title">Почта</string>
+    <string name="notifications_inbox_line_1">Анна: встреча в среду в 15:00</string>
+    <string name="notifications_inbox_line_2">Олег: прислал отчёт за октябрь</string>
+    <string name="notifications_inbox_line_3">Поддержка: тикет #482 закрыт</string>
+    <string name="notifications_messaging_title">Переписка</string>
+    <string name="notifications_messaging_me">Я</string>
+    <string name="notifications_messaging_friend">Анна</string>
+    <string name="notifications_messaging_msg_1">Привет! Как дела?</string>
+    <string name="notifications_messaging_msg_2">Отлично, разбираюсь с уведомлениями</string>
+    <string name="notifications_messaging_msg_3">Смотри, какой MessagingStyle красивый</string>
+    <string name="notifications_progress_title">Загрузка файла</string>
+    <string name="notifications_progress_text">%1$d%%</string>
+    <string name="notifications_progress_done">Загрузка завершена</string>
+    <string name="notifications_indeterminate_title">Синхронизация…</string>
+    <string name="notifications_indeterminate_text">Неопределённый прогресс (indeterminate)</string>
+    <string name="notifications_ongoing_title">Ongoing-уведомление</string>
+    <string name="notifications_ongoing_text_first">Не смахнёшь — только крестик или действие</string>
+    <string name="notifications_ongoing_text_updated">Обновлено тем же id, копия не создалась</string>
+    <string name="notifications_group_child_title">Сообщение</string>
+    <string name="notifications_group_summary_title">4 новых уведомления</string>
+    <string name="notifications_group_summary_text">Стяни вниз, чтобы развернуть стопку</string>
+    <string name="notifications_actions_title">Напоминание</string>
+    <string name="notifications_actions_text">Кнопка ниже отменит это уведомление</string>
+    <string name="notifications_actions_mark_read">Прочитано</string>
+    <string name="notifications_reply_title">Новое сообщение от Анны</string>
+    <string name="notifications_reply_text">Ответь прямо из шторки</string>
+    <string name="notifications_reply_action">Ответить</string>
+    <string name="notifications_reply_hint">Ваш ответ</string>
+    <string name="notifications_reply_sent_title">Ответ отправлен</string>
+    <string name="notifications_reply_sent_text">Ты написал: %1$s</string>
+    <string name="notifications_custom_title">Кастомный layout</string>
+    <string name="notifications_custom_text">RemoteViews вместо стандартного шаблона</string>
+    <string name="notifications_custom_view_title">Кастомное уведомление</string>
+    <string name="notifications_custom_view_text">Это RemoteViews-layout, а не стандартный шаблон</string>
+    <string name="notifications_custom_view_expanded">Раскрытый вариант layout — свайп вниз</string>
+    <string name="notifications_delayed_title">Отложенное уведомление</string>
+    <string name="notifications_delayed_text">Показано через 5 секунд после тапа</string>
+</resources>

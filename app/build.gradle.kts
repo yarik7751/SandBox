@@ -51,6 +51,7 @@ dependencies {
     implementation(project(":feature:dungeon:impl"))
     implementation(project(":feature:websocket:impl"))
     implementation(project(":feature:letters:impl"))
+    implementation(project(":feature:notifications:impl"))
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)

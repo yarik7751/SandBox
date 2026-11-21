@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!--
+        Receiver для действий из уведомлений (кнопка «Прочитано», быстрый ответ).
+        Манифест библиотеки смержится в манифест приложения, регистрация
+        в коде не нужна. exported="false" — снаружи его никто не вызовет,
+        только PendingIntent'ы, которые создаёт само приложение.
+    -->
+    <application>
+        <receiver
+            android:name=".receiver.NotificationActionReceiver"
+            android:exported="false" />
+    </application>
+
+</manifest>

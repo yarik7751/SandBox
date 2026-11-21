@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Свёрнутый вариант кастомного уведомления.
+    ВАЖНО: размеры ограничены — высота collapsed-вида до 64dp,
+    поэтому layout должен быть компактным (LinearLayout, без вложенности).
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/notifications_custom_background"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:padding="12dp">
+
+    <ImageView
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:contentDescription="@string/notifications_custom_title"
+        android:src="@drawable/ic_notification" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/notifications_custom_view_title"
+            android:textColor="@color/notifications_custom_text"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/notifications_custom_view_text"
+            android:textColor="@color/notifications_custom_text"
+            android:textSize="12sp" />
+    </LinearLayout>
+</LinearLayout>

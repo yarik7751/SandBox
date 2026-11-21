@@ -4,4 +4,5 @@
     <string name="home_button_websocket">WebSocket</string>
     <string name="home_button_letters">Буквы</string>
     <string name="home_button_dungeon">Подземелье</string>
+    <string name="home_button_notifications">Уведомления</string>
 </resources>

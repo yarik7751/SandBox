@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Раскрытый вариант кастомного уведомления — виден после свайпа вниз. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/notifications_custom_background"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <ImageView
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:contentDescription="@string/notifications_custom_title"
+        android:src="@drawable/ic_notification" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="@string/notifications_custom_view_expanded"
+        android:textColor="@color/notifications_custom_accent"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+</LinearLayout>

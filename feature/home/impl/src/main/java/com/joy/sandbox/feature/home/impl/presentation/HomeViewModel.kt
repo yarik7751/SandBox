@@ -23,6 +23,8 @@ class HomeViewModel @Inject constructor() : BaseViewModel() {
         data object OpenLetters : Commands
 
         data object OpenDungeon : Commands
+
+        data object OpenNotifications : Commands
     }
 
     fun onWebSocketClick() {
@@ -35,5 +37,9 @@ class HomeViewModel @Inject constructor() : BaseViewModel() {
 
     fun onDungeonClick() {
         commandsFlow.tryEmit(Commands.OpenDungeon)
+    }
+
+    fun onNotificationsClick() {
+        commandsFlow.tryEmit(Commands.OpenNotifications)
     }
 }

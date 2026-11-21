@@ -23,6 +23,7 @@ import com.joy.sandbox.feature.dungeon.api.DungeonJoyScreen
 import com.joy.sandbox.feature.home.impl.R
 import com.joy.sandbox.feature.home.impl.presentation.HomeViewModel.Commands
 import com.joy.sandbox.feature.letters.api.LettersMainJoyScreen
+import com.joy.sandbox.feature.notifications.api.NotificationsJoyScreen
 import com.joy.sandbox.feature.websocket.api.WebSocketJoyScreen
 import com.joy.sandbox.utils.observe
 
@@ -73,6 +74,12 @@ fun HomeScreen(
                 ) {
                     Text(text = stringResource(R.string.home_button_dungeon))
                 }
+                Button(
+                    modifier = Modifier.padding(top = 8.dp),
+                    onClick = viewModel::onNotificationsClick,
+                ) {
+                    Text(text = stringResource(R.string.home_button_notifications))
+                }
             }
         }
     }
@@ -93,6 +100,7 @@ private fun HandleCommands(
             Commands.OpenWebSocket -> router.navigateTo(WebSocketJoyScreen)
             Commands.OpenLetters -> router.navigateTo(LettersMainJoyScreen)
             Commands.OpenDungeon -> router.navigateTo(DungeonJoyScreen)
+            Commands.OpenNotifications -> router.navigateTo(NotificationsJoyScreen)
         }
     }
 }
